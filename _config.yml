@@ -1,0 +1,13 @@
+name: Edgesense
+description: Online conversations as networks
+meta_description: "Edgesense is an easy-to-install social network analysis software for common CMSs"
+
+markdown: redcarpet
+pygments: true
+logo: false
+paginate: 5
+paginate_path: "blog/page:num"
+
+# Details for the RSS feed generator
+url:            'http://'
+author:         'Wikitalia'

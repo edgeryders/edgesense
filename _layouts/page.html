@@ -1,0 +1,29 @@
+---
+layout: default
+---
+
+<main class="content" role="main">
+    <article class="post">
+        <header class="post-header">
+            <a id="blog-logo" href="{{site.baseurl}}">
+                {% if site.logo %}
+                    <img src="{{site.logo}}" alt="{{ site.name }}" />
+                {% else %}
+                    <span class="blog-title">{{ site.name }}</span>
+                {%endif%} 
+            </a>
+            <span id="post-logos">
+                <a href="http://www.wikitalia.it"><img src="/assets/images/wikitalia.png" alt="Wikitalia" /></a> &nbsp; 
+                <a href="http://catalyst-fp7.eu/"><img src="/assets/images/catalyst-logo.png" alt="CATALYST" /></a>
+            </span>
+        </header>
+
+        <h1 class="post-title">{{ page.title }}</h1>
+
+        <section class="post-content">
+            {{content}}
+        </section>
+
+    </article>
+
+</main>

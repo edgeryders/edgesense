@@ -1,0 +1,50 @@
+---
+layout: default
+title: Home
+cover: true
+---
+
+<header class="site-head" {% if page.cover %} style="background-image: url({{ page.cover }})"{% endif %}>
+    <div class="vertical">
+        <div class="site-head-content" class="inner">
+            {% if page.logo %}
+                <a class="blog-logo" href="{{ site.baseurl }}">
+                    <img src="{{ page.logo }}" alt="Blog Logo" />
+                </a>
+            {% endif %}
+            <h1 class="blog-title">{{ site.name }}</h1>
+            <h2 class="blog-description"> 
+                {{ site.description }}. 
+            </h2>
+        </div>
+    </div>
+</header>
+
+<main class="content" role="main">
+    <div class="post">
+    {% capture hometext %}{% include hometext.md %}{% endcapture %}
+    {{ hometext | markdownify }}
+    </div>
+
+    {% for post in site.posts limit:3 %}
+
+    <article class="post">
+        <header class="post-header">
+            <span class="post-meta"><time datetime="{{ post.date | date:"%Y-%m-%d" }}">{{ post.date | date_to_string }}</time> {{!tags prefix="on "}}</span>
+            <h2 class="post-title"><a href="{{ post.url }}">{{ post.title }}</a></h2>
+
+        </header>
+        <section class="post-excerpt">
+            {{ post.excerpt }}
+        </section>
+    </article>
+
+    {% endfor %}
+
+    <nav class="pagination" role="pagination">
+        &nbsp;
+        <a class="older-posts" href="/blog" title="Archive">Archive</a>
+    </nav>
+    
+
+</main>
