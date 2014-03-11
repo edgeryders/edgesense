@@ -752,7 +752,7 @@ margin on the iframe, cause it breaks stuff. */
     text-align: center;
     line-height: 2.4rem;
     border-radius: 50px;
-    background: url(/assets/images/w_bn_small.png) #fff no-repeat center center;
+    background: url(assets/images/w_bn_small.png) #fff no-repeat center center;
     transition: box-shadow 0.5s;
     
 }
