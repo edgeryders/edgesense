@@ -10,6 +10,6 @@ We know online communities have interesting properties, but through this tool we
 
 ![The Network]({{ site.baseurl }}/assets/images/Full-network-2-624x624.png)
 
-The tool will provide insights to [help the community manager get a sense of what is happening in the community](/online_conversations_as_networks.html).
+The tool will provide insights to [help the community manager get a sense of what is happening in the community]({{ site.baseurl }}/online_conversations_as_networks.html).
 
 Stay tuned for more!
