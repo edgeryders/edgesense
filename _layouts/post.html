@@ -16,8 +16,8 @@ archive: false
                 {%endif%} 
             </a>
             <span id="post-logos">
-                <a href="http://www.wikitalia.it"><img src="assets/images/wikitalia.png" alt="Wikitalia" /></a> &nbsp; 
-                <a href="http://catalyst-fp7.eu/"><img src="assets/images/catalyst-logo.png" alt="CATALYST" /></a>
+                <a href="http://www.wikitalia.it"><img src="{{ site.baseurl }}/assets/images/wikitalia.png" alt="Wikitalia" /></a> &nbsp; 
+                <a href="http://catalyst-fp7.eu/"><img src="{{ site.baseurl }}/assets/images/catalyst-logo.png" alt="CATALYST" /></a>
             </span>
         </header>
         
@@ -46,7 +46,7 @@ archive: false
         	<!-- If we want to display author's name and bio -->
             {% if page.author %}
                 <section class="author">
-                	<header><img class="profile" src="assets/images/{% if page.author.photo %}{{ page.author.photo }}{% else %}w_color.png{% endif %}"></header>
+                	<header><img class="profile" src="{{ site.baseurl }}/assets/images/{% if page.author.photo %}{{ page.author.photo }}{% else %}w_color.png{% endif %}"></header>
                 	<article>
                 		<!-- Author Name -->
                     	<h4> {{ page.author.name }} </h4>

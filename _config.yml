@@ -8,6 +8,9 @@ logo: false
 paginate: 5
 paginate_path: "blog/page:num"
 
+baseurl: /edgesense
+
 # Details for the RSS feed generator
 url:            'http://'
 author:         'Wikitalia'
+

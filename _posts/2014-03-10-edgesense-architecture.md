@@ -21,7 +21,7 @@ The workflow of the tool would be something like:
     - compute the metrics and write the computed metrics in a json file (to be used by the SNA panel)
     - the SNA panel has network and metrics visualizations that read the jsons produced by the analytics scripts and present them to the community manager
 
-![The Edgesense Component Architecture](assets/images/sna_architecture.png)
+![The Edgesense Component Architecture]({{ site.baseurl }}/assets/images/sna_architecture.png)
 
 The configuration wizard, the panel and the data visualizations are implemented inside the drupal context (in one or more drupal modules).
 

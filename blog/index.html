@@ -1,7 +1,8 @@
 ---
 layout: default
 title: Home
-cover: true
+cover: false
+about: 'about.html'
 ---
 
 <header class="site-head" {% if page.cover %} style="background-image: url({{ page.cover }})"{% endif %}>
@@ -12,7 +13,7 @@ cover: true
                     <img src="{{ page.logo }}" alt="Blog Logo" />
                 </a>
             {% endif %}
-            <h1 class="blog-title">{{ site.name }}</h1>
+            <h1 class="blog-title"><a href="{{ site.baseurl }}">{{ site.name }}</a></h1>
             <h2 class="blog-description"> 
                 {{ site.description }}. 
             </h2>
@@ -21,12 +22,8 @@ cover: true
 </header>
 
 <main class="content" role="main">
-    <div class="post">
-    {% capture hometext %}{% include hometext.md %}{% endcapture %}
-    {{ hometext | markdownify }}
-    </div>
 
-    {% for post in site.posts limit:3 %}
+    {% for post in paginator.posts %}
 
     <article class="post">
         <header class="post-header">
@@ -42,8 +39,20 @@ cover: true
     {% endfor %}
 
     <nav class="pagination" role="pagination">
-        &nbsp;
-        <a class="older-posts" href="{{ site.baseurl }}/blog" title="Archive">Archive</a>
+
+        {% if paginator.previous_page %}
+          {% if paginator.previous_page == 1 %}
+          <a class="newer-posts" href="{{ site.baseurl }}/blog" title="Previous Page">&laquo; Newer Posts</a>
+          {% else %}
+          <a class="newer-posts" href="{{ site.baseurl }}/blog/page{{ paginator.previous_page }}/" title="Previous Page">&laquo; Newer Posts</a>
+          {% endif %}
+        {% endif %}
+
+        <span class="page-number"> Page {{paginator.page}} of {{paginator.total_pages}} </span>
+        
+        {% if paginator.next_page %} 
+        <a class="older-posts" href="{{ site.baseurl }}/blog/page{{ paginator.next_page }}/" title="Next Page">Older Posts &raquo;</a>
+        {% endif %} 
     </nav>
     
 
