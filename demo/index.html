@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Edgesense | Dashboard</title>
+        <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+        <!-- bootstrap 3.0.2 -->
+        <link href="css/bootstrap.min.css" rel="stylesheet" type="text/css" />
+        <!-- font Awesome -->
+        <link href="css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+        <!-- Ionicons -->
+        <link href="css/ionicons.min.css" rel="stylesheet" type="text/css" />
+        <!-- Ion Slider -->
+        <link href="css/ionslider/ion.rangeSlider.css" rel="stylesheet" type="text/css" />
+        <!-- ion slider Nice -->
+        <link href="css/ionslider/ion.rangeSlider.skinNice.css" rel="stylesheet" type="text/css" />
+        <!-- Rickshaw style -->
+        <link href="css/rickshaw.min.css" rel="stylesheet" type="text/css" />
+        <!-- Theme style -->
+        <link href="css/AdminLTE.css" rel="stylesheet" type="text/css" />
+        <!-- dashboard customizations -->
+        <link href="css/dashboard.css" rel="stylesheet" type="text/css" />
+
+        <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
+        <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
+        <!--[if lt IE 9]>
+          <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
+          <script src="https://oss.maxcdn.com/libs/respond.js/1.3.0/respond.min.js"></script>
+        <![endif]-->
+    </head>
+    <body class="skin-blue">
+        <div class="wrapper row-offcanvas row-offcanvas-left">
+
+            <!-- Right side column. Contains the navbar and content of the page -->
+            <aside class="right-side strech">                
+                <!-- Content Header (Page header) -->
+                <section class="content-header">
+                    <h1>
+                        Edgesense
+                        <small>dashboard</small>
+                    </h1>
+                    <ol class="breadcrumb">
+                        <li><i class="fa fa-clock-o"></i> <span id="generated-ts">&nbsp;</span></li>
+                    </ol>
+                </section>
+
+                <!-- Main content -->
+                <section class="content">
+                    <div class="row margin">
+                        <div class="col-sm-11">
+                            <input id="date_range" type="text" name="date_range" value="" />
+                        </div>
+                        <div class="moderators-check-cnt col-sm-1 input-group input-group-sm"><input id="moderators-check" checked="checked" type="checkbox" class="input-small">&nbsp;Moderators
+                        </div>
+                    </div>
+
+                    <!-- Network metrics -->
+                    <div class="row">
+                        <div class="col-lg-3 col-xs-6">
+                            
+                            <div class="small-box bg-aqua metric" data-metric-name="avg_distance" data-metric-round="2">
+                                <div class="inner">
+                                    <h3 class="value">
+                                        
+                                    </h3>
+                                    <p>
+                                        Average distance
+                                    </p>
+                                </div>
+                                <div class="minichart">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-xs-6">
+                            
+                            <div class="small-box bg-green metric" data-metric-name="avg_degree" data-metric-round="2">
+                                <div class="inner">
+                                    <h3 class="value">
+                                        
+                                    </h3>
+                                    <p>
+                                        Average degree
+                                    </p>
+                                </div>
+                                <div class="minichart">
+                                </div>
+                            </div>
+                        </div>
+                        <!-- <div class="col-lg-3 col-xs-6">
+                            <div class="small-box bg-purple metric" data-metric-name="avg_betweenness" data-metric-round="3">
+                                <div class="inner">
+                                    <h3 class="value">
+                                        
+                                    </h3>
+                                    <p>
+                                        Average betweenness
+                                    </p>
+                                </div>
+                                <div class="minichart">
+                                </div>
+                            </div>
+                        </div> -->
+                        <div class="col-lg-3 col-xs-6">
+                            
+                            <div class="small-box bg-maroon metric" data-metric-name="louvain_modularity" data-metric-round="3">
+                                <div class="inner">
+                                    <h3 class="value">
+                                        
+                                    </h3>
+                                    <p>
+                                        Modularity
+                                    </p>
+                                </div>
+                                <div class="chart minichart">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-lg-3 col-xs-6">
+                            
+                            <div class="small-box bg-yellow metric" data-metric-name="density" data-metric-round="3">
+                                <div class="inner">
+                                    <h3 class="value">
+                                        
+                                    </h3>
+                                    <p>
+                                        Density
+                                    </p>
+                                </div>
+                                <div class="chart minichart">
+                                </div>
+                            </div>
+                        </div>
+                    </div><!-- /Network metrics -->
+
+                    <!-- Network graph -->
+                    <div class="row">
+                        
+                        <div class="col-lg-12">
+                            <div class="box" id="network-container">
+                                <div class="box-tools">
+                                   <button id="network-lock" class="btn btn-danger btn-sm refresh-btn" data-toggle="tooltip" title="" data-original-title="Unlock">
+                                       <i class="fa fa-lock"></i>
+                                   </button>
+                                   <button class="btn btn-info btn-sm popover-toggle" data-toggle="popover" id="fa-filter-btn"><i class="fa fa-filter"></i></button>
+                                   <div class="popover-content pull-right hide" id="network-filter">
+                                   </div>
+                               </div>
+                                <div id="network"></div>
+                            </div><!-- /#network -->
+                        </div>
+                    </div><!-- /Network graph -->
+
+                    <!-- Content metrics -->
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div id="posts_by_contributor" class="box box-info multi-metric " data-metric-name="user:posts_count,team:posts_count" data-metric-legend="Community,Moderators" >
+                                <div class="box-header">
+                                    <i class="fa fa-comments"></i>
+                                    <h3 class="box-title">Posts by contributor</h3>
+                                </div><!-- /.box-header -->
+                                <div class="box-body chart-cnt" >
+                                </div><!-- /.box-body -->
+                                <div class="box-body chart-legend"></div>
+                            </div><!-- /.box -->
+
+                        </div><!-- /.col -->
+                        <div class="col-md-4">
+
+                            <div id="comments_by_contributor" class="box box-info multi-metric " data-metric-name="user:comments_count,team:comments_count" data-metric-legend="Community,Moderators" >
+                                <div class="box-header">
+                                    <i class="fa fa-comments"></i>
+                                    <h3 class="box-title">Comments by contributor</h3>
+                                </div><!-- /.box-header -->
+                                <div class="box-body chart-cnt" >
+                                </div><!-- /.box-body -->
+                                <div class="box-body chart-legend"></div>
+                            </div><!-- /.box -->
+
+                        </div><!-- /.col -->
+                        <div class="col-md-4">
+
+                            <div id="share_of_content" class="box box-info multi-metric " data-metric-name="user:posts_share,user:comments_share" data-metric-legend="Share of posts,Share of comments" data-metric-colors="#6A3D9A,#33A02C">
+                                <div class="box-header">
+                                    <i class="fa fa-comments"></i>
+                                    <h3 class="box-title">Share of content</h3>
+                                </div><!-- /.box-header -->
+                                <div class="box-body chart-cnt" >
+                                </div><!-- /.box-body -->
+                                <div class="box-body chart-legend"></div>
+                            </div><!-- /.box -->
+
+                        </div><!-- /.col -->
+ 
+                    </div><!-- /Content metrics -->
+                </section><!-- /.content -->
+            </aside><!-- /.right-side -->
+        </div><!-- ./wrapper -->
+
+
+        <!-- jQuery 2.0.2 -->
+        <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+        <!-- utilities -->
+        <script src="js/underscore-min.js" type="text/javascript"></script>
+        <!-- Bootstrap -->
+        <script src="js/bootstrap.min.js" type="text/javascript"></script>
+        <!-- iCheck -->
+        <script src="js/plugins/iCheck/icheck.min.js" type="text/javascript"></script>
+        <!-- Ion Slider -->
+        <script src="js/plugins/ionslider/ion.rangeSlider.min.js" type="text/javascript"></script>
+        <!-- D3js & co -->
+        <script src="js/d3.v3.min.js" charset="utf-8" type="text/javascript"></script>
+        <script src="js/rickshaw.min.js" charset="utf-8" type="text/javascript"></script>        
+        <script src="js/crossfilter.min.js" charset="utf-8" type="text/javascript"></script>
+        <script src="js/sigma.min.js"></script>
+        <script src="js/plugins/sigma/sigma.layout.forceAtlas2.min.js"></script>
+        <!-- Spin.js -->
+        <script src="js/spin.min.js" type="text/javascript"></script>
+        <!-- Dashboard -->
+        <script src="js/dash.js" type="text/javascript"></script>
+        <!-- Application -->
+        <script src="js/app.js" type="text/javascript"></script>
+
+    </body>
+</html>
