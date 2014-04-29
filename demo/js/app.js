@@ -580,10 +580,10 @@ jQuery(function($) {
     $.ajax({
       dataType: "json",
       async: false,
-      url: "/json/last.json", 
+      url: "/edgesense/demo/json/last.json", 
       success: function( d ) {
           window.Dashboard = Dashboard()
-                              .base('/json/'+d.last)
+                              .base('/edgesense/demo/json/'+d.last)
                               .load('network.min.json');
     
           window.Dashboard.run();
