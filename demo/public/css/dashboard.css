@@ -1,0 +1,88 @@
+.metric {
+    height: 110px;
+}
+.minichart {
+    position:absolute;
+    right:10px;
+    top:10px;
+}
+.minichart svg {
+    height:90px;
+    float:right;
+}
+.minichart .x_tick .title {
+    font-size:8px;
+    margin-left:0px;
+}
+#network-container {
+    height:800px;
+    position:relative;
+    background-color:#101010;
+}
+#network-container .box-tools {
+    position:absolute;
+    z-index:900;
+    right:10px;
+    top:10px;
+    display:none;
+}
+#network {
+    height:800px;
+    z-index:100;
+/*
+    width:700px;
+    margin:10px auto;
+*/
+}
+.filter-btn {
+    width:19px;
+    height:19px;
+    display:block;
+    padding:0;
+    margin-bottom:5px;
+    color:#fefefe;
+}
+.moderators-check-cnt {
+    line-height:52px;
+    font-size:12px;
+}
+
+.multi-metric {
+        position: relative;
+}
+.multi-metric .chart-cnt {
+        position: relative;
+}
+.rickshaw_graph .y_ticks {
+        left: 0;
+}
+.multi-metric .chart-cnt .chart {
+        position: absolute;
+        top: 0;
+        left: 40px;
+}
+.multi-metric .chart-cnt .y_ax {
+        position: absolute;
+        top: 0;
+        left: 10px;
+        width: 30px;
+}
+.multi-metric .chart-cnt .x_ax {
+        position: absolute;
+        bottom: 0;
+        left: 40px;
+        height: 30px;
+}
+.multi-metric .chart-legend {
+    padding: 0 10px 20px 40px;
+    overflow:hidden;
+}
+.multi-metric .chart-legend span {
+    display:block;
+    float:left;
+    margin-right:20px;
+}
+.rickshaw_graph .x_tick .title {
+    left: -3px;
+    font-size:10px;
+}
