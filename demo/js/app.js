@@ -529,14 +529,16 @@ jQuery(function($) {
             network_graph.refresh();
             $('#network').hide();
             network_graph.startForceAtlas2({
+                // Dissuade hubs
+                // Prevent overlap
                 autoSettings: false,
                 linLogMode: true,
                 outboundAttractionDistribution: false,
                 adjustSizes: true,
-                edgeWeightInfluence: 0,
-                scalingRatio: 0.2,
+                edgeWeightInfluence: 0, // 2
+                scalingRatio: 0.2, // 5
                 strongGravityMode: false,
-                gravity: -1.3,
+                gravity: -1.3, // 1
                 jitterTolerance: 1,
                 barnesHutOptimize: false,
                 barnesHutTheta: 1.2,
