@@ -248,17 +248,12 @@ jQuery(function($) {
             },            
             build_graph = function(e){
                 var metric_name = metric_name_prefixed($(e).data('metric-name'));
+                var minichart = $(e).find('.minichart')[0];
                 var chart = new Rickshaw.Graph( {
-                    element: $(e).find('.minichart')[0], 
+                    element: minichart, 
                     renderer: 'line',
-                    width: $(e).width()*4.5/10.0,
-                    height: 45,
-                    padding: {
-                      top: 0.1,
-                      right: 0.01,
-                      bottom: 0.1,
-                      left: 0.01
-                    },
+                    width: $(minichart).width(),
+                    height: 73,
                     series: [{
                         color: 'white',
                         data: metric_series(metric_name)
