@@ -8,35 +8,6 @@ import time
 import networkx as nx
 import community as co
 
-def topic_map (brief_id):
-    '''
-    given a brief_id returns the corresponding topic
-
-    >>> comment = {'comment_id': '57', 'brief_id': 29}
-    >>> topic_map (comment['brief_id'])
-    '01 - Bootcamp'
-    '''
-    brief_id = int(brief_id)
-    if brief_id in [29, 43, 44, 45]:
-        return '01 - Bootcamp'
-    elif brief_id in [188, 189, 190, 191]:
-        return '02 - Making a living'
-    elif brief_id in [262, 264, 267, 269]:
-        return '03 - We, the people'
-    elif brief_id in [322, 323, 324]:
-        return '04 - Caring for commons'
-    elif brief_id in [401, 403, 405, 406]:
-        return '05 - Learning'
-    elif brief_id in [482, 481, 484, 486, 487]:
-        return '06 - Living together'
-    elif brief_id in [640, 712, 1162]:
-        return '07 - Finale'
-    elif brief_id in [682, 683, 688]:
-        return '08 - Resilience'
-    else:
-        return '00 - Undefined'
-
-
 def _mkdir(newdir):
     if os.path.isdir(newdir):
         pass
@@ -462,22 +433,6 @@ for ts in range(start_ts, end_ts, timestep):
 network['metrics'] = sorted(metrics.values(), key=sort_by('ts'))
 print "[%(d)s] network metrics done" % {'d':datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
-# Static network layout
-# dsg = extract_dpsg(MDG, end_ts)
-# bc=nx.betweenness_centrality(dsg)
-# nx.set_node_attributes(dsg,'betweenness',bc)
-# ec = nx.eigenvector_centrality(dsg)
-# nx.set_node_attributes(dsg,'eigen_cent',ec)
-# dc = nx.degree_centrality(dsg)
-# nx.set_node_attributes(dsg,'degree_cent',dc)
-# pos=nx.spring_layout(dsg, dim=2, k=None, pos=None, fixed=None, iterations=4000, weight='count', scale=4.0)
-# # pos=nx.spectral_layout(dsg, dim=2, scale=1.0)
-# for node in pos.keys():
-#     xy = pos[node]
-#     nodes_map[node]['x'] = xy[0]
-#     nodes_map[node]['y'] = xy[1]
-# print "[%(d)s] network layout done" % {'d':datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-
 tag = generated.strftime('%Y-%m-%d-%H-%M-%S')
 
 # add the nodes as an array
@@ -496,19 +451,6 @@ network.pop('metrics', None)
 save_file(network, 'network-no-metrics.min.json', tag)
 save_file(metrics, 'metrics.min.json', tag)
 print "[%(d)s] network+metrics dumped" % {'d':datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
-
-# # remove the detailed node metrics and dump the network+metrics to file:
-# for ts in metrics.keys():
-#     ts_metrics = metrics[ts]
-#     ts_metrics.pop('betweenness', None)
-#     ts_metrics.pop('betweenness_count', None)
-#     ts_metrics.pop('betweenness_effort', None)
-#     ts_metrics.pop('degree', None)
-#     ts_metrics.pop('degree_count', None)
-#     ts_metrics.pop('degree_effort', None)    
-# network['metrics'] = sorted(metrics.values(), key=sort_by('ts'))
-# save_file(network, 'network-no-node-metrics.min.json', tag)
-# print "[%(d)s] network without node metrics details dumped" % {'d':datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 save_file({'last': tag}, 'last.json')
 print "[%(d)s] Completed" % {'d':datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
