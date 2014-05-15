@@ -1,5 +1,6 @@
 import os
 import json
+import urllib2
 
 def mkdir(newdir):
     if os.path.isdir(newdir):
@@ -22,3 +23,10 @@ def save(thing, filename, dirname='', formatted=False):
             json.dump(thing, outfile, indent=4, sort_keys=True)
         else:
             json.dump(thing, outfile)
+
+def load(thing):
+    if thing.startswith("/") :
+        thing = "file://"+thing
+    data = urllib2.urlopen(thing)
+    parsed = json.load(data)
+    return parsed

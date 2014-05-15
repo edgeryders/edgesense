@@ -22,9 +22,17 @@ sudo pip install networkx
 
 ### Running the script
 
-You need to set the directory where the script can find the source jsons (set the source_path variable in the build_network.py file)
+To bulid the metrics you need to run the python script:
 
 ```
-python build_network.py
+python python/build_network.py 
 ```
+
+By default it looks for the source files ```users.json```, ```nodes.json```, ```comments.json``` in the directory specified by the ```EDGESENSE_SOURCE_DIR``` environment variable. An alternative is to pass arguments to the script.
+
+```
+python python/build_network.py -u <url or path to users json> -n <url or path to nodes json> -c <url or path to comments json>
+```
+
+The arguments passed may be URLs to remote json files (e.g. json views from a Drupal site.)
 
