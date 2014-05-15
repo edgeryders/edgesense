@@ -1,5 +1,5 @@
 {
     "en": {
-        "key": "Value"
+        "numberOfNodes": "The number of users participating in the network. Only users who have written or received at least one comment are counted. "
     }
 }
