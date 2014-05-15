@@ -9,7 +9,7 @@ import networkx as nx
 import community as co
 import logging
 
-from edgesense.utils import file
+from edgesense.utils import resource
 from edgesense.utils.logger_initializer import initialize_logger
  
 initialize_logger('./log')
@@ -424,20 +424,20 @@ tagged_dir = os.path.join(destination_path, "data", tag)
 network['nodes'] = nodes_map.values()
 
 # dump the network to a json file, minified
-file.save(network, 'network.min.json', tagged_dir)
+resource.save(network, 'network.min.json', tagged_dir)
 logging.info("network dumped")  
 
 # dump the network to a json file, formatted
-file.save(network, 'network.json', tagged_dir, True)
+resource.save(network, 'network.json', tagged_dir, True)
 logging.info("network large dumped")  
 
 # dump the metrics and the network to separate files:
 network.pop('metrics', None)
-file.save(network, 'network-no-metrics.min.json', tagged_dir)
-file.save(metrics, 'metrics.min.json', tagged_dir)
+resource.save(network, 'network-no-metrics.min.json', tagged_dir)
+resource.save(metrics, 'metrics.min.json', tagged_dir)
 logging.info("network+metrics dumped")  
 
-file.save({'last': tag}, 'last.json', destination_path)
+resource.save({'last': tag}, 'last.json', destination_path)
 logging.info("Completed")  
 
 
