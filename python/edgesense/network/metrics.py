@@ -16,6 +16,8 @@ def extract_network_metrics(mdg, ts, team=True):
         pre = 'full:'
     else:
         pre = 'user:'
+    met[pre+'nodes_count'] = dsg.number_of_nodes()
+    met[pre+'edges_count'] = dsg.number_of_edges()
     met[pre+'density'] = nx.density(dsg)
     met[pre+'betweenness'] = nx.betweenness_centrality(dsg)
     met[pre+'avg_betweenness'] = float(sum(met[pre+'betweenness'].values()))/float(len(met[pre+'betweenness'].values()))
