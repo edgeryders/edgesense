@@ -291,13 +291,6 @@ def build(allusers, allnodes, allcomments, timestamp):
 
     logging.info("content metrics done")  
 
-    #### Logging the metrics
-    # for t in sorted(metrics.keys()):
-    #     m = {'ts':datetime.fromtimestamp(t).date().isoformat()}
-    #     print datetime.fromtimestamp(t).date().isoformat()
-    #     print json.dumps(metrics[t], indent=4, sort_keys=True)
-    # logging.info("content metrics printed")  
-
     # build the whole network to use for metrics
     MDG=nx.MultiDiGraph()
 
