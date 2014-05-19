@@ -54,101 +54,91 @@
                         </div>
                     </div>
 
-                    <!-- Network metrics -->
-                    <div class="row">
-                        <div class="col-lg-3 col-xs-6">
-                            
-                            <div class="small-box bg-aqua metric" data-metric-name="avg_distance" data-metric-round="2">
-                                <div class="inner">
-                                    <h3 class="value">
-                                        
-                                    </h3>
-                                    <p>
-                                        Average distance
-                                    </p>
-                                </div>
-                                <div class="minichart">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-xs-6">
-                            
-                            <div class="small-box bg-green metric" data-metric-name="avg_degree" data-metric-round="2">
-                                <div class="inner">
-                                    <h3 class="value">
-                                        
-                                    </h3>
-                                    <p>
-                                        Average degree
-                                    </p>
-                                </div>
-                                <div class="minichart">
-                                </div>
-                            </div>
-                        </div>
-                        <!-- <div class="col-lg-3 col-xs-6">
-                            <div class="small-box bg-purple metric" data-metric-name="avg_betweenness" data-metric-round="3">
-                                <div class="inner">
-                                    <h3 class="value">
-                                        
-                                    </h3>
-                                    <p>
-                                        Average betweenness
-                                    </p>
-                                </div>
-                                <div class="minichart">
-                                </div>
-                            </div>
-                        </div> -->
-                        <div class="col-lg-3 col-xs-6">
-                            
-                            <div class="small-box bg-maroon metric" data-metric-name="louvain_modularity" data-metric-round="3">
-                                <div class="inner">
-                                    <h3 class="value">
-                                        
-                                    </h3>
-                                    <p>
-                                        Modularity
-                                    </p>
-                                </div>
-                                <div class="chart minichart">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-3 col-xs-6">
-                            
-                            <div class="small-box bg-yellow metric" data-metric-name="density" data-metric-round="3">
-                                <div class="inner">
-                                    <h3 class="value">
-                                        
-                                    </h3>
-                                    <p>
-                                        Density
-                                    </p>
-                                </div>
-                                <div class="chart minichart">
-                                </div>
-                            </div>
-                        </div>
-                    </div><!-- /Network metrics -->
-
-                    <!-- Network graph -->
                     <div class="row">
                         
-                        <div class="col-lg-12">
+                        <!-- Network graph -->
+                        <div class="col-md-9">
                             <div class="box" id="network-container">
                                 <div class="box-tools">
                                    <button id="network-lock" class="btn btn-danger btn-sm refresh-btn" data-toggle="tooltip" title="" data-original-title="Unlock">
                                        <i class="fa fa-lock"></i>
                                    </button>
                                    <button class="btn btn-info btn-sm popover-toggle" data-toggle="popover" id="fa-filter-btn"><i class="fa fa-filter"></i></button>
-                                   <div class="popover-content pull-right hide" id="network-filter">
-                                   </div>
+                                   <div class="popover-content pull-right hide" id="network-filter"></div>
                                </div>
                                 <div id="network"></div>
+                                <div id="node-marker"></div>
                             </div><!-- /#network -->
                         </div>
-                    </div><!-- /Network graph -->
+                        <!-- /Network graph -->
+                        
+                        <!-- Network metrics -->
+                        <div class="col-md-3">
+                            <div class="row">
+                                <div class="col-md-12 col-xs-6">
+                            
+                                    <div class="small-box bg-navy metric" data-metric-name="nodes_count" data-metric-round="3">
+                                        <div class="inner">
+                                            <h3 class="value">
+                                        
+                                            </h3>
+                                            <p>
+                                                N° of nodes
+                                            </p>
+                                        </div>
+                                        <div class="chart minichart">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 col-xs-6">
+                            
+                                    <div class="small-box bg-green metric" data-metric-name="edges_count" data-metric-round="2">
+                                        <div class="inner">
+                                            <h3 class="value">
+                                        
+                                            </h3>
+                                            <p>
+                                                N° of edges
+                                            </p>
+                                        </div>
+                                        <div class="minichart">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 col-xs-6">
+                            
+                                    <div class="small-box bg-yellow metric" data-metric-name="avg_distance" data-metric-round="2">
+                                        <div class="inner">
+                                            <h3 class="value">
+                                        
+                                            </h3>
+                                            <p>
+                                                Average distance
+                                            </p>
+                                        </div>
+                                        <div class="minichart">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="col-md-12 col-xs-6">
+                            
+                                    <div class="small-box bg-maroon metric" data-metric-name="louvain_modularity" data-metric-round="3">
+                                        <div class="inner">
+                                            <h3 class="value">
+                                        
+                                            </h3>
+                                            <p>
+                                                Modularity
+                                            </p>
+                                        </div>
+                                        <div class="chart minichart">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div><!-- /Network metrics -->
+                        
+                    </div>
 
                     <!-- Content metrics -->
                     <div class="row">

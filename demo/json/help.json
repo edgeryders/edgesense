@@ -1,0 +1,6 @@
+{
+    "en": {
+        "numberOfNodes": "The number of users participating in the network. Only users who have written or received at least one comment are counted.", "numberOfEdges": "The number of relationships in the network. Edges are directed (A => B is not the same as B=> A) and weighted (two comments from A to B result in only one edge of weight 2 from A to B).", "averageDistance": "The average number of hops needed to go from a randomly chosen node to another. A lower distance implies that information spreads more easily across the network.", "modularity": "The difference between the observed network and a random one with the same degree distribution, on a 0-1 scale. Values over 3 are considered 'high' and mean that the network resolves quite naturally into subcommunities. Subcommunities are defined such that its members are more connected to each other than to the rest of the network. Computed via the Louvain algorithm.", "postsByContributor": "Number of posts written by ordinary users vs. administrators over time.", "commentsByContributor": "Number of comments written by ordinary users vs. administrators over time.", "shareOfCommunityGeneratedContent": "Share of posts and comments written by ordinary users vs. administrators over time. The closer to 1, the more the conversation is self-sustained."
+    }
+    
+}

@@ -171,13 +171,26 @@ jQuery(function($) {
                   }
                 });                
             },
+            node_popover_content = function(node){
+                var current_metrics = metrics_bydate.top(1)[0];
+                var in_degree = current_metrics[metric_name_prefixed('in_degree')][node.id];
+                var out_degree = current_metrics[metric_name_prefixed('out_degree')][node.id];
+                var betweenness = current_metrics[metric_name_prefixed('betweenness')][node.id];
+                var cont_div = $('<div class="node-hover-content"><div class="node-hover-title"></div><ul class="node-hover-data"></ul></div>');
+                cont_div.children('.node-hover-title').html(node.name);
+                cont_div.children('ul').append('<li><span>In degree:</span> '+in_degree+'</li>');
+                cont_div.children('ul').append('<li><span>Out degree:</span> '+out_degree+'</li>');
+                cont_div.children('ul').append('<li><span>Betweenness:</span> '+d3.round(betweenness, 4)+'</li>');
+                return cont_div.html();
+            },
             filtered_graph = function(){
                 var G = {};
                 G['nodes'] = _.map(nodes_bydate.top(Infinity), function(node){
                     var size = node.size ? node.size : 1;
                     return {
                       id: node.id,
-                      label: node.id,
+                      // label: "",
+                      name: node.name,
                       // Display attributes:
                       x: node.x,
                       y: node.y,
@@ -248,17 +261,12 @@ jQuery(function($) {
             },            
             build_graph = function(e){
                 var metric_name = metric_name_prefixed($(e).data('metric-name'));
+                var minichart = $(e).find('.minichart')[0];
                 var chart = new Rickshaw.Graph( {
-                    element: $(e).find('.minichart')[0], 
+                    element: minichart, 
                     renderer: 'line',
-                    width: $(e).width()*4.5/10.0,
-                    height: 45,
-                    padding: {
-                      top: 0.1,
-                      right: 0.01,
-                      bottom: 0.1,
-                      left: 0.01
-                    },
+                    width: $(minichart).width(),
+                    height: 73,
                     series: [{
                         color: 'white',
                         data: metric_series(metric_name)
@@ -439,6 +447,10 @@ jQuery(function($) {
             return data;
         };
 
+        db.network_graph = function(){
+            return network_graph;
+        };
+
         db.run = function(){
             // Load the data
             // Show the date when it was generated
@@ -510,12 +522,13 @@ jQuery(function($) {
                 maxNodeSize: 3,
                 defaultEdgeType:'curve',
                 mouseEnabled: false,
-                touchEnabled: false
+                touchEnabled: false,
+                labelHoverShadow: false
             })
             network_graph.bind('clickNode', function(e) {
                   to_expose = network_graph.graph.neighbors(e.data.node.id);              
                   to_expose[e.data.node.id] = e.data.node;
-
+                  console.log(e);
                   update_exposed();
                   network_graph.refresh();
             });
@@ -525,20 +538,38 @@ jQuery(function($) {
                 update_exposed();
                 network_graph.refresh();
             });
+            network_graph.bind('overNode', function(e) {
+                var offset = $(this).offset();
+                var left = e.data.node['renderer1:x'];
+                var top = e.data.node['renderer1:y'];
+                $('#node-marker').show();
+                $('#node-marker').css('left', (left) + 'px');
+                $('#node-marker').css('top', (top) + 'px');                
+ 
+                $('#node-marker').popover({
+                    container: '#network-container',
+                    html: true,
+                    placement: 'auto right',
+                    content: node_popover_content(e.data.node)
+                });
+                $('#node-marker').popover('show');
+            });
+            network_graph.bind('outNode', function(e) {
+                $('#node-marker').hide();
+                $('#node-marker').popover('destroy');
+            });
             
             network_graph.refresh();
             $('#network').hide();
             network_graph.startForceAtlas2({
-                // Dissuade hubs
-                // Prevent overlap
                 autoSettings: false,
                 linLogMode: true,
                 outboundAttractionDistribution: false,
                 adjustSizes: true,
-                edgeWeightInfluence: 0, // 2
-                scalingRatio: 0.2, // 5
+                edgeWeightInfluence: 0,
+                scalingRatio: 0.2,
                 strongGravityMode: false,
-                gravity: -1.3, // 1
+                gravity: -1.3,
                 jitterTolerance: 1,
                 barnesHutOptimize: false,
                 barnesHutTheta: 1.2,
@@ -564,7 +595,6 @@ jQuery(function($) {
                   $('#network').fadeIn();
                   $('#network-container .box-tools').show();
               }, 8000)
-            window.network_graph = network_graph;
             
             // setup network controls
             network_lock = $('#network-lock');
@@ -582,10 +612,10 @@ jQuery(function($) {
     $.ajax({
       dataType: "json",
       async: false,
-      url: "/edgesense/demo/json/last.json", 
+      url: "/json/last.json", 
       success: function( d ) {
           window.Dashboard = Dashboard()
-                              .base('/edgesense/demo/json/'+d.last)
+                              .base('/json/data/'+d.last)
                               .load('network.min.json');
     
           window.Dashboard.run();
