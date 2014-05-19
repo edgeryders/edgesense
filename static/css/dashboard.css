@@ -30,9 +30,32 @@
     top:10px;
     display:none;
 }
+#network-container #node-marker {
+    position:absolute;
+    width:1px;
+    height:1px;
+    background-color:transparent;
+}
+#network-container #node-marker,
+#network-container .popover {
+    pointer-events: none;    
+}
 #network {
     height:785px;
     z-index:100;
+}
+.node-hover-title {
+    font-size:12px;
+    font-weight:bold;
+}
+.node-hover-data {
+    padding-left: 0px;
+    font-size: 11px;
+    white-space:nowrap;
+    list-style-type:none;
+}
+.node-hover-data li span {
+    font-weight:bold;    
 }
 .filter-btn {
     width:19px;
