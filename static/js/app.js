@@ -177,7 +177,7 @@ jQuery(function($) {
                     var size = node.size ? node.size : 1;
                     return {
                       id: node.id,
-                      label: node.id,
+                      label: node.name,
                       // Display attributes:
                       x: node.x,
                       y: node.y,

@@ -12,7 +12,7 @@ from edgesense.utils.logger_initializer import initialize_logger
 import edgesense.utils as eu
 import edgesense.network as en
 
-def build(allusers, allnodes, allcomments, timestamp):
+def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid'):
     # this is the network object
     # going forward it should be read from a serialized format to handle caching
     network = {}
@@ -28,7 +28,10 @@ def build(allusers, allnodes, allcomments, timestamp):
         if not nodes_map.has_key(user['uid']):
             user_data = {}
             user_data['id'] = user['uid']
-            user_data['name'] = "User %(uid)s" % user
+            if user.has_key(node_title_field):
+                user_data['name'] = user[node_title_field]
+            else:
+                user_data['name'] = "User %(uid)s" % user
             # timestamps
             user_data['created_ts'] = int(user['created'])
             user_data['created_on'] = datetime.fromtimestamp(user_data['created_ts']).date().isoformat()
@@ -353,15 +356,16 @@ def parse_options(argv):
     users_resource = source_path + 'users.json'
     nodes_resource = source_path + 'nodes.json'
     comments_resource = source_path + 'comments.json'
+    node_title_field = 'uid'
     try:
-        opts, args = getopt.getopt(argv,"hu:n:c:",["users=","nodes=","comments="])
+        opts, args = getopt.getopt(argv,"hu:n:c:t:",["users=","nodes=","comments=", "node-title="])
     except getopt.GetoptError:
-        print 'build_network.py -u <users_resource> -n <nodes_resource> -c <comments_resource>'
+        print 'build_network.py -u <users_resource> -n <nodes_resource> -c <comments_resource> -t <node title field>'
         sys.exit(2)
     
     for opt, arg in opts:
         if opt == '-h':
-           print 'build_network.py -u <users_resource> -n <nodes_resource> -c <comments_resource>'
+           print 'build_network.py -u <users_resource> -n <nodes_resource> -c <comments_resource> -t <node title field>'
            sys.exit()
         elif opt in ("-u", "--users"):
            users_resource = arg
@@ -369,14 +373,16 @@ def parse_options(argv):
            nodes_resource = arg
         elif opt in ("-c", "--comments"):
            comments_resource = arg
+        elif opt in ("-t", "--node-title"):
+           node_title_field = arg
            
     logging.info("parsing files %(u)s %(n)s %(c)s" % {'u': users_resource, 'n': nodes_resource, 'c': comments_resource})       
-    return (users_resource,nodes_resource,comments_resource)
+    return (users_resource,nodes_resource,comments_resource, node_title_field)
 
 def main(argv):
     initialize_logger('./log')
 
-    users_resource, nodes_resource, comments_resource = parse_options(argv)
+    users_resource, nodes_resource, comments_resource, node_title_field = parse_options(argv)
     
     logging.info("Network processing - started")  
     # load users
@@ -395,7 +401,7 @@ def main(argv):
     
     generated = datetime.now()
     
-    network = build(allusers, allnodes, allcomments, generated)
+    network = build(allusers, allnodes, allcomments, generated, node_title_field=node_title_field)
     
     write_network(network, generated)
     

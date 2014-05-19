@@ -34,7 +34,8 @@ By default it looks for the source files ```users.json```, ```nodes.json```, ```
 python python/build_network.py \
        -u <url or path to users json> \
        -n <url or path to nodes json> \
-       -c <url or path to comments json>
+       -c <url or path to comments json> \
+       -t <field in the users json to use for the user label>
 ```
 
 The arguments passed may be URLs to remote json files (e.g. json views from a Drupal site.)
