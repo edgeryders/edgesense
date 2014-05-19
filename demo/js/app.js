@@ -612,10 +612,10 @@ jQuery(function($) {
     $.ajax({
       dataType: "json",
       async: false,
-      url: "/json/last.json", 
+      url: "./json/last.json", 
       success: function( d ) {
           window.Dashboard = Dashboard()
-                              .base('/json/data/'+d.last)
+                              .base('./json/data/'+d.last)
                               .load('network.min.json');
     
           window.Dashboard.run();
