@@ -15,7 +15,7 @@ def initialize_logger(output_dir, file_level=logging.DEBUG, console_level=loggin
      
     # create console handler and set level to info
     handler = logging.StreamHandler()
-    handler.setLevel(file_level)
+    handler.setLevel(console_level)
     formatter = logging.Formatter("[%(asctime)s] %(message)s")
     handler.setFormatter(formatter)
     logging.getLogger('').addHandler(handler)
