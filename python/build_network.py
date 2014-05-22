@@ -12,7 +12,7 @@ from edgesense.utils.logger_initializer import initialize_logger
 import edgesense.utils as eu
 import edgesense.network as en
 
-def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid'):
+def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', timestep_size=60*60*24*7, timestep_window=1, timestep_count=None):
     # this is the network object
     # going forward it should be read from a serialized format to handle caching
     network = {}
@@ -181,10 +181,13 @@ def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid'):
     network['nodes'] = nodes_map
 
     # Parameters
-    timestep = 60*60*24*7 # 1 week's seconds
-    window = 4 # number of timesteps to use
     start_ts = network['edges'][0]['ts'] # first timestamp in the edges
     end_ts = network['edges'][-1]['ts'] # last timestamp in the edges
+    day_ts = 60*60*24
+    if timestep_count:
+        timestep = max(int(round((end_ts-start_ts)/timestep_count)), day_ts)
+    else:
+        timestep = timestep_size
     
     metrics = {}
     # calculate content metrics
@@ -227,7 +230,7 @@ def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid'):
                     ts_metrics['team:posts_count'] += 1
                 else:
                     ts_metrics['user:posts_count'] += 1
-            if p['created_ts']<ts and p['created_ts']>=ts-timestep*window:
+            if p['created_ts']<ts and p['created_ts']>=ts-timestep*timestep_window:
                 ts_metrics['full:ts_posts_count'] += 1
                 if p['team']:
                     ts_metrics['team:ts_posts_count'] += 1
@@ -250,7 +253,7 @@ def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid'):
                     ts_metrics['team:comments_count'] += 1
                 else:
                     ts_metrics['user:comments_count'] += 1
-            if c['created_ts']<ts and c['created_ts']>=ts-timestep*window:
+            if c['created_ts']<ts and c['created_ts']>=ts-timestep*timestep_window:
                 ts_metrics['full:ts_comments_count'] += 1
                 if c['team']:
                     ts_metrics['team:ts_comments_count'] += 1
@@ -357,15 +360,18 @@ def parse_options(argv):
     nodes_resource = source_path + 'nodes.json'
     comments_resource = source_path + 'comments.json'
     node_title_field = 'uid'
+    timestep_size = 60*60*24*7
+    timestep_window = 1
+    timestep_count = None
     try:
-        opts, args = getopt.getopt(argv,"hu:n:c:t:",["users=","nodes=","comments=", "node-title="])
+        opts, args = getopt.getopt(argv,"hu:n:c:t:s:w:f:",["users=","nodes=","comments=", "node-title=", "timestep-size=", "timestep-window=", "timestep-count="])
     except getopt.GetoptError:
-        print 'build_network.py -u <users_resource> -n <nodes_resource> -c <comments_resource> -t <node title field>'
+        print 'build_network.py -u <users_resource> -n <nodes_resource> -c <comments_resource> -t <node title field> -s <timestep in seconds> -w <timestep window> -f <timestep count>'
         sys.exit(2)
     
     for opt, arg in opts:
         if opt == '-h':
-           print 'build_network.py -u <users_resource> -n <nodes_resource> -c <comments_resource> -t <node title field>'
+           print 'build_network.py -u <users_resource> -n <nodes_resource> -c <comments_resource> -t <node title field> -s <timestep in seconds> -w <timestep window> -f <timestep count>' 
            sys.exit()
         elif opt in ("-u", "--users"):
            users_resource = arg
@@ -375,14 +381,20 @@ def parse_options(argv):
            comments_resource = arg
         elif opt in ("-t", "--node-title"):
            node_title_field = arg
+        elif opt in ("-s", "--timestep-size"):
+           timestep_size = int(arg)
+        elif opt in ("-w", "--timestep-window"):
+           timestep_window = int(arg)
+        elif opt in ("-f", "--timestep-count"):
+           timestep_count = int(arg)
            
     logging.info("parsing files %(u)s %(n)s %(c)s" % {'u': users_resource, 'n': nodes_resource, 'c': comments_resource})       
-    return (users_resource,nodes_resource,comments_resource, node_title_field)
+    return (users_resource,nodes_resource,comments_resource, node_title_field, timestep_size, timestep_window, timestep_count)
 
 def main(argv):
     initialize_logger('./log')
 
-    users_resource, nodes_resource, comments_resource, node_title_field = parse_options(argv)
+    users_resource, nodes_resource, comments_resource, node_title_field, timestep_size, timestep_window, timestep_count = parse_options(argv)
     
     logging.info("Network processing - started")  
     # load users
@@ -401,7 +413,14 @@ def main(argv):
     
     generated = datetime.now()
     
-    network = build(allusers, allnodes, allcomments, generated, node_title_field=node_title_field)
+    network = build(allusers, \
+                    allnodes, \
+                    allcomments, \
+                    generated, \
+                    node_title_field=node_title_field, \
+                    timestep_size=timestep_size, \
+                    timestep_window=timestep_window, \
+                    timestep_count=timestep_count)
     
     write_network(network, generated)
     

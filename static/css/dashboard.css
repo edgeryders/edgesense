@@ -79,6 +79,10 @@
 .rickshaw_graph .y_ticks {
         left: 0;
 }
+.rickshaw_graph .detail {
+    bottom:18px;
+    background:rgba(0, 192, 239, 0.4);
+}
 .multi-metric .chart-cnt .chart {
         position: absolute;
         top: 0;

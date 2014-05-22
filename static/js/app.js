@@ -55,6 +55,31 @@ jQuery(function($) {
       };
       return renderer;
     })();
+
+    var VerticalMarker = Rickshaw.Class.create({
+
+    	initialize: function(args) {
+
+    		var graph = this.graph = args.graph;
+
+    		var element = this.element = document.createElement('div');
+    		element.className = 'detail';
+
+    		graph.element.appendChild(element);
+
+    	},
+
+    	render: function(point) {
+
+    		var graph = this.graph;
+            if (point) {
+        		this.element.innerHTML = '';
+        		this.element.style.left = graph.x(point.x) + 'px';                
+            }
+
+    	},
+
+    });
     
     var Dashboard = function(){
 
@@ -74,6 +99,7 @@ jQuery(function($) {
             to_date = undefined,
             graphs = {},
             current_metrics = undefined,
+            first_metrics = undefined,
             last_metrics = undefined,
             network_graph = undefined,
             nodes_map = {},
@@ -108,11 +134,13 @@ jQuery(function($) {
             },
             update_filter = function(i){
                 current_metrics = data['metrics'][i];
-                console.log(current_metrics);
                 metrics_bydate.filter([0, current_metrics.date]);
                 
                 // Update each metrics
                 _.each($('.metric'), update_metric);
+                
+                // Update the markers
+                _.each(graphs, update_marker);
                 
                 // Update the graph
                 if (!network_graph) {
@@ -243,14 +271,20 @@ jQuery(function($) {
                 var value = d3.round(current_metrics[metric_name], rounding);
                 $(e).find('.value').html(value);
                 
-                var chart = graphs[metric_name];
-                if (chart) {
-                    chart.series[0].data=metric_series(metric_name);
-                    chart.update();
+                var chart_obj = graphs[metric_name];
+                if (chart_obj) {
+                    // chart.series[0].data=metric_series(metric_name);
+                    chart_obj.chart.series[1].data=[{x:current_metrics['ts'],y:current_metrics[metric_name]}];
+                    chart_obj.chart.update();
+                }
+            },
+            update_marker = function(chart_obj) {
+                if (chart_obj.marker) {
+                    chart_obj.marker.render({x:current_metrics['ts']});
                 }
             },
             metric_series = function(metric_name){
-                var metric_values = _.map(metrics_bydate.top(6), function(m){
+                var metric_values = _.map(metrics_bydate.top(Infinity), function(m){
                   return {
                       x: m['ts'],
                       y: m[metric_name]
@@ -262,20 +296,39 @@ jQuery(function($) {
             build_graph = function(e){
                 var metric_name = metric_name_prefixed($(e).data('metric-name'));
                 var minichart = $(e).find('.minichart')[0];
+                var complete_metric = global_metric_series(metric_name);
+                var max_metric_value = _.max(complete_metric, function(e){ return e.y!=undefined ? e.y : 0; } ).y;
+                var min_metric_value = _.min(complete_metric, function(e){ return e.y!=undefined ? e.y : max_metric_value; } ).y;
                 var chart = new Rickshaw.Graph( {
                     element: minichart, 
-                    renderer: 'line',
+                    renderer: 'multi',
                     width: $(minichart).width(),
                     height: 73,
+                    dotSize: 4,
+                    max: max_metric_value+(max_metric_value*0.05),
+                    min: min_metric_value-(min_metric_value*0.05),
+                    padding: {
+                        top: 0.06,
+                        right: 0.06,
+                        bottom: 0.06,
+                        left: 0.02
+                    },
                     series: [{
                         color: 'white',
-                        data: metric_series(metric_name)
+                        data: global_metric_series(metric_name),
+                        renderer: 'line'
+                    },{
+                        color: 'white',
+                        data: [{x:current_metrics['ts'],y:current_metrics[metric_name]}],
+                        renderer: 'scatterplot'                        
                     }]
                 });
                 chart.render();
+                var from_ts = from_date.getTime()/1000;//ts here are in mill
+                var to_ts = to_date.getTime()/1000;
                 var unit = {
         			name: 'week',
-        			seconds: 86400 * 7,
+        			seconds: (to_ts-from_ts)/6, 
         			formatter: function(d) { return d3.time.format(' %e/%m')(d); }
                 };
 
@@ -285,25 +338,8 @@ jQuery(function($) {
                 } );
                 axes.render();
                 
-                graphs[metric_name] = chart;
+                graphs[metric_name] = {chart: chart};
                 
-            },
-            update_multi_metric = function(e){
-                var metric_names = $(e).data('metric-name').split(",");
-                
-                    
-                var rounding = $(e).data('metric-round');
-                if (!rounding) {
-                    rounding = 4;
-                }
-                var value = d3.round(current_metrics[metric_name], rounding);
-                $(e).find('.value').html(value);
-                
-                var chart = graphs[metric_name];
-                if (chart) {
-                    chart.series[0].data=metric_series(metric_name);
-                    chart.update();
-                }
             },
             metric_color = function(metric_name) {
               var regex = /(.+):/i;
@@ -326,7 +362,7 @@ jQuery(function($) {
                 });
                 metric_values = _.sortBy(metric_values, function(e){ return e.x; } )
                 return metric_values;
-            },            
+            },
             build_multi_graph = function(e){
                 var metric_names = $(e).data('metric-name').split(",");
                 var metric_labels = $(e).data('metric-legend').split(",");
@@ -342,6 +378,10 @@ jQuery(function($) {
                         name: metric_labels[idx]                     
                     })
                 })
+                var series_values = _.flatten(_.map(series, function(e){ return _.map(e.data, function(j){ return j.y; });}));
+                var max_metric_value = _.max(series_values);
+                var min_metric_value = _.min(series_values);
+                
                 var outer_container = $(e).find('.chart-cnt');
                 var base_size = (outer_container.width()*9.5/10.0)-20;
                 outer_container.height(base_size).html('<div class="y_ax"></div><div class="chart"></div>');
@@ -351,6 +391,8 @@ jQuery(function($) {
                     element: graph_container, 
                     renderer: 'line',
                     height: base_size-18,
+                    max: max_metric_value+(max_metric_value*0.08),
+                    min: min_metric_value-(min_metric_value*0.08),
                     padding: {
                       top: 0.015,
                       right: 0.015,
@@ -374,9 +416,10 @@ jQuery(function($) {
                     var color = metric_colors[idx]||metric_color(metric_name);
                     legend.append('<span style="color:'+color+';"><i class="fa fa-circle"></i>&nbsp;'+metric_labels[idx]+'</span>')
                 })
+                var marker = new VerticalMarker({ graph: chart });
                 chart.render();
-                
-                graphs[$(e).data('metric-name')] = chart;
+                marker.render({x:current_metrics['ts']});
+                graphs[$(e).data('metric-name')] = {chart:chart, marker:marker};
                 
             },
             circularize = function(nodes) {
