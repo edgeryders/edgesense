@@ -54,7 +54,6 @@ def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', ti
         if not posts_map.has_key(post['nid']):
             post_data = {}
             post_data['id'] = post['nid']
-            post_data['group_id'] = post['gid']
             # timestamps
             d = datetime.strptime(post['date'], "%d %b %Y - %H:%M")
             post_data['created_ts'] = int(time.mktime((d.year, d.month, d.day,d.hour, d.minute, d.second,-1, -1, -1)))
@@ -103,10 +102,8 @@ def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', ti
             if comment.has_key('nid') and posts_map.has_key(comment['nid']):
                 post = posts_map[comment['nid']]
                 comment_data['post_author_id'] = post['author_id']
-                comment_data['group_id'] = post['group_id']
             else:
                 comment_data['post_author_id'] = None
-                comment_data['group_id'] = None         
         
             # length
             comment_data['length'] = 0

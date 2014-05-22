@@ -20,9 +20,83 @@ sudo pip install networkx
 1. download the louvain module: https://bitbucket.org/taynaud/python-louvain
 2. install the software ```python setup.py install```
 
+### Source data format
+
+The script that builds the metrics will expect three JSON source files, respectively for: users data, nodes (posts) data, comments data
+
+Their structure is quite simple and the data used is minimal (the script doesn't mind if the files are more comples provided that the basic information is there).
+
+#### Users data
+
+The file should contain a top level object with a "users" property that should be an array of user objects.
+Each user object should have at least the ```uid``` which is used to identify the user in the other files, the ```created``` field that is the date/time (as a timestamp) of the user creation. The administrators are identified as the users that have a ```roles``` field defined (the script doesn't look at the content of this file).
+
+```
+{
+  "users": [
+    {
+      "user": {
+        "uid": "1",
+        "created": "1315483617",
+        "roles": "****"      
+      }
+    },
+    ...
+  ]
+}
+```
+
+#### Nodes data
+
+The file should contain a top level object with a "nodes" property that should be an array of nodes objects.
+Each node will be identified by the ```nid``` field. The ```uid``` field will be used to find the node author (among the users). The date of creation of the node is taken from the ```date``` field that has to have the format ```%d %b %Y - %H:%M``` e.g.: "22 May 2014 - 17:35".
+If present the fields ```title``` and ```Full text``` are used to compute the 'weight' of the node and then used in some metrics.
+
+```
+{
+  "nodes": [
+    {
+      "node": {
+        "nid": "42",
+        "uid": "4",
+        "date": "14 Oct 2011 - 16:55",
+        "title": "...",
+        "Full text": "...,
+      }
+    },
+    ...
+  ]
+}
+```
+
+#### Comments data
+
+The file should contain a top level object with a "comments" property that should be an array of comments objects.
+Each comment will be identified by the ```cid``` field while the ```nid``` field will be used to find the node where this comment was placed.
+The ```uid``` field should be the id of the user that has written the comment. The ```timestamp``` field should be the date/time (as a timestamp) of the comment creation.
+If present the ```comment``` and ```subject``` fields are used to compute the 'weight' of the comment and then used in some metrics.
+
+```
+{
+  "comments": [
+    {
+      "comment": {
+        "cid": "57",
+        "nid": "27",
+        "uid": "10",
+        "timestamp": "1320769943",
+        "comment": "...",
+        "subject": "...",
+      }
+    },
+    ...
+  ]
+}
+```
+
 ### Running the script
 
-To bulid the metrics you need to run the python script:
+To build the metrics you need to run the python script:
 
 ```
 python python/build_network.py 
