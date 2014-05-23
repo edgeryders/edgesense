@@ -105,7 +105,7 @@ jQuery(function($) {
             nodes_map = {},
             to_expose = undefined,
             network_lock = undefined,
-            spinner = new Spinner({ radius: 50, color:'#ffffff' }).spin(document.getElementById('network-container')),
+            // spinner = new Spinner({ radius: 50, color:'#ffffff' }).spin(document.getElementById('network-container')),
             node_fill_transparent = 'rgba(204,204,204,0.1)',
             edge_transparent = 'rgba(204,204,204,0.1)',
             node_border_default = 'rgba(240, 240, 240, 1)', //'rgba(32, 32, 32, 1)',
@@ -612,12 +612,12 @@ jQuery(function($) {
                 edgeWeightInfluence: 0,
                 scalingRatio: 0.2,
                 strongGravityMode: false,
-                gravity: -1.3,
-                jitterTolerance: 1,
+                gravity: -0.5,
+                jitterTolerance: 2,
                 barnesHutOptimize: false,
                 barnesHutTheta: 1.2,
-                speed: 1,
-                outboundAttCompensation: 0.5,
+                speed: 2,
+                outboundAttCompensation: -1.5,
                 totalSwinging: 0,
                 totalEffectiveTraction: 0,
                 complexIntervals: 500,
@@ -634,10 +634,13 @@ jQuery(function($) {
                       }
                   })
                   // stop the spinner and show the network
-                  spinner.stop();
-                  $('#network').fadeIn();
+                  // spinner.stop();
+                  // $('#network').fadeIn();
                   $('#network-container .box-tools').show();
               }, 8000)
+              // spinner.stop();
+              $('#network').fadeIn();
+              // $('#network-container .box-tools').show();
             
             // setup network controls
             network_lock = $('#network-lock');
