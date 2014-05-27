@@ -88,12 +88,20 @@ jQuery(function($) {
             lang = 'en',
             data = undefined,
             helped = undefined,
-            popovers = [],
+            analytics = undefined,
             make_popover = function(element, key, placement){
               $(element).popover({
                   placement: placement||'auto',
                   content: data[lang][key],
                   trigger: 'manual'
+              }).on('shown.bs.popover', function () {
+                  if (analytics) {
+                      analytics.track('help', 'toggle', key, 1);
+                  }
+              }).on('hidden.bs.popover', function () {
+                  if (analytics) {
+                      analytics.track('help', 'toggle', key, 0);
+                  }
               })  
             },
             activate = function(element){
@@ -112,7 +120,7 @@ jQuery(function($) {
                   make_popover(element,help_key, help_placement);
                   
                   help_button.on('click', function(){
-                      $(element).popover('toggle')
+                      $(element).popover('toggle');
                   });
               }  
             },
@@ -141,6 +149,14 @@ jQuery(function($) {
             return h;
         };
 
+        h.analytics = function(a){
+            if (!arguments.length) return analytics;
+
+            analytics = a;
+
+            return h;
+        };
+
         h.load = function(){
             
             $.ajax({
@@ -158,10 +174,97 @@ jQuery(function($) {
 
         return h;
     };
+
+    var Configuration = function(){
+
+        var base_url = '/json',
+            file = 'configuration.json',
+            data = undefined,
+            build = function(d){
+                data = d;
+            };
+
+        function c(){
+        };
+
+        c.base = function(url){
+            if (!arguments.length) return base_url;
+
+            base_url = url;
+
+            return c;
+        };
+
+        c.file = function(filename){
+            if (!arguments.length) return file;
+
+            file = filename;
+
+            return c;
+        };
+
+        c.load = function(){
+            
+            $.ajax({
+              dataType: "json",
+              async: false,
+              url: base_url+"/"+file, 
+              success: build
+            });
+
+            return c;
+        };
+        
+        c.get = function(key){
+            return data[key];
+        };
+
+        return c;
+    };
+
+    var Analytics = function(){
+
+        var tracking_id = undefined;
+
+        function a(){
+        };
+
+        a.tracking_id = function(id){
+            if (!arguments.length) return tracking_id;
+
+            tracking_id = id;
+
+            return a;
+        };
+
+        a.start = function(){
+            if (!tracking_id) {
+                return a;                
+            }
+            
+            (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+            m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+            })(window,document,'script','//www.google-analytics.com/analytics.js','_ga_tracker');
+
+            _ga_tracker('create', tracking_id, { 'cookieDomain': 'none' });
+            _ga_tracker('send', 'pageview');
+
+            return a;
+        };
+        
+        a.track = function(category, action, label, value ){
+            _ga_tracker('send', 'event', category, action, label, value);
+        };
+
+        return a;
+    };
     
     var Dashboard = function(){
 
-        var base_url = undefined,
+        var configuration = undefined,
+            analytics = Analytics(),
+            base_url = undefined,
             file = undefined,
             data = undefined,
             date_format = d3.time.format('%B %d, %Y'),
@@ -232,14 +335,17 @@ jQuery(function($) {
             },
             toggle_partition = function(e){
                 var b = $(this);
+                var shown = 0;
                 if (_.indexOf(selected_partitions, b.data('partition'))>=0) {
                     selected_partitions = _.without(selected_partitions, b.data('partition')) 
                     b.find('.fa').removeClass('fa-check-square-o').addClass('fa-square-o');                        
                 } else {
                     selected_partitions.push(b.data('partition'))
                     b.find('.fa').removeClass('fa-square-o').addClass('fa-check-square-o');
+                    shown = 1;
                 }
                 update_network_graph();
+                analytics.track('filter', 'toggle_partition', 'part #'+b.data('partition'), shown);
             },
             update_network_graph = function(){
                 network_graph.graph.clear();
@@ -519,6 +625,7 @@ jQuery(function($) {
                     network_lock.find('.fa').removeClass('fa-lock').addClass('fa-unlock');
                     network_lock.tooltip('hide').attr('data-original-title', "Lock").tooltip('fixTitle').tooltip('show');
                 }
+                analytics.track('control', 'toggle_lock', mouse_enabled);
             },
             toggle_team = function(e){
                 show_moderators = $(this).prop('checked');
@@ -527,6 +634,7 @@ jQuery(function($) {
                 // Update the network
                 update_network_graph();
                 network_graph.refresh();
+                analytics.track('filter', 'toggle_team', show_moderators);
             },
             node_color = function(node){
                 var com = last_metrics.partitions[node.id];
@@ -573,7 +681,24 @@ jQuery(function($) {
         };
 
         db.run = function(){
-            // Load the data
+            // Load the configuration
+            configuration = Configuration().load();
+            
+            // Show the title
+            var dashboard_name = configuration.get("dashboard_name");
+            if (dashboard_name) {
+                $('#dashboard-title').html(dashboard_name);
+                document.title = dashboard_name+" | dashboard"
+            }
+            
+            // Activate the analytics
+            var analytics_tracking_id = configuration.get("analytics_tracking_id");
+            if (analytics_tracking_id) {
+                analytics. 
+                    tracking_id(analytics_tracking_id).
+                    start();
+            }
+            
             // Show the date when it was generated
             if ( data && data['meta'] && data['meta']['generated']) {
                 var format = d3.time.format('%B %d, %Y - %H:%M:%S');
@@ -585,12 +710,16 @@ jQuery(function($) {
             from_date = metrics_bydate.bottom(1)[0].date;
             to_date = metrics_bydate.top(1)[0].date;
             var all_dates = _.map(data['metrics'], function(e){ return date_format(e.date); });
+            var track_date_format = d3.time.format('%Y-%m-%d');
             $("#date_range").ionRangeSlider({
                 type: "single",
                 values: all_dates,
                 from: all_dates.length-1,
                 hasGrid: true,
-                onFinish: function(i){ update_filter(i.fromNumber); } //onChange
+                onFinish: function(i){ 
+                    update_filter(i.fromNumber); 
+                    analytics.track('filter', 'date_range', track_date_format(current_metrics.date));
+                } //onChange
             });
             update_filter(all_dates.length-1);
             _.each($('.metric'), build_graph);
@@ -726,6 +855,8 @@ jQuery(function($) {
             
             $('#moderators-check').on('ifChanged', toggle_team);
             window.network_lock = network_lock;
+            
+            Help().analytics(analytics).load();
             return db;
         };
 
@@ -744,7 +875,6 @@ jQuery(function($) {
     
           window.Dashboard.run();
           
-          Help().load();
       }
     });
 

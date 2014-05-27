@@ -129,4 +129,23 @@ python python/build_network.py \
     - Number of Comments by contributors in period
     - Share of User Generated Comments in period
     - Share of Team/User Generated Comments in period
-    
+
+### Configuring the dashboard
+
+There are a few parameters that permit the configuration of the dashboad page. 
+One of the first things the page does on load is to read the parameters from a configuration.json file in the static/json directory, so to customize them one just needs to create the file (there is an example file in the static/json directory)
+
+The parameters currently available are:
+
+- ```dashboard_name```: this is used to set the page title
+- ```analytics_tracking_id```: this should be set to enable the google analytics tracking for the dashboard
+
+### Analytics tracking 
+
+If enabled in the parameters the dashboard will track with Google Analytics the events happening in the interface. This is tracked (beyond page loads):
+
+- show / hide moderators (category: 'filter', action: 'toggle_team', label: 1/0 if the team was shown or hidden )
+- drag time slider (category: 'filter', action: 'date_range', label: the date selected )
+- show / hide partition (category: 'filter', action: 'toggle_partition', label: the partition, value: 1/0 if the partition was shown or hidden  )
+- lock / unlock graph (category: 'control', action: 'toggle_lock', label: 1/0 if the graph was locked/unlocked )
+- show contextual help (category: 'help', action: 'toggle', label: the help key toggled, value: 1/0 if the help message was shown or hidden )
