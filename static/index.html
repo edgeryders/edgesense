@@ -77,7 +77,7 @@
                             <div class="row">
                                 <div class="col-md-12 col-xs-6">
                             
-                                    <div class="small-box bg-navy metric" data-metric-name="nodes_count" data-metric-round="3">
+                                    <div class="small-box bg-navy metric helped" data-metric-name="nodes_count" data-metric-round="3" data-help="numberOfNodes">
                                         <div class="inner">
                                             <h3 class="value">
                                         
@@ -86,13 +86,13 @@
                                                 N° of nodes
                                             </p>
                                         </div>
-                                        <div class="chart minichart">
+                                        <div class="minichart">
                                         </div>
                                     </div>
                                 </div>
                                 <div class="col-md-12 col-xs-6">
                             
-                                    <div class="small-box bg-green metric" data-metric-name="edges_count" data-metric-round="2">
+                                    <div class="small-box bg-green metric helped" data-metric-name="edges_count" data-metric-round="2" data-help="numberOfEdges">
                                         <div class="inner">
                                             <h3 class="value">
                                         
@@ -107,7 +107,7 @@
                                 </div>
                                 <div class="col-md-12 col-xs-6">
                             
-                                    <div class="small-box bg-yellow metric" data-metric-name="avg_distance" data-metric-round="2">
+                                    <div class="small-box bg-yellow metric helped" data-metric-name="avg_distance" data-metric-round="2" data-help="averageDistance">
                                         <div class="inner">
                                             <h3 class="value">
                                         
@@ -122,7 +122,7 @@
                                 </div>
                                 <div class="col-md-12 col-xs-6">
                             
-                                    <div class="small-box bg-maroon metric" data-metric-name="louvain_modularity" data-metric-round="3">
+                                    <div class="small-box bg-maroon metric helped" data-metric-name="louvain_modularity" data-metric-round="3" data-help="modularity">
                                         <div class="inner">
                                             <h3 class="value">
                                         
@@ -131,7 +131,7 @@
                                                 Modularity
                                             </p>
                                         </div>
-                                        <div class="chart minichart">
+                                        <div class="minichart">
                                         </div>
                                     </div>
                                 </div>
@@ -143,7 +143,7 @@
                     <!-- Content metrics -->
                     <div class="row">
                         <div class="col-md-4">
-                            <div id="posts_by_contributor" class="box box-info multi-metric " data-metric-name="user:ts_posts_count,team:ts_posts_count" data-metric-legend="Community,Moderators" >
+                            <div id="posts_by_contributor" class="box box-info multi-metric helped" data-metric-name="user:ts_posts_count,team:ts_posts_count" data-metric-legend="Community,Moderators"  data-help="postsByContributor">
                                 <div class="box-header">
                                     <h3 class="box-title">Posts by contributor</h3>
                                 </div><!-- /.box-header -->
@@ -155,7 +155,7 @@
                         </div><!-- /.col -->
                         <div class="col-md-4">
 
-                            <div id="comments_by_contributor" class="box box-info multi-metric " data-metric-name="user:ts_comments_count,team:ts_comments_count" data-metric-legend="Community,Moderators" >
+                            <div id="comments_by_contributor" class="box box-info multi-metric helped" data-metric-name="user:ts_comments_count,team:ts_comments_count" data-metric-legend="Community,Moderators"  data-help="commentsByContributor">
                                 <div class="box-header">
                                     <h3 class="box-title">Comments by contributor</h3>
                                 </div><!-- /.box-header -->
@@ -167,7 +167,7 @@
                         </div><!-- /.col -->
                         <div class="col-md-4">
 
-                            <div id="share_of_content" class="box box-info multi-metric " data-metric-name="user:ts_posts_share,user:ts_comments_share" data-metric-legend="Share of posts,Share of comments" data-metric-colors="#6A3D9A,#33A02C">
+                            <div id="share_of_content" class="box box-info multi-metric helped" data-metric-name="user:ts_posts_share,user:ts_comments_share" data-metric-legend="Share of posts,Share of comments" data-metric-colors="#6A3D9A,#33A02C"  data-help="shareOfCommunityGeneratedContent">
                                 <div class="box-header">
                                     <h3 class="box-title">Share of community generated content</h3>
                                 </div><!-- /.box-header -->
@@ -186,6 +186,7 @@
 
         <!-- jQuery 2.0.2 -->
         <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
+        <script src="js/jquery-ui-1.10.3.min.js"></script>
         <!-- utilities -->
         <script src="js/underscore-min.js" type="text/javascript"></script>
         <!-- Bootstrap -->
