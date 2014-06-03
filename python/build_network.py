@@ -24,7 +24,7 @@ def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', ti
 
     # build a mapping of nodes (users) keyed on their id
     nodes_map = {}
-    for user in [u['user'] for u in allusers]:
+    for user in allusers:
         if not nodes_map.has_key(user['uid']):
             user_data = {}
             user_data['id'] = user['uid']
@@ -36,7 +36,7 @@ def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', ti
             user_data['created_ts'] = int(user['created'])
             user_data['created_on'] = datetime.fromtimestamp(user_data['created_ts']).date().isoformat()
             # team membership
-            user_data['team'] = user.has_key('roles')
+            user_data['team'] = (user.has_key('roles') and user['roles']!="")
             user_data['team_ts'] = user_data['created_ts'] if user_data['team'] else None # this would be different if we'd start from previous data dump
             user_data['team_on'] = user_data['created_on'] if user_data['team'] else None # this would be different if we'd start from previous data dump
             user_data['active'] = False
@@ -50,7 +50,7 @@ def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', ti
 
     # build a mapping of posts keyed by their post id (nid)
     posts_map = {}
-    for post in [n['node'] for n in allnodes]:
+    for post in allnodes:
         if not posts_map.has_key(post['nid']):
             post_data = {}
             post_data['id'] = post['nid']
@@ -80,7 +80,7 @@ def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', ti
 
     # build a mapping of comments keyed by their comment id
     comments_map = {}
-    for comment in [c['comment'] for c in allcomments]:
+    for comment in allcomments:
         if not comments_map.has_key(comment['cid']):
             comment_data = {}
             comment_data['id'] = comment['cid']
@@ -117,7 +117,7 @@ def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', ti
         else:
             print "Comment %(cid)s was alredy added to the map (??)" % comment
     # second pass over comments, connect the comments to the parent comment
-    for comment in [c['comment'] for c in allcomments]:
+    for comment in allcomments:
         if comments_map.has_key(comment['cid']):
             comment_data = comments_map[comment['cid']]
             # if the comment has a pid then it was a comment to a comment
@@ -360,15 +360,18 @@ def parse_options(argv):
     timestep_size = 60*60*24*7
     timestep_window = 1
     timestep_count = None
+    username = None
+    password = None
+    extraction_method = 'nested'
     try:
-        opts, args = getopt.getopt(argv,"hu:n:c:t:s:w:f:",["users=","nodes=","comments=", "node-title=", "timestep-size=", "timestep-window=", "timestep-count="])
+        opts, args = getopt.getopt(argv,"hu:n:c:t:s:w:f:",["users=","nodes=","comments=", "node-title=", "timestep-size=", "timestep-window=", "timestep-count=", "username=", "password=", "extraction-method="])
     except getopt.GetoptError:
         print 'build_network.py -u <users_resource> -n <nodes_resource> -c <comments_resource> -t <node title field> -s <timestep in seconds> -w <timestep window> -f <timestep count>'
         sys.exit(2)
     
     for opt, arg in opts:
         if opt == '-h':
-           print 'build_network.py -u <users_resource> -n <nodes_resource> -c <comments_resource> -t <node title field> -s <timestep in seconds> -w <timestep window> -f <timestep count>' 
+           print 'build_network.py -u <users_resource> -n <nodes_resource> -c <comments_resource> -t <node title field> -s <timestep in seconds> -w <timestep window> -f <timestep count> --username="<http basic auth user>" --password="<http basic auth password>"' 
            sys.exit()
         elif opt in ("-u", "--users"):
            users_resource = arg
@@ -384,27 +387,42 @@ def parse_options(argv):
            timestep_window = int(arg)
         elif opt in ("-f", "--timestep-count"):
            timestep_count = int(arg)
+        elif opt in ("--username"):
+           username = arg
+        elif opt in ("--password"):
+           password = arg
+        elif opt in ("--extraction-method"):
+           extraction_method = arg
            
     logging.info("parsing files %(u)s %(n)s %(c)s" % {'u': users_resource, 'n': nodes_resource, 'c': comments_resource})       
-    return (users_resource,nodes_resource,comments_resource, node_title_field, timestep_size, timestep_window, timestep_count)
+    return (users_resource,nodes_resource,comments_resource, node_title_field, timestep_size, timestep_window, timestep_count, username, password, extraction_method)
 
 def main(argv):
     initialize_logger('./log')
 
-    users_resource, nodes_resource, comments_resource, node_title_field, timestep_size, timestep_window, timestep_count = parse_options(argv)
+    users_resource, \
+    nodes_resource, \
+    comments_resource, \
+    node_title_field, \
+    timestep_size, \
+    timestep_window, \
+    timestep_count, \
+    username, \
+    password, \
+    extraction_method = parse_options(argv)
     
     logging.info("Network processing - started")  
     # load users
-    jusers = eu.resource.load(users_resource)
-    allusers = jusers['users']
+    jusers = eu.resource.load(users_resource, username=username, password=password)
+    allusers = eu.extract.extract(extraction_method, 'users', jusers)
 
     # load nodes
-    jnodes = eu.resource.load(nodes_resource)
-    allnodes = jnodes['nodes']
+    jnodes = eu.resource.load(nodes_resource, username=username, password=password)
+    allnodes = eu.extract.extract(extraction_method, 'nodes', jnodes)
 
     # load comments
-    jcomments = eu.resource.load(comments_resource)
-    allcomments = jcomments['comments']
+    jcomments = eu.resource.load(comments_resource, username=username, password=password)
+    allcomments = eu.extract.extract(extraction_method, 'comments', jcomments)
 
     logging.info("file loaded")  
     

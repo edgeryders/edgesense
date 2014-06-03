@@ -1,6 +1,7 @@
 import os
 import json
 import urllib2
+import base64
 
 def mkdir(newdir):
     if os.path.isdir(newdir):
@@ -24,9 +25,15 @@ def save(thing, filename, dirname='', formatted=False):
         else:
             json.dump(thing, outfile)
 
-def load(thing):
+def load(thing, username=None, password=None):
     if thing.startswith("/") :
         thing = "file://"+thing
+    # Adds the Basic http authenticaton header if needed
+    if username and password:
+        thing = urllib2.Request(thing)
+        base64string = base64.encodestring('%s:%s' % (username, password)).replace('\n', '')
+        thing.add_header("Authorization", "Basic %s" % base64string)   
+           
     data = urllib2.urlopen(thing)
     parsed = json.load(data)
     return parsed
