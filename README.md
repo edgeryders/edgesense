@@ -49,7 +49,7 @@ Each user object should have at least the ```uid``` which is used to identify th
 #### Nodes data
 
 The file should contain a top level object with a "nodes" property that should be an array of nodes objects.
-Each node will be identified by the ```nid``` field. The ```uid``` field will be used to find the node author (among the users). The date of creation of the node is taken from the ```date``` field that has to have the format ```%d %b %Y - %H:%M``` e.g.: "22 May 2014 - 17:35".
+Each node will be identified by the ```nid``` field. The ```uid``` field will be used to find the node author (among the users). The date of creation of the node is taken from the ```created``` field (should be output as a timestamp).
 If present the fields ```title``` and ```Full text``` are used to compute the 'weight' of the node and then used in some metrics.
 
 ```
@@ -59,7 +59,7 @@ If present the fields ```title``` and ```Full text``` are used to compute the 'w
       "node": {
         "nid": "42",
         "uid": "4",
-        "date": "14 Oct 2011 - 16:55",
+        "created": "1315483617",
         "title": "...",
         "Full text": "...,
       }
@@ -73,7 +73,7 @@ If present the fields ```title``` and ```Full text``` are used to compute the 'w
 
 The file should contain a top level object with a "comments" property that should be an array of comments objects.
 Each comment will be identified by the ```cid``` field while the ```nid``` field will be used to find the node where this comment was placed and the ```pid``` field to find the parent comment in case of threaded comments.
-The ```uid``` field should be the id of the user that has written the comment. The ```timestamp``` field should be the date/time (as a timestamp) of the comment creation.
+The ```uid``` field should be the id of the user that has written the comment. The ```created``` field should be the date/time (as a timestamp) of the comment creation.
 If present the ```comment``` and ```subject``` fields are used to compute the 'weight' of the comment and then used in some metrics.
 
 ```
@@ -85,7 +85,7 @@ If present the ```comment``` and ```subject``` fields are used to compute the 'w
         "nid": "27",
         "uid": "10",
         "pid": "30",
-        "timestamp": "1320769943",
+        "created": "1320769943",
         "comment": "...",
         "subject": "...",
       }

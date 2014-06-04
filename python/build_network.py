@@ -55,9 +55,8 @@ def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', ti
             post_data = {}
             post_data['id'] = post['nid']
             # timestamps
-            d = datetime.strptime(post['date'], "%d %b %Y - %H:%M")
-            post_data['created_ts'] = int(time.mktime((d.year, d.month, d.day,d.hour, d.minute, d.second,-1, -1, -1)))
-            post_data['created_on'] = d.date().isoformat()
+            post_data['created_ts'] = int(post['created'])
+            post_data['created_on'] = datetime.fromtimestamp(post_data['created_ts']).date().isoformat()
             # author (& team membership)
             if post.has_key('uid') and nodes_map.has_key(post['uid']):
                 post_data['author_id'] = post['uid']
@@ -86,7 +85,7 @@ def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', ti
             comment_data['id'] = comment['cid']
         
             # timestamps
-            comment_data['created_ts'] = int(comment['timestamp'])
+            comment_data['created_ts'] = int(comment['created'])
             comment_data['created_on'] = datetime.fromtimestamp(comment_data['created_ts']).date().isoformat()
         
             # author (& team membership)
