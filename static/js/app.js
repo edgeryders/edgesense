@@ -389,7 +389,16 @@ jQuery(function($) {
                 var out_degree = current_metrics[metric_name_prefixed('out_degree')][node.id];
                 var betweenness = current_metrics[metric_name_prefixed('betweenness')][node.id];
                 var cont_div = $('<div class="node-hover-content"><div class="node-hover-title"></div><ul class="node-hover-data"></ul></div>');
-                cont_div.children('.node-hover-title').html(node.name);
+                if ( nodes_map[node.id].link ) {
+                    var nodelink = $('<a>').
+                                        attr('href', nodes_map[node.id].link).
+                                        attr('target', "_blank").
+                                        html(node.name);
+                                        
+                    cont_div.children('.node-hover-title').append(nodelink);                    
+                } else {
+                    cont_div.children('.node-hover-title').html(node.name);
+                }
                 cont_div.children('ul').append('<li><span>In degree:</span> '+in_degree+'</li>');
                 cont_div.children('ul').append('<li><span>Out degree:</span> '+out_degree+'</li>');
                 cont_div.children('ul').append('<li><span>Betweenness:</span> '+d3.round(betweenness, 4)+'</li>');
@@ -412,7 +421,8 @@ jQuery(function($) {
                       border_color: node_border_default,
                       team: node.team,
                       ts: node.created_ts,
-                      date: node.date
+                      date: node.date,
+                      link: node.link
                     };
                 });
                 // merge multiedges
@@ -607,7 +617,7 @@ jQuery(function($) {
                 
             },
             circularize = function(nodes) {
-              var R = 900, i = 0, L = nodes.length;
+              var R = 2000, i = 0, L = nodes.length;
               _.each(nodes, function(n){
                   n.x = Math.cos(Math.PI*(i++)/L)*R;
                   n.y = Math.sin(Math.PI*(i++)/L)*R;                      
@@ -773,38 +783,40 @@ jQuery(function($) {
                 defaultEdgeType:'curve',
                 mouseEnabled: false,
                 touchEnabled: false,
+                doubleClickEnabled: false,
                 labelHoverShadow: false
             })
-            network_graph.bind('clickNode', function(e) {
+            network_graph.bind('doubleClickNode', function(e) {
                   to_expose = network_graph.graph.neighbors(e.data.node.id);              
                   to_expose[e.data.node.id] = e.data.node;
-                  console.log(e);
                   update_exposed();
                   network_graph.refresh();
             });
-
-            network_graph.bind('clickStage', function(e) {
+            network_graph.bind('doubleClickStage', function(e) {
                 to_expose = undefined;
+                $('#node-marker').hide();
+                $('#node-marker').popover('destroy');
                 update_exposed();
                 network_graph.refresh();
             });
-            network_graph.bind('overNode', function(e) {
+            network_graph.bind('clickNode', function(e) {
                 var offset = $(this).offset();
                 var left = e.data.node['renderer1:x'];
                 var top = e.data.node['renderer1:y'];
+                $('#node-marker').popover('destroy');
                 $('#node-marker').show();
                 $('#node-marker').css('left', (left) + 'px');
                 $('#node-marker').css('top', (top) + 'px');                
  
                 $('#node-marker').popover({
-                    container: '#network-container',
+                    container: 'body',
                     html: true,
                     placement: 'auto right',
                     content: node_popover_content(e.data.node)
                 });
                 $('#node-marker').popover('show');
             });
-            network_graph.bind('outNode', function(e) {
+            network_graph.bind('clickStage', function(e) {
                 $('#node-marker').hide();
                 $('#node-marker').popover('destroy');
             });
@@ -812,23 +824,14 @@ jQuery(function($) {
             network_graph.refresh();
             $('#network').hide();
             network_graph.startForceAtlas2({
-                autoSettings: false,
                 linLogMode: true,
                 outboundAttractionDistribution: false,
                 adjustSizes: true,
                 edgeWeightInfluence: 0,
-                scalingRatio: 0.2,
+                scalingRatio: 200,
                 strongGravityMode: false,
-                gravity: -0.5,
-                jitterTolerance: 2,
-                barnesHutOptimize: false,
-                barnesHutTheta: 1.2,
-                speed: 2,
-                outboundAttCompensation: -1.5,
-                totalSwinging: 0,
-                totalEffectiveTraction: 0,
-                complexIntervals: 500,
-                simpleIntervals: 1000
+                gravity: 1,
+                slowDown: 1
               });
               setTimeout(function(){ 
                   network_graph.stopForceAtlas2();

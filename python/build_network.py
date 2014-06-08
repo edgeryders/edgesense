@@ -32,6 +32,8 @@ def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', ti
                 user_data['name'] = user[node_title_field]
             else:
                 user_data['name'] = "User %(uid)s" % user
+            if user.has_key('link') and user['link']!='':
+                user_data['link'] = user['link']    
             # timestamps
             user_data['created_ts'] = int(user['created'])
             user_data['created_on'] = datetime.fromtimestamp(user_data['created_ts']).date().isoformat()

@@ -35,6 +35,7 @@
     width:1px;
     height:1px;
     background-color:transparent;
+    z-index:999;
 }
 #network-container #node-marker,
 #network-container .popover {
