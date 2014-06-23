@@ -593,6 +593,7 @@ jQuery(function($) {
                       bottom: 0.02,
                       left: 0.015
                     },
+                    interpolation: 'linear',
                     series: series
                 });
                 var x_axis = new Rickshaw.Graph.Axis.Time( { 
@@ -689,7 +690,10 @@ jQuery(function($) {
         db.network_graph = function(){
             return network_graph;
         };
-
+        db.current_metrics = function(){
+            return current_metrics;
+        }
+        
         db.run = function(){
             // Load the configuration
             configuration = Configuration().load();
@@ -877,12 +881,11 @@ jQuery(function($) {
                               .load('network.min.json');
     
           window.Dashboard.run();
+          window.Tutorial.dashboard(window.Dashboard).setup();
           
       }
     });
-
     
-
 });
 
 

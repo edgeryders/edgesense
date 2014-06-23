@@ -39,13 +39,207 @@
                         <span id="dashboard-title">Edgesense</span>
                         <small>dashboard</small>
                     </h1>
-                    <ol class="breadcrumb">
+                    <ol class="toprightmenu">
                         <li><i class="fa fa-clock-o"></i> <span id="generated-ts">&nbsp;</span></li>
-                    </ol>
+                        <li><a href="" id="tutorial-open">tutorial</a></li>
+                    </ol>                        
+                    <div id="tutorial" class="row">
+                        <div class="col-lg-12">
+                        <div class="box box-info">
+                            <div class="box-header">
+                                <h4 class="box-title">Interactive tutorial </h4>
+                                <div class="box-tools pull-right">
+                                    <a href="" id="tutorial-close"><i class="glyphicon glyphicon-remove-circle"></i></a>                                    
+                                </div>
+                            </div>
+                            <div class="box-body tab-content">
+                                  <div class="tab-pane row active tut-step" data-tut-step="0" data-tut-title="Introduction">
+                                      <div class="col-lg-12">
+                                          <div class="tut-text">
+    Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.                                          
+                                          </div>                                          
+                                      </div>
+                                  </div>
+                                  <div class="tab-pane row tut-step" data-tut-step="1" data-tut-title="Step 1/5">
+                                      <div class="col-lg-12">
+                                          <div class="tut-text">
+                                              Look at your community's network of relationship and click on a highly central node. The more central the better!
+                                          </div>
+                                          <div class="tut-help">
+                                              Click on the lock to zoom and move the network; hover over nodes to discover their degree and centrality metrics. Click on the ? icon to learn more about the meaning of these metrics.
+                                          </div>
+                                          <div class="tut-result"></div>
+                                      </div>
+                                  </div>
+                                  <div class="tab-pane row tut-step" data-tut-step="2" data-tut-title="Step 2/5" >
+                                      <div class="col-lg-12">
+                                          <div class="tut-text">
+                                              <p>
+                                                  What percentage of all relationships occurring on your community do you think involve moderators? (Relationships, represented by an edge in the graph, occur when a user comments another user.)
+                                              </p>
+                                              <div class="form-group"> 
+                                                <div class="radio">
+                                                  <label><input type="radio" name="tut-step-2-answers" value="lt-20">
+                                                         less than 20%
+                                                  </label>
+                                                </div>
+                                                <div class="radio">
+                                                  <label><input type="radio" name="tut-step-2-answers" value="20-40">
+                                                         between 20 and 40%
+                                                  </label>
+                                                </div>
+                                                <div class="radio">
+                                                  <label><input type="radio" name="tut-step-2-answers" value="40-60">
+                                                         between 40 and 60%
+                                                  </label>
+                                                </div>
+                                                <div class="radio">
+                                                  <label><input type="radio" name="tut-step-2-answers" value="60-80">
+                                                         between 60 and 80%
+                                                  </label>
+                                                </div>
+                                                <div class="radio">
+                                                  <label><input type="radio" name="tut-step-2-answers" value="gt-80">
+                                                         more than 80%
+                                                  </label>
+                                                </div>
+                                              </div>                                        
+                                          </div>
+                                          <div class="tut-help">
+                                              Check/uncheck the "Moderators?" box to show/hide moderators and all edges incident to them.
+                                          </div>
+                                          <div class="tut-result"></div>
+                                      </div>
+                                  </div>
+                                  <div class="tab-pane row tut-step" data-tut-step="3" data-tut-title="Step 3/5">
+                                      <div class="col-lg-12">
+                                          <div class="tut-text">
+                                              <p>In the latest period for which we have data, how self-sustaining is your community (excluding the contribution of moderators? Consider only posts, not comments, in your answer.</p>
+                                              <p>
+                                                  In the latest period, users in your community, moderators excluded, have contributed
+                                              </p>
+                                              <div class="form-group"> 
+                                                <div class="radio">
+                                                  <label><input type="radio" name="tut-step-3-answers" value="lt-20">
+                                                         less than 20% of all posts
+                                                  </label>
+                                                </div>
+                                                <div class="radio">
+                                                  <label><input type="radio" name="tut-step-3-answers" value="20-40">
+                                                         between 20 and 40% of all posts
+                                                  </label>
+                                                </div>
+                                                <div class="radio">
+                                                  <label><input type="radio" name="tut-step-3-answers" value="40-60">
+                                                         between 40 and 60% of all posts
+                                                  </label>
+                                                </div>
+                                                <div class="radio">
+                                                  <label><input type="radio" name="tut-step-3-answers" value="60-80">
+                                                         between 60 and 80% of all posts
+                                                  </label>
+                                                </div>
+                                                <div class="radio">
+                                                  <label><input type="radio" name="tut-step-3-answers" value="gt-80">
+                                                         more than 80% of all posts
+                                                  </label>
+                                                </div>
+                                              </div>                                        
+                                          </div>
+                                          <div class="tut-help">
+                                              Look below the graph for the three line charts; click on the ? icon of each of them to learn more about their meaning.
+                                          </div>
+                                          <div class="tut-result"></div>
+                                      </div>
+                                  </div>
+                                  <div class="tab-pane row tut-step" data-tut-step="4" data-tut-title="Step 4/5">
+                                      <div class="col-lg-12">
+                                          <div class="tut-text">
+                                              <p>
+                                                  Over the last period, has the share of comments written by non-moderators increased or decreased?
+                                              </p>
+                                              <div class="form-group"> 
+                                                <div class="radio">
+                                                  <label><input type="radio" name="tut-step-4-answers" value="incr-more">
+                                                         It has increased: the conversation has become more sustainable
+                                                  </label>
+                                                </div>
+                                                <div class="radio">
+                                                  <label><input type="radio" name="tut-step-4-answers" value="decr-more">
+                                                         It has decreased: the conversation has become more sustainable
+                                                  </label>
+                                                </div>
+                                                <div class="radio">
+                                                  <label><input type="radio" name="tut-step-4-answers" value="incr-less">
+                                                         It has increased: the conversation has become less sustainable
+                                                  </label>
+                                                </div>
+                                                <div class="radio">
+                                                  <label><input type="radio" name="tut-step-4-answers" value="decr-less">
+                                                         It has decreased: the conversation has become less sustainable
+                                                  </label>
+                                                </div>
+                                              </div>                                        
+                                          </div>
+                                          <div class="tut-help">
+                                              The three line charts at the bottom of the page are divided into 50 datapoints. Look at what happened over the rightmost. Is the line representing the share of comments going up or down? Click on the ? icon on the chart to learn more about its interpretation.
+                                          </div>
+                                          <div class="tut-result"></div>                                          
+                                      </div>
+                                  </div>
+                                  <div class="tab-pane row tut-step" data-tut-step="5" data-tut-title="Step 5/5">
+                                      <div class="col-lg-12">
+                                          <div class="tut-text">
+                                              <p>
+                                                  Network modularity is higher when a network can be divided quite naturally into subcommunities of nodes that are more connected to other nodes in the same subcommunity than to nodes in other subcommunities. Does the presence of moderators increase or decrease modularity in your network?
+                                              </p>
+                                              <div class="form-group"> 
+                                                <div class="radio">
+                                                  <label><input type="radio" name="tut-step-5-answers" value="incr-team">
+                                                         Moderators increase modularity, because they talk mostly to each other
+                                                  </label>
+                                                </div>
+                                                <div class="radio">
+                                                  <label><input type="radio" name="tut-step-5-answers" value="incr-other">
+                                                         Moderators increase modularity, because they tend to talk with very many different people in the network.
+                                                  </label>
+                                                </div>
+                                                <div class="radio">
+                                                  <label><input type="radio" name="tut-step-5-answers" value="decr-tean">
+                                                         Moderators reduce modularity, because they talk mostly to each other
+                                                  </label>
+                                                </div>
+                                                <div class="radio">
+                                                  <label><input type="radio" name="tut-step-5-answers" value="decr-other">
+                                                         Moderators reduce modularity, because they tend to talk with very many different people in the network.
+                                                  </label>
+                                                </div>
+                                              </div>                                        
+                                          </div>
+                                          <div class="tut-help">
+                                            Check/uncheck the "Moderators?" box to show/hide moderators, and look at what happens to the modularity network.
+                                          </div>
+                                          <div class="tut-result"></div>
+                                      </div>
+                                  </div>
+                                  <div class="tab-pane row tut-step" data-tut-step="6" data-tut-title="Completed">
+                                      <div class="col-lg-12">
+                                          <div class="tut-text">
+                                              You have gotten <span class="tut-end-result"></span> answers out of 5 right. Congratulations, and thank you for using this tutorial.        
+                                          </div>                                          
+                                      </div>
+                                  </div>
+                                                        
+                            </div>
+                        </div>
+                                            
+                        </div>
+                    </div>
+                    
                 </section>
 
                 <!-- Main content -->
-                <section class="content">
+                <section id="main-block" class="content">
                     <div class="row margin">
                         <div class="col-sm-11">
                             <input id="date_range" type="text" name="date_range" value="" />
@@ -183,7 +377,6 @@
             </aside><!-- /.right-side -->
         </div><!-- ./wrapper -->
 
-
         <!-- jQuery 2.0.2 -->
         <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js"></script>
         <script src="js/jquery-ui-1.10.3.min.js"></script>
@@ -206,6 +399,7 @@
         <!-- Dashboard -->
         <script src="js/dash.js" type="text/javascript"></script>
         <!-- Application -->
+        <script src="js/tutorial.js" type="text/javascript"></script>
         <script src="js/app.js" type="text/javascript"></script>
     </body>
 </html>

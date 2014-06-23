@@ -1,3 +1,23 @@
+.right-side > .content {
+    padding-top:60px;
+}
+@media screen and (max-width: 767px) {
+  .right-side > .content {
+      padding-top:90px;
+  }
+}
+@media screen and (max-width: 560px) {
+    .right-side > .content {
+        padding-top:90px;
+    }
+}
+
+
+.content-header {
+    position: fixed !important;
+    width: 100%;
+    z-index: 999;
+}
 .rickshaw_graph .x_tick .title {
     left: -3px;
     font-size:10px;
@@ -126,4 +146,68 @@
 }
 .help-button {
     cursor:pointer;
+}
+#tutorial {
+    display:none;
+    position:relative;
+    padding-top:10px;
+}
+#tutorial-close {
+    font-size:10px;
+    color:#333;
+}
+#tutorial .box {
+    margin-bottom:0px;
+}
+.content-header .toprightmenu {
+  float: right;
+  list-style: none;
+  background: transparent;
+  margin-top: 0px;
+  margin-bottom: 0;
+  font-size: 12px;
+  padding: 7px 5px;
+  position: absolute;
+  top: 15px;
+  right: 10px;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  border-radius: 2px;
+}
+.content-header .toprightmenu > li {
+  display: inline-block;
+}
+.content-header .toprightmenu > li > a {
+  color: #444;
+  text-decoration: none;
+}
+.content-header .toprightmenu > li > a > .fa,
+.content-header .toprightmenu > li > a > .glyphicon,
+.content-header .toprightmenu > li > a > .ion {
+  margin-right: 5px;
+}
+.content-header .toprightmenu > li + li:before {
+  content: '|\00a0';
+}
+@media screen and (max-width: 767px) {
+  .right-side > .content-header > .toprightmenu {
+    position: relative;
+    margin-top: 5px;
+    top: 0;
+    right: 0;
+    float: none;
+    background: #efefef;
+  }
+}
+
+#tutorial .tut-answer {
+    display:none;
+}
+#tutorial .tut-text {
+    overflow:hidden;
+}
+#tutorial .tut-result {
+    margin-top:18px;
+}
+#tutorial-open {
 }
