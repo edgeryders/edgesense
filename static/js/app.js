@@ -855,14 +855,9 @@ jQuery(function($) {
                           node.y = n.y;
                       }
                   })
-                  // stop the spinner and show the network
-                  // spinner.stop();
-                  // $('#network').fadeIn();
                   $('#network-container .box-tools').show();
               }, 8000);
-              // spinner.stop();
               $('#network').fadeIn();
-              // $('#network-container .box-tools').show();
             
             // setup network controls
             network_lock = $('#network-lock');
