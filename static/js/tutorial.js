@@ -69,7 +69,8 @@ jQuery(function($) {
                 
                 _.each(step.find('.tut-help'), function(help){
                     $(help).
-                        html('<p class="text-muted"><i class="fa fa-info"></i>: '+$(help).html()+'</p>');
+                        html('<p class="callout callout-warning">'+$(help).html()+'</p>');
+                        // html('<p class="text-muted"><i class="fa fa-info"></i>: '+$(help).html()+'</p>');
                         // html('<div class="alert alert-info"><i class="fa fa-info"></i>'+$(help).html()+'</div>');
                 });
                 
@@ -341,8 +342,7 @@ jQuery(function($) {
         // add the step answer setup code
         answers_setup.step_1 = function(step){
             step.on('shown.bs.tab', function (e) {
-                $('#node-marker').hide();
-                $('#node-marker').popover('destroy');
+                dashboard.close_node_popover();
                 betweenness_bin_respond = true;
             })
             

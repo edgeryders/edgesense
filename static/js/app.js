@@ -348,6 +348,7 @@ jQuery(function($) {
                 analytics.track('filter', 'toggle_partition', 'part #'+b.data('partition'), shown);
             },
             update_network_graph = function(){
+                close_node_popover();
                 network_graph.graph.clear();
                 network_graph.graph.read(filtered_graph());
                 update_hidden();
@@ -382,6 +383,11 @@ jQuery(function($) {
                       e.color = edge_transparent;                      
                   }
                 });                
+            },
+            close_node_popover = function(){
+                $('#node-marker').hide();
+                $('#node-marker').popover('destroy');
+                
             },
             node_popover_content = function(node){
                 var current_metrics = metrics_bydate.top(1)[0];
@@ -496,6 +502,7 @@ jQuery(function($) {
                 var chart = new Rickshaw.Graph( {
                     element: minichart, 
                     renderer: 'multi',
+                    interpolation: 'linear',
                     width: $(minichart).width(),
                     height: 73,
                     dotSize: 4,
@@ -686,17 +693,21 @@ jQuery(function($) {
         db.data = function(){
             return data;
         };
-
         db.network_graph = function(){
             return network_graph;
         };
         db.current_metrics = function(){
             return current_metrics;
-        }
+        };
+        db.close_node_popover = function(){
+            close_node_popover();
+        };
         
         db.run = function(){
             // Load the configuration
             configuration = Configuration().load();
+            
+            $('#dashboard-controls').fadeIn();
             
             // Show the title
             var dashboard_name = configuration.get("dashboard_name");
@@ -820,10 +831,7 @@ jQuery(function($) {
                 });
                 $('#node-marker').popover('show');
             });
-            network_graph.bind('clickStage', function(e) {
-                $('#node-marker').hide();
-                $('#node-marker').popover('destroy');
-            });
+            network_graph.bind('clickStage', close_node_popover);
             
             network_graph.refresh();
             $('#network').hide();
@@ -851,7 +859,7 @@ jQuery(function($) {
                   // spinner.stop();
                   // $('#network').fadeIn();
                   $('#network-container .box-tools').show();
-              }, 8000)
+              }, 8000);
               // spinner.stop();
               $('#network').fadeIn();
               // $('#network-container .box-tools').show();
