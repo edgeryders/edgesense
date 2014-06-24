@@ -42,7 +42,7 @@ jQuery(function($) {
             header_cnt = undefined,
             tutorial_cnt = undefined,
             repad = function(){
-                main_cnt.css('padding-top', header_cnt.outerHeight()+4);
+                // main_cnt.css('padding-top', header_cnt.outerHeight()+4);
             },
             slide_in = function(e){
                 tutorial_cnt.slideDown(500, function(){

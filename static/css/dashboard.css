@@ -1,22 +1,11 @@
 .right-side > .content {
-    padding-top:60px;
-}
-@media screen and (max-width: 767px) {
-  .right-side > .content {
-      padding-top:90px;
-  }
-}
-@media screen and (max-width: 560px) {
-    .right-side > .content {
-        padding-top:90px;
-    }
+    padding-top:10px;
 }
 
 #dashboard-controls {
     display:none;
 }
 .content-header {
-    position: fixed !important;
     width: 100%;
     z-index: 999;
 }
