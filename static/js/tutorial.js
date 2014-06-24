@@ -298,7 +298,7 @@ jQuery(function($) {
                 if (modularity_increased_by_moderators) {
                     message = "Your moderators do indeed increase modularity. This may indeed signal that they are talking mostly to each other, or to a small group of people in the community";
                 } else {
-                    message = "Your moderators do indeed decrease modularity. This may happen because moderators try to engage many or most new users, and so they end up acting as hubs, pulling the whole network together. A5. In your network";
+                    message = "Your moderators do indeed decrease modularity. This may happen because moderators try to engage many or most new users, and so they end up acting as hubs, pulling the whole network together.";
                 }
                     
                 switch (option.val()) {
