@@ -286,7 +286,6 @@ jQuery(function($) {
             nodes_map = {},
             to_expose = undefined,
             network_lock = undefined,
-            // spinner = new Spinner({ radius: 50, color:'#ffffff' }).spin(document.getElementById('network-container')),
             node_fill_transparent = 'rgba(204,204,204,0.1)',
             edge_transparent = 'rgba(204,204,204,0.1)',
             node_border_default = 'rgba(240, 240, 240, 1)', //'rgba(32, 32, 32, 1)',
@@ -702,6 +701,9 @@ jQuery(function($) {
         db.close_node_popover = function(){
             close_node_popover();
         };
+        db.configuration = function(){
+            return configuration;
+        }
         
         db.run = function(){
             // Load the configuration

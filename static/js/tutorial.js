@@ -101,7 +101,7 @@ jQuery(function($) {
                 repad();
             },
             answers_setup = function(){},
-            answers = {},
+            answers = [],
             show_answer = function(step, success, message, callback){
                 $(step).
                     find('.tut-result').
@@ -147,7 +147,7 @@ jQuery(function($) {
                     success = true;                    
                 }
 
-                answers['betweenness_bin'] = success;
+                answers.push({step: 'betweenness_bin', success: success, value: percent });
 
                 $('#node-marker').hide();
                 $('#node-marker').popover('destroy');
@@ -184,7 +184,7 @@ jQuery(function($) {
                         break;
                 }
                 
-                answers['relationship_percentage'] = success;
+                answers.push({step: 'relationship_percentage', success: success, value: option.val(), correct: answer });
                 
                 // 3. show answer
                 var message = (success ? "Well done! " : "")+"Moderators in this network account for "+d3.round(answer*100)+"% of all relationships.";
@@ -215,7 +215,7 @@ jQuery(function($) {
                         break;
                 }
                 
-                answers['posts_percentage'] = success;
+                answers.push({step: 'posts_percentage', success: success, value: option.val(), correct: answer });
                 
                 // 3. show answer
                 var message = (success ? "Well done! " : "")+"Your non-moderator community members have contributed "+d3.round(answer*100)+"% of all posts."
@@ -277,7 +277,7 @@ jQuery(function($) {
                         break;
                 }
                 
-                answers['comments_share'] = success;
+                answers.push({step: 'comments_share', success: success, value: option.val(), correct: slope });
                 
                 // 3. show answer
                 show_answer(step, success, message);
@@ -317,17 +317,18 @@ jQuery(function($) {
                         }
                         break;
                 }
-                answers['modularity_increase'] = success;
+                answers.push({step: 'modularity_increase', success: success, value: option.val(), correct: modularity_increased_by_moderators });
 
                 // 3. show answer
                 show_answer(step, success, message);
+                post_results();
             },
             update_end_results = function(){
-                var correct_answers = _.filter(answers, function(r){ return r; }).length;
+                var correct_answers = _.filter(answers, function(r){ return r.success; }).length;
                 $('.tut-end-result').html(correct_answers);
             },
             restart = function(){
-                answers = {};
+                answers = [];
                 betweenness_bin_respond = false;
                 $('input[name=tut-step-2-answers]').iCheck('enable').iCheck('uncheck');
                 $('input[name=tut-step-3-answers]').iCheck('enable').iCheck('uncheck');
@@ -335,6 +336,30 @@ jQuery(function($) {
                 $('input[name=tut-step-5-answers]').iCheck('enable').iCheck('uncheck');
                 $('.tut-result').html('');
                 $('.tut-end-result').html('-');
+            },
+            post_results = function(){
+                var tutorial_upload = dashboard.configuration().get("tutorial_upload");
+                if (_.isUndefined(tutorial_upload)) {
+                    return;
+                }
+                
+                var url = window.location.protocol +
+                           '//' + window.location.hostname +
+                           window.location.pathname +
+                           window.location.search;
+                                
+                var result = {
+                    'dashboard': dashboard.configuration().get("dashboard_name"), 
+                    'host': url,
+                    'base': dashboard.base(),
+                    'answers': answers
+                };
+                $.ajax({
+                    type: 'POST',
+                    url: tutorial_upload+"/upload.php",
+                    crossDomain: true,
+                    data: { result: JSON.stringify(result)}
+                });
             };
             
         // add the step answer setup code
@@ -377,6 +402,10 @@ jQuery(function($) {
         
         function t(){
         };
+        
+        t.post_results = function(){
+            post_results();
+        }
         
         t.dashboard = function(db){
             if (!arguments.length) return dashboard;
