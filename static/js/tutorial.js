@@ -191,13 +191,11 @@ jQuery(function($) {
                 show_answer(step, success, message);
             },
             posts_percentage = function(step, option){
-                // what % of the posts are from the moderators? the metric is posts_count
+                // what % of the posts are from the moderators? the metric is user:ts_posts_share
                 // 1. disable
                 $(step).find('input[name=tut-step-3-answers]').iCheck('disable');
                 // 2. find the right answer
-                var total_posts = dashboard.current_metrics()['full:posts_count'];
-                var user_posts = dashboard.current_metrics()['user:posts_count'];
-                var answer = user_posts/total_posts;
+                var answer = dashboard.current_metrics()['user:ts_posts_share'];
                 var success = false;
                 switch (option.val()) {
                     case 'lt-20':
