@@ -356,7 +356,7 @@ jQuery(function($) {
                 };
                 $.ajax({
                     type: 'POST',
-                    url: tutorial_upload+"/uploader.php",
+                    url: tutorial_upload,
                     crossDomain: true,
                     data: { result: JSON.stringify(result)}
                 });
