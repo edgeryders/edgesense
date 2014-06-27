@@ -187,10 +187,14 @@ def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', ti
     else:
         timestep = timestep_size
     
+    timesteps_range = range(start_ts, end_ts, timestep)
+    if timesteps_range[-1]<end_ts :
+        timesteps_range.append(end_ts)
+    
     metrics = {}
     # calculate content metrics
     # For each timestep:
-    for ts in range(start_ts, end_ts, timestep):
+    for ts in timesteps_range:
         ts_metrics = {
             'ts': ts,
             'full:posts_count':0., # Number of Posts total
@@ -222,13 +226,13 @@ def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', ti
         }
         # Posts Count metrics
         for p in posts_map.values():
-            if p['created_ts']<ts:
+            if p['created_ts']<=ts:
                 ts_metrics['full:posts_count'] += 1
                 if p['team']:
                     ts_metrics['team:posts_count'] += 1
                 else:
                     ts_metrics['user:posts_count'] += 1
-            if p['created_ts']<ts and p['created_ts']>=ts-timestep*timestep_window:
+            if p['created_ts']<=ts and p['created_ts']>=ts-timestep*timestep_window:
                 ts_metrics['full:ts_posts_count'] += 1
                 if p['team']:
                     ts_metrics['team:ts_posts_count'] += 1
@@ -245,13 +249,13 @@ def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', ti
     
         # Comments Count metrics
         for c in comments_map.values():
-            if c['created_ts']<ts:
+            if c['created_ts']<=ts:
                 ts_metrics['full:comments_count'] += 1
                 if c['team']:
                     ts_metrics['team:comments_count'] += 1
                 else:
                     ts_metrics['user:comments_count'] += 1
-            if c['created_ts']<ts and c['created_ts']>=ts-timestep*timestep_window:
+            if c['created_ts']<=ts and c['created_ts']>=ts-timestep*timestep_window:
                 ts_metrics['full:ts_comments_count'] += 1
                 if c['team']:
                     ts_metrics['team:ts_comments_count'] += 1
@@ -272,14 +276,14 @@ def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', ti
         conversations = set()
         noteam_conversations = set()
         for c in comments_map.values():
-            if c['created_ts']<ts and nodes_map.has_key(c['author_id']) and nodes_map.has_key(c['recipient_id']):
+            if c['created_ts']<=ts and nodes_map.has_key(c['author_id']) and nodes_map.has_key(c['recipient_id']):
                 a = nodes_map[c['author_id']]
                 r = nodes_map[c['recipient_id']]
                 cnv = '-'.join(sorted([c['author_id'], c['recipient_id']]))
-                if not (a['team'] and a['team_ts'] <ts):
+                if not (a['team'] and a['team_ts'] <=ts):
                     actives.add(c['author_id'])
                     conversations.add(cnv)
-                    if not (r['team'] and r['team_ts'] <ts):
+                    if not (r['team'] and r['team_ts'] <=ts):
                         noteam_actives.add(c['recipient_id'])
                         noteam_conversations.add(cnv)
         ts_metrics['user:active_count'] = len(actives)
@@ -307,7 +311,7 @@ def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', ti
     logging.info("network built")  
 
     
-    for ts in range(start_ts, end_ts, timestep):
+    for ts in timesteps_range:
         ts_metrics = metrics[ts]
         # all metrics
         ts_metrics.update(en.metrics.extract_network_metrics(MDG, ts))
