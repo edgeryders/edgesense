@@ -1,0 +1,6 @@
+<?php
+
+$base_dir = "/tmp"; //This is the directory on the server where the files will be saved. Defaults to /tmp
+$valid_origin = 'http://www.example.com'; //This should be the host where the uploader script is installed (leave it blank if on the same host). Defaults to blank.
+
+?>

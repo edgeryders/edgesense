@@ -4,13 +4,14 @@
 // the following variables:
 //   - $base_dir: is the base directory where the files are written
 //   - $valid_origin: is the hostname of from which we accept the CORS requests 
-$config = 'config.php';
+$config = './config.php';
 if (file_exists($config)) {
     include $config;
 } else {
     // defaults 
     $base_dir = '/tmp';
     $valid_origin = '';
+    $script_base = '';
 }
 
 if ($_SERVER['HTTP_ORIGIN']==$valid_origin) {
