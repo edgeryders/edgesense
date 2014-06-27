@@ -133,6 +133,7 @@ python python/build_network.py \
     - Share of User Generated Comments in period
     - Share of Team/User Generated Comments in period
 - if no username and password are specified then the script assumes that the remote file is openly accessible i.e. it uses no authentication when downloading the files.
+
 ### Output json files
 
 The python script creates four different files:
@@ -350,6 +351,16 @@ The user can also access an interactive tutorial from a link in the top-right of
 The tutorial is implemented in the ```tutorial.js``` javascript file with most of the markup being included directly into the index.html page (inside a ```#tutorial``` div.)
 
 If configured the tutorial posts the results to a remote URL for collection and further analysis (to help improve the dashboard and the metrics.)
+
+In the php directory of the project there is a sample script that is being used to collect the tutorial answers:
+
+The ```uploader.php``` script can be installed anywhere (even on a different host).
+
+It receives a request from the tutorial javascript and:
+
+1. includes the config file if it is found on the same dir
+2. sets the CORS headers to allow calls from the origin host
+3. saves the content of the result parameter to a .json file in the directory spceified by the configuration
 
 ### Configuring the dashboard
 
