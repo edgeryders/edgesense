@@ -16,6 +16,12 @@ def extract_network_metrics(mdg, ts, team=True):
         pre = 'full:'
     else:
         pre = 'user:'
+    
+    # avoid trying to compute metrics for  
+    # the case of empty networks 
+    if dsg.number_of_nodes()==0:
+        return met
+    
     met[pre+'nodes_count'] = dsg.number_of_nodes()
     met[pre+'edges_count'] = dsg.number_of_edges()
     met[pre+'density'] = nx.density(dsg)
