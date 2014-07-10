@@ -29,7 +29,7 @@ Their structure is quite simple and the data used is minimal (the script doesn't
 #### Users data
 
 The file should contain a top level object with a "users" property that should be an array of user objects.
-Each user object should have at least the ```uid``` which is used to identify the user in the other files, the ```created``` field that is the date/time (as a timestamp) of the user creation. The administrators are identified as the users that have a ```roles``` field defined (the script doesn't look at the content of this file).
+Each user object should have at least the ```uid``` which is used to identify the user in the other files, the ```created``` field that is the date/time (as a timestamp) of the user creation. 
 
 ```
 {
@@ -45,6 +45,12 @@ Each user object should have at least the ```uid``` which is used to identify th
   ]
 }
 ```
+
+The administrators are identified looking at the ```roles``` field, and the behaviour is slightly different depending wether the ```admin-roles``` parameter is specified or not. The script option ```admin-roles```, if specified, should be a list of roles of the role names separated by a comma.
+
+The default behaviour when no ```admin-roles``` are indicated is to consider part of the moderators team any user who has a *non empty* roles field (the script doesn't look at the content of the field in this case).
+
+If the option is passed to the script, then only the users who have one of the given roles are considered part of the team.
 
 #### Nodes data
 
@@ -115,7 +121,8 @@ python python/build_network.py \
        -f <the exact number of timesteps to use> \
        -w <the moving window of timesteps where the counts are taken> \
        --username <the Http Basic Auth username to access the remote file> \
-       --password <the Http Basic Auth password to access the remote file
+       --password <the Http Basic Auth password to access the remote file> \
+       --admin-roles="<comma separated list of roles marking a user as part of the community team>"
 ```
 
 - The arguments passed to -u, -n, -c may be URLs to remote json files (e.g. json views from a Drupal site.)
@@ -133,6 +140,7 @@ python python/build_network.py \
     - Share of User Generated Comments in period
     - Share of Team/User Generated Comments in period
 - if no username and password are specified then the script assumes that the remote file is openly accessible i.e. it uses no authentication when downloading the files.
+- if no admin roles are specified the deafult behaviour is to consider part of the moderators team any user who has a *non empty* roles field
 
 ### Output json files
 
