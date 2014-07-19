@@ -1,0 +1,40 @@
+{
+  "users": [
+    {
+      "user": {
+        "uid": "1",
+        "created": "1315483000",
+        "name": "A",
+        "roles": "admin"      
+      }
+    },
+    {
+      "user": {
+        "uid": "2",
+        "created": "1315487000",
+        "name": "B"
+      }
+    },
+    {
+      "user": {
+        "uid": "3",
+        "created": "1315488000",
+        "name": "C"
+      }
+    },
+    {
+      "user": {
+        "uid": "4",
+        "created": "1315489000",
+        "name": "D"
+      }
+    },
+    {
+      "user": {
+        "uid": "5",
+        "created": "1315490000",
+        "name": "E"
+      }
+    }
+  ]
+}

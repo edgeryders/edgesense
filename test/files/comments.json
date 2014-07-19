@@ -1,0 +1,35 @@
+{
+  "comments": [
+    {
+      "comment": {
+        "cid": "1",
+        "nid": "1",
+        "uid": "2",
+        "created": "1315491000",
+        "comment": "C1",
+        "subject": "C1"
+      }
+    },
+    {
+      "comment": {
+        "cid": "2",
+        "nid": "1",
+        "uid": "1",
+        "pid": "1",
+        "created": "1315492000",
+        "comment": "C2",
+        "subject": "C2"
+      }
+    },
+    {
+      "comment": {
+        "cid": "3",
+        "nid": "2",
+        "uid": "3",
+        "created": "1315493000",
+        "comment": "C3",
+        "subject": "C3"
+      }
+    }
+  ]
+}
