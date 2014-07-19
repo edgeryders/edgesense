@@ -30,7 +30,19 @@ jQuery(function($) {
 
         return m;
     }
-
+    
+    var guid = (function() {
+      function s4() {
+        return Math.floor((1 + Math.random()) * 0x10000)
+                   .toString(16)
+                   .substring(1);
+      }
+      return function() {
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+               s4() + '-' + s4() + s4() + s4();
+      };
+    })();
+    
     var Tutorial = function(){
         
         var steps = [],
@@ -41,6 +53,20 @@ jQuery(function($) {
             title_cnt = undefined,
             header_cnt = undefined,
             tutorial_cnt = undefined,
+            run_id = undefined,
+            base_data = function(){
+                var url = window.location.protocol +
+                           '//' + window.location.hostname +
+                           window.location.pathname +
+                           window.location.search;
+                
+                return {
+                    'dashboard': dashboard.configuration().get("dashboard_name"), 
+                    'host': url,
+                    'base': dashboard.base(),
+                    'run_id': run_id
+                };
+            },
             repad = function(){
                 // main_cnt.css('padding-top', header_cnt.outerHeight()+4);
             },
@@ -59,13 +85,32 @@ jQuery(function($) {
                 e.preventDefault();
                 
             },
-            setup_step = function(step){
-                var step_number = step.data('tut-step');
+            setup_closing_step = function(step){
+                step.on('shown.bs.tab', function (e) {
+                    post_results();
+                });
                 
-                step.attr('id', 'tut-step-'+step_number).
-                     data('target', '#tut-step-'+step_number).
+                // Setup feedback form
+                var form_group = $('<div>').addClass('form-group');
+                var textarea = $('<textarea>').attr('name', 'comments').addClass('form-control');
+                form_group.append(textarea);                 
+                step.find('.tut-result').append(form_group);
+                
+                add_step_button(step.find('.tut-control'), "Submit feedback", undefined, function(button){
+                    var feedback = base_data();
+                    feedback.comments = $(textarea).val();
+                    upload(feedback);
+                    step.find('.tut-result').html('<div class="alert alert-info"><i class="fa fa-info"></i>Thank you!</div>');
+                    $(button).hide();
+                });
+                add_step_button(step.find('.tut-control'), "Restart", 1, restart);
+                
+            },
+            setup_step = function(step, number){
+                step.attr('id', 'tut-step-'+number).
+                     data('target', '#tut-step-'+number).
                      data('toggle', 'tab').
-                     append('<div class="tut-control col-lg-12"><div class="pull-right"></div></div>');
+                     append('<div class="col-lg-12"><div class="tut-result"></div><div class="tut-control pull-right"></div></div>');
                 
                 _.each(step.find('.tut-help'), function(help){
                     $(help).
@@ -74,10 +119,12 @@ jQuery(function($) {
                         // html('<div class="alert alert-info"><i class="fa fa-info"></i>'+$(help).html()+'</div>');
                 });
                 
-                // setup the answer via the callback (if present)
+                // setup the answer via the callback (if present) or using the generic survey callback
+                var step_number = step.data('tut-step');
                 if (_.isFunction(answers_setup['step_'+step_number])) {
                    answers_setup['step_'+step_number](step); 
                 }
+                
             },
             add_step_button = function(where, label, goto_step_number, callback){
                 var button = $('<a>').
@@ -87,9 +134,11 @@ jQuery(function($) {
                                 data('toggle', 'tab').
                                 on('click', function(e){ 
                                     if (_.isFunction(callback)){
-                                        callback();
+                                        callback(this);
                                     }
-                                    show_step(goto_step_number);
+                                    if (goto_step_number) {                                        
+                                        show_step(goto_step_number);
+                                    }
                                     e.preventDefault();
                                 })
                 where.append(button).append('&nbsp;');
@@ -100,16 +149,32 @@ jQuery(function($) {
                 title_cnt.html(step.data('tut-title'));
                 repad();
             },
+            surveys = [],
+            record_survey = function(step, option){
+                var survey_key = $(step).data('survey');
+                
+                $(step).find('input[name='+survey_key+']').iCheck('disable');
+                surveys.push({step: survey_key, value: option.val() });
+ 
+                // goto next step (add button to do so)
+                var next = step.data('tut-step-next');
+                add_step_button($(step).find('.tut-control'), "Next", next);
+                
+                update_end_results();
+                
+                repad();               
+                
+            },
             answers_setup = function(){},
             answers = [],
             show_answer = function(step, success, message, callback){
                 $(step).
                     find('.tut-result').
-                    html('<div class="alert alert-'+(success ? "success" : "warning" )+'"><i class="fa fa-'+(success ? "check" : "warning")+'"></i>'+message+'</div><div class="tut-control pull-right"></div>');
-            
+                    html('<div class="alert alert-'+(success ? "success" : "warning" )+'"><i class="fa fa-'+(success ? "check" : "warning")+'"></i>'+message+'</div>');
+
                 // goto next step (add button to do so)
                 var next = step.data('tut-step-next');
-                add_step_button($(step).find('.tut-result .tut-control'), "Next", next, callback);
+                add_step_button($(step).find('.tut-control'), "Next", next, callback);
                 
                 update_end_results();
                 
@@ -318,48 +383,42 @@ jQuery(function($) {
                         break;
                 }
                 answers.push({step: 'modularity_increase', success: success, value: option.val(), correct: modularity_increased_by_moderators });
-
+                
                 // 3. show answer
                 show_answer(step, success, message);
-                post_results();
             },
             update_end_results = function(){
                 var correct_answers = _.filter(answers, function(r){ return r.success; }).length;
                 $('.tut-end-result').html(correct_answers);
             },
             restart = function(){
+                run_id = guid();
                 answers = [];
+                surveys = [];
                 betweenness_bin_respond = false;
-                $('input[name=tut-step-2-answers]').iCheck('enable').iCheck('uncheck');
-                $('input[name=tut-step-3-answers]').iCheck('enable').iCheck('uncheck');
-                $('input[name=tut-step-4-answers]').iCheck('enable').iCheck('uncheck');
-                $('input[name=tut-step-5-answers]').iCheck('enable').iCheck('uncheck');
-                $('.tut-result').html('');
+                $('.tut-step input[type=radio]').iCheck('enable').iCheck('uncheck');
+                $('.tut-control').html('');
                 $('.tut-end-result').html('-');
             },
-            post_results = function(){
+            upload = function(what){
                 var tutorial_upload = dashboard.configuration().get("tutorial_upload");
                 if (_.isUndefined(tutorial_upload)) {
                     return;
                 }
-                
-                var url = window.location.protocol +
-                           '//' + window.location.hostname +
-                           window.location.pathname +
-                           window.location.search;
-                                
-                var result = {
-                    'dashboard': dashboard.configuration().get("dashboard_name"), 
-                    'host': url,
-                    'base': dashboard.base(),
-                    'answers': answers
-                };
+                                                
                 $.ajax({
                     type: 'POST',
                     url: tutorial_upload,
                     crossDomain: true,
-                    data: { result: JSON.stringify(result)}
+                    data: { result: JSON.stringify(what)}
                 });
+                
+            },
+            post_results = function(){
+                var result = base_data();
+                result.answers= answers;
+                result.surveys= surveys;
+                upload(result);
             };
             
         // add the step answer setup code
@@ -398,6 +457,30 @@ jQuery(function($) {
                 modularity_increase(step, $(this));
             });
         }
+
+        answers_setup.step_survey = function(step){
+            // Add the radiobuttons
+            var survey_key = $(step).data('survey');
+            var survey_results = _.compact(($(step).data('survey-result')||"very useful|somewhat useful|useless").split("|"));
+            
+            if (survey_results.length>0 && survey_key) {
+                var form_group = $('<div>').addClass('form-group');
+                _.each(survey_results, function(result){
+                    var radio_cnt = $('<div>').addClass('radio');
+                    var radio = '<label><input type="radio" name="'+survey_key+'" value="'+result+'">&nbsp;'+result+'</label>';
+                    radio_cnt.html(radio);
+                    form_group.append(radio_cnt);
+                    
+                })
+                $(step).find('.tut-text').append(form_group);
+                
+                $(step).find('input[name='+survey_key+']')
+                        .iCheck({radioClass: 'iradio_minimal'})
+                        .on('ifChecked', function(event){
+                            record_survey(step, $(this));
+                        });               
+            }
+        }
         
         
         function t(){
@@ -416,6 +499,7 @@ jQuery(function($) {
         }
         
         t.setup = function(){
+            run_id = guid();
             open_btn = $('#tutorial-open');
             close_btn = $('#tutorial-close');
             main_cnt = $('#main-block');
@@ -427,22 +511,28 @@ jQuery(function($) {
 
             // load all the steps from the page
             steps = _.map($('.tut-step'), function(s){ return $(s) });
-            _.each(steps, setup_step);
+            var index = 0;
+            _.each(steps, function(step){
+                setup_step(step, index);
+                index += 1;
+            });
             
             // add back/next buttons
             var first_step = _.first(steps);
-            add_step_button(first_step.find('.tut-control div'), "Start", first_step.data('tut-step')+1);
-            first_step.data('tut-step-next', first_step.data('tut-step')+1);
+            add_step_button(first_step.find('.tut-control'), "Start", 1);
+            first_step.data('tut-step-next', 1);
             
             var middle_steps = _.initial(_.rest(steps));
+            var index = 1;
             _.each(middle_steps, function(s){
-                var step_number = s.data('tut-step');
-                s.data('tut-step-prev', step_number-1);
-                s.data('tut-step-next', step_number+1);
+                // var step_number = s.data('tut-step');
+                s.data('tut-step-prev', index-1);
+                s.data('tut-step-next', index+1);
+                index+=1;
             });
 
             var last_step = _.last(steps);
-            add_step_button(last_step.find('.tut-control div'), "Restart", first_step.data('tut-step')+1, restart);
+            setup_closing_step(last_step);
             
             // setup title
             title_cnt = $('<span>')
