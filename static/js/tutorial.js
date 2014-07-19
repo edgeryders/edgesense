@@ -300,7 +300,7 @@ jQuery(function($) {
                 var messages = [
                     "Well done! The share of comments written by non-moderators has increased. This means that the conversation has become more self-sustaining lately. Good work!",
                     "Well done! The share of comments written by non-moderators has decreased. This means that the conversation has become less self-sustaining lately. Is it a random fluctuation or a trend? Do you have a plan to fix it?",
-                    "The share of comments written by non-moderators has indeed increased. However, if anything this means that the conversation might have become more self-sustaining lately, not less. Good work!",
+                    "The share of comments written by non-moderators has indeed increased. And yes, that indicates that the conversation might have become more self-sustaining, less dependant on moderators. Good work!",
                     "The share of comments written by non-moderators has indeed decreased. However, if anything this means that the conversation might have become less self-sustaining lately, not more. Is it a random fluctuation or a trend? Do you have a plan to fix it?"
                     ];
                 switch (option.val()) {
