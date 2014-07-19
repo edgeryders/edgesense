@@ -64,7 +64,7 @@ def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', ti
                 post_data['author_id'] = post['uid']
                 author = nodes_map[post_data['author_id']]
                 post_data['team'] = author['team'] and author['team_ts'] <= post_data['created_ts']
-                nodes_map[post_data['author_id']]['active'] = True
+                # nodes_map[post_data['author_id']]['active'] = True
             else:
                 post_data['author_id'] = None
                 post_data['team'] = False
