@@ -840,9 +840,10 @@ jQuery(function($) {
             network_graph.startForceAtlas2({
                 linLogMode: true,
                 outboundAttractionDistribution: false,
-                adjustSizes: true,
+                adjustSize: true,
+                adjustSizes: false,
                 edgeWeightInfluence: 0,
-                scalingRatio: 200,
+                scalingRatio: 10,
                 strongGravityMode: false,
                 gravity: 1,
                 slowDown: 1
