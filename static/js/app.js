@@ -838,14 +838,14 @@ jQuery(function($) {
             network_graph.refresh();
             $('#network').hide();
             network_graph.startForceAtlas2({
-                linLogMode: true,
+                linLogMode: false,
                 outboundAttractionDistribution: false,
                 adjustSize: false,
                 adjustSizes: false,
                 edgeWeightInfluence: 0,
-                scalingRatio: 100,
+                scalingRatio: 9000,
                 strongGravityMode: false,
-                gravity: 2,
+                gravity: 2000,
                 slowDown: 1
               });
               setTimeout(function(){ 
@@ -859,7 +859,7 @@ jQuery(function($) {
                       }
                   })
                   $('#network-container .box-tools').show();
-              }, 8000);
+              }, 10000);
               $('#network').fadeIn();
             
             // setup network controls
