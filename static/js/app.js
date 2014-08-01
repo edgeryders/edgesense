@@ -661,6 +661,13 @@ jQuery(function($) {
                 var com = last_metrics.partitions[edge.source];
                 return scale(com);
             },
+            search_node = function(node_id_or_name){
+                return _.find(
+                            network_graph.graph.nodes(), 
+                            function(n){
+                                return n.id === node_id_or_name || n.name === node_id_or_name;
+                            });                
+            },
             expose_node = function(node){
                 to_expose = network_graph.graph.neighbors(node.id);              
                 to_expose[node.id] = node;
@@ -711,14 +718,16 @@ jQuery(function($) {
             return configuration;
         };
         db.search = function(node_id_or_name){
-            return _.find(
-                        network_graph.graph.nodes(), 
-                        function(n){
-                            return n.id === node_id_or_name || n.name === node_id_or_name;
-                        });
+            return search_node(node_id_or_name);
         };
         db.expose = function(node){
             expose_node(node);
+        };
+        db.search_and_expose = function(node_id_or_name){
+            var node = search_node(node_id_or_name);
+            if (node) {
+                expose_node(node);
+            }
         };
         
         db.run = function(){
@@ -837,7 +846,7 @@ jQuery(function($) {
                 $('#node-marker').show();
                 $('#node-marker').css('left', (left) + 'px');
                 $('#node-marker').css('top', (top) + 'px');                
- 
+
                 $('#node-marker').popover({
                     container: 'body',
                     html: true,
