@@ -660,6 +660,12 @@ jQuery(function($) {
             edge_color = function(edge){
                 var com = last_metrics.partitions[edge.source];
                 return scale(com);
+            },
+            expose_node = function(node){
+                to_expose = network_graph.graph.neighbors(node.id);              
+                to_expose[node.id] = node;
+                update_exposed();
+                network_graph.refresh();
             };
 
         function db(){
@@ -703,7 +709,17 @@ jQuery(function($) {
         };
         db.configuration = function(){
             return configuration;
-        }
+        };
+        db.search = function(node_id_or_name){
+            return _.find(
+                        network_graph.graph.nodes(), 
+                        function(n){
+                            return n.id === node_id_or_name || n.name === node_id_or_name;
+                        });
+        };
+        db.expose = function(node){
+            expose_node(node);
+        };
         
         db.run = function(){
             // Load the configuration
@@ -804,10 +820,7 @@ jQuery(function($) {
                 labelHoverShadow: false
             })
             network_graph.bind('doubleClickNode', function(e) {
-                  to_expose = network_graph.graph.neighbors(e.data.node.id);              
-                  to_expose[e.data.node.id] = e.data.node;
-                  update_exposed();
-                  network_graph.refresh();
+                expose_node(e.data.node);
             });
             network_graph.bind('doubleClickStage', function(e) {
                 to_expose = undefined;
