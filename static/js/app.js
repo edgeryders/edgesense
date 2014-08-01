@@ -389,7 +389,6 @@ jQuery(function($) {
                 
             },
             node_popover_content = function(node){
-                var current_metrics = metrics_bydate.top(1)[0];
                 var in_degree = current_metrics[metric_name_prefixed('in_degree')][node.id];
                 var out_degree = current_metrics[metric_name_prefixed('out_degree')][node.id];
                 var betweenness = current_metrics[metric_name_prefixed('betweenness')][node.id];
