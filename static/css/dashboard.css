@@ -33,6 +33,8 @@
     height:785px;
     position:relative;
     background-color:#101010;
+    overflow: hidden;
+    border-top: 0 !important;
 }
 #network-container .box-tools {
     position:absolute;

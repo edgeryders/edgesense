@@ -12,7 +12,7 @@ from edgesense.utils.logger_initializer import initialize_logger
 import edgesense.utils as eu
 import edgesense.network as en
 
-def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', timestep_size=60*60*24*7, timestep_window=1, timestep_count=None, admin_roles=set()):
+def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', timestep_size=60*60*24*7, timestep_window=1, timestep_count=None, admin_roles=set(), exclude_isolated=False):
     # this is the network object
     # going forward it should be read from a serialized format to handle caching
     network = {}
@@ -22,7 +22,7 @@ def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', ti
     # Timestamp of the file generation (to show in the dashboard)
     network['meta']['generated'] = int(timestamp.strftime("%s"))
     
-    nodes_map, posts_map, comments_map = eu.extract.normalized_data(allusers, allnodes, allcomments, node_title_field, admin_roles)
+    nodes_map, posts_map, comments_map = eu.extract.normalized_data(allusers, allnodes, allcomments, node_title_field, admin_roles, exclude_isolated)
     # build a mapping of nodes (users) keyed on their id
 
     network['nodes'] = nodes_map
@@ -193,7 +193,9 @@ def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', ti
 
     for edge in network['edges']:
         MDG.add_edge(edge['source'], edge['target'], attr_dict=edge)
-
+    
+    en.metrics.set_isolated(nodes_map, MDG)
+    
     logging.info("network built")  
 
     
@@ -256,15 +258,16 @@ def parse_options(argv):
     password = None
     extraction_method = 'nested'
     admin_roles = set()
+    exclude_isolated = False
     try:
-        opts, args = getopt.getopt(argv,"hu:n:c:t:s:w:f:",["users=","nodes=","comments=", "node-title=", "timestep-size=", "timestep-window=", "timestep-count=", "username=", "password=", "extraction-method=", "admin-roles="])
+        opts, args = getopt.getopt(argv,"hu:n:c:t:s:w:f:",["users=","nodes=","comments=", "node-title=", "timestep-size=", "timestep-window=", "timestep-count=", "username=", "password=", "extraction-method=", "admin-roles=", "exclude-isolated"])
     except getopt.GetoptError:
         print 'build_network.py -u <users_resource> -n <nodes_resource> -c <comments_resource> -t <node title field> -s <timestep in seconds> -w <timestep window> -f <timestep count>'
         sys.exit(2)
     
     for opt, arg in opts:
         if opt == '-h':
-           print 'build_network.py -u <users_resource> -n <nodes_resource> -c <comments_resource> -t <node title field> -s <timestep in seconds> -w <timestep window> -f <timestep count> --username="<http basic auth user>" --password="<http basic auth password>" --admin-roles="<comma separated list of roles marking a user as part of the community team>"' 
+           print 'build_network.py -u <users_resource> -n <nodes_resource> -c <comments_resource> -t <node title field> -s <timestep in seconds> -w <timestep window> -f <timestep count> --username="<http basic auth user>" --password="<http basic auth password>" --admin-roles="<comma separated list of roles marking a user as part of the community team>" --exclude-isolated' 
            sys.exit()
         elif opt in ("-u", "--users"):
            users_resource = arg
@@ -288,9 +291,11 @@ def parse_options(argv):
            extraction_method = arg
         elif opt in ("--admin-roles"):
            admin_roles = set([e.strip() for e in arg.split(",") if e.strip()])
+        elif opt in ("--exclude-isolated"):
+           exclude_isolated = True
            
     logging.info("parsing files %(u)s %(n)s %(c)s" % {'u': users_resource, 'n': nodes_resource, 'c': comments_resource})       
-    return (users_resource,nodes_resource,comments_resource, node_title_field, timestep_size, timestep_window, timestep_count, username, password, extraction_method, admin_roles)
+    return (users_resource,nodes_resource,comments_resource, node_title_field, timestep_size, timestep_window, timestep_count, username, password, extraction_method, admin_roles, exclude_isolated)
 
 def main(argv):
     initialize_logger('./log')
@@ -305,7 +310,8 @@ def main(argv):
     username, \
     password, \
     extraction_method, \
-    admin_roles = parse_options(argv)
+    admin_roles, \
+    exclude_isolated = parse_options(argv)
     
     logging.info("Network processing - started")  
     # load users
@@ -332,7 +338,8 @@ def main(argv):
                     timestep_size=timestep_size, \
                     timestep_window=timestep_window, \
                     timestep_count=timestep_count, \
-                    admin_roles=admin_roles)
+                    admin_roles=admin_roles, \
+                    exclude_isolated=exclude_isolated)
     
     write_network(network, generated)
     

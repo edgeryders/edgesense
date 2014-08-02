@@ -1,6 +1,7 @@
 import networkx as nx
 import community as co
 from edgesense.network.utils import extract_dpsg
+from datetime import datetime
 
 # build the deparallelized subnetworks to use for metrics
 # compute the metrics by timestep on the deparallelized network
@@ -42,21 +43,43 @@ def extract_network_metrics(mdg, ts, team=True):
     met[pre+'degree_effort'] = dsg.degree(weight='effort')
     met[pre+'avg_degree_effort'] = float(sum(met[pre+'degree_effort'].values()))/float(len(met[pre+'degree_effort'].values()))
     usg = dsg.to_undirected()
-    dendo = co.generate_dendrogram(usg)
-    if len(dendo)>0 and isinstance(dendo, list):
-        partition = co.partition_at_level(dendo, len(dendo) - 1 )
-        met[pre+'partitions'] = {}
-        for com in set(partition.values()):
-            members = [nodes for nodes in partition.keys() if partition[nodes] == com]
-            for member in members:
-                met[pre+'partitions'][member] = com
-        met[pre+'louvain_modularity'] = co.modularity(partition, usg)
-    else:
-        met[pre+'louvain_modularity'] = None
+    louvain = extract_louvain_modularity(usg)
+    met[pre+'partitions'] = louvain['partitions']
+    met[pre+'louvain_modularity'] = louvain['modularity']        
     connected_components = nx.connected_component_subgraphs(usg)
     shortest_paths = [nx.average_shortest_path_length(g) for g in connected_components if g.size()>1]
     if len(shortest_paths) > 0:
         met[pre+'avg_distance'] = max(shortest_paths)
     else:
         met[pre+'avg_distance'] = None
+    return met
+
+def set_isolated(nodes_map, mdg):
+    ts = int(datetime.now().strftime("%s"))
+    dsg = extract_dpsg(mdg, ts, True)
+    usg = dsg.to_undirected()
+    for node in nx.isolates(usg):
+        if nodes_map.has_key(node):
+            nodes_map[node]['isolated'] = True
+        
+def extract_louvain_modularity(g):
+    met = {}
+    usg = g.copy()
+    isolated = nx.isolates(usg)
+    usg.remove_nodes_from(isolated)
+    dendo = co.generate_dendrogram(usg)
+    if len(dendo)>0 and isinstance(dendo, list):
+        partition = co.partition_at_level(dendo, len(dendo) - 1 )
+        met['partitions'] = {}
+        for com in set(partition.values()):
+            members = [nodes for nodes in partition.keys() if partition[nodes] == com]
+            for member in members:
+                met['partitions'][member] = com
+        met['modularity'] = co.modularity(partition, usg)
+        # for node in isolated:
+        #     met['partitions'][node] = None
+    else:
+        met['partitions'] = None
+        met['modularity'] = None
+    
     return met

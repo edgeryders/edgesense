@@ -37,7 +37,7 @@ def extract(how, what, data):
     else:
         raise Exception("Extraction method %s / %s not implemented" % (how, what))
 
-def normalized_data(allusers, allnodes, allcomments, node_title_field='uid', admin_roles=set()):
+def normalized_data(allusers, allnodes, allcomments, node_title_field='uid', admin_roles=set(), exclude_isolated=False):
 
     # build a mapping of nodes (users) keyed on their id
     nodes_map = {}
@@ -59,6 +59,7 @@ def normalized_data(allusers, allnodes, allcomments, node_title_field='uid', adm
             user_data['team_ts'] = user_data['created_ts'] if user_data['team'] else None # this would be different if we'd start from previous data dump
             user_data['team_on'] = user_data['created_on'] if user_data['team'] else None # this would be different if we'd start from previous data dump
             user_data['active'] = False
+            user_data['isolated'] = False
             nodes_map[user['uid']] = user_data
         else:
             print "User %(uid)s was alredy added to the map (??)" % user
@@ -79,7 +80,8 @@ def normalized_data(allusers, allnodes, allcomments, node_title_field='uid', adm
                 post_data['author_id'] = post['uid']
                 author = nodes_map[post_data['author_id']]
                 post_data['team'] = author['team'] and author['team_ts'] <= post_data['created_ts']
-                # nodes_map[post_data['author_id']]['active'] = True
+                if not exclude_isolated:
+                    nodes_map[post_data['author_id']]['active'] = True
             else:
                 post_data['author_id'] = None
                 post_data['team'] = False

@@ -260,6 +260,81 @@ jQuery(function($) {
         return a;
     };
     
+    // from: http://bl.ocks.org/mbostock/981b42034400e48ac637
+    var MitchellBestCandidateSampler = function (width, height, numCandidates, numSamplesMax) {
+      var numSamples = 0;
+
+      var quadtree = d3.geom.quadtree()
+          .extent([[0, 0], [width, height]])
+          ([[Math.random() * width, Math.random() * height]]);
+
+      return function() {
+        if (++numSamples > numSamplesMax) return;
+        var bestCandidate, bestDistance = 0;
+        for (var i = 0; i < numCandidates; ++i) {
+          var c = [Math.random() * width, Math.random() * height],
+              d = distance(search(c[0], c[1]), c);
+          if (d > bestDistance) {
+            bestDistance = d;
+            bestCandidate = c;
+          }
+        }
+        quadtree.add(bestCandidate);
+        return bestCandidate;
+      };
+
+      function distance(a, b) {
+        var dx = a[0] - b[0],
+            dy = a[1] - b[1];
+        return dx * dx + dy * dy;
+      };
+
+      // Find the closest node to the specified point.
+      function search(x, y) {
+        var x0 = 0,
+            y0 = 0,
+            x3 = width,
+            y3 = width,
+            minDistance2 = Infinity,
+            closestPoint;
+
+        (function find(node, x1, y1, x2, y2) {
+          var point;
+
+          // stop searching if this cell can’t contain a closer node
+          if (x1 > x3 || y1 > y3 || x2 < x0 || y2 < y0) return;
+
+          // visit this point
+          if (point = node.point) {
+            var dx = x - point[0],
+                dy = y - point[1],
+                distance2 = dx * dx + dy * dy;
+            if (distance2 < minDistance2) {
+              var distance = Math.sqrt(minDistance2 = distance2);
+              x0 = x - distance, y0 = y - distance;
+              x3 = x + distance, y3 = y + distance;
+              closestPoint = point;
+            }
+          }
+
+          // bisect the current node
+          var children = node.nodes,
+              xm = (x1 + x2) * .5,
+              ym = (y1 + y2) * .5,
+              right = x > xm,
+              below = y > ym;
+
+          // visit closest cell first
+          if (node = children[below << 1 | right]) find(node, right ? xm : x1, below ? ym : y1, right ? x2 : xm, below ? y2 : ym);
+          if (node = children[below << 1 | !right]) find(node, right ? x1 : xm, below ? ym : y1, right ? xm : x2, below ? y2 : ym);
+          if (node = children[!below << 1 | right]) find(node, right ? xm : x1, below ? y1 : ym, right ? x2 : xm, below ? ym : y2);
+          if (node = children[!below << 1 | !right]) find(node, right ? x1 : xm, below ? y1 : ym, right ? xm : x2, below ? ym : y2);
+        })(quadtree, x0, y0, x3, y3);
+
+        return closestPoint;
+      }
+    }
+        
     var Dashboard = function(){
 
         var configuration = undefined,
@@ -268,7 +343,7 @@ jQuery(function($) {
             file = undefined,
             data = undefined,
             date_format = d3.time.format('%B %d, %Y'),
-            scale = d3.scale.category20(),
+            color_scale = d3.scale.category20(),
             generated = undefined,
             metrics_cf = undefined,
             metrics_bydate = undefined,
@@ -288,8 +363,11 @@ jQuery(function($) {
             network_lock = undefined,
             node_fill_transparent = 'rgba(204,204,204,0.1)',
             edge_transparent = 'rgba(204,204,204,0.1)',
-            node_border_default = 'rgba(240, 240, 240, 1)', //'rgba(32, 32, 32, 1)',
+            node_border_default = 'rgba(240, 240, 240, 1)', 
             node_border_transparent = 'rgba(240, 240, 240, 0.1)',
+            node_fill_isolated = 'rgba(160,160,160,0.2)',
+            node_border_isolated = 'rgba(250,250,250,1)',
+            node_fill_team = 'rgba(32, 32, 32, 1)',
             selected_partitions = [],  
             show_moderators = true,  
             preprocess_data = function(d){
@@ -356,7 +434,8 @@ jQuery(function($) {
             },
             update_hidden = function(){
                 _.each(network_graph.graph.nodes(), function(n){ 
-                    var to_hide = _.indexOf(selected_partitions, last_metrics.partitions[n.id])<0;
+                    var partition = last_metrics.partitions[n.id];
+                    var to_hide = _.indexOf(selected_partitions, partition)<0 && !n.isolated;
                     if (n.team) {
                         to_hide = to_hide || !show_moderators;
                     } 
@@ -367,7 +446,7 @@ jQuery(function($) {
             update_exposed = function(){
                 network_graph.graph.nodes().forEach(function(n) {
                   if (!to_expose || to_expose[n.id]) {
-                      n.color = node_color(n);
+                      n.color =  node_fill_color(n);
                       n.border_color = node_border_default;                      
                   } else {
                       n.color = node_fill_transparent;                      
@@ -420,10 +499,11 @@ jQuery(function($) {
                       x: node.x,
                       y: node.y,
                       size: size,
-                      color: node_color(node),
+                      color:  node_fill_color(node),
                       type: 'border',
-                      border_color: node_border_default,
+                      border_color: node_border_color(node),
                       team: node.team,
+                      isolated: node.isolated,
                       ts: node.created_ts,
                       date: node.date,
                       link: node.link
@@ -652,13 +732,20 @@ jQuery(function($) {
                 network_graph.refresh();
                 analytics.track('filter', 'toggle_team', show_moderators);
             },
-            node_color = function(node){
+            is_isolated = function(node){
+                
+            },
+            node_fill_color = function(node){
                 var com = last_metrics.partitions[node.id];
-                return node.team ? '#606060' : scale(com);
+                if (node.isolated) { return node_fill_isolated; }
+                return node.team ? node_fill_team : color_scale(com);
+            },
+            node_border_color = function(node){
+              return node.isolated ? node_border_isolated : node_border_default;
             },
             edge_color = function(edge){
                 var com = last_metrics.partitions[edge.source];
-                return scale(com);
+                return color_scale(com);
             },
             search_node = function(node_id_or_name){
                 return _.find(
@@ -789,7 +876,7 @@ jQuery(function($) {
             
             _.each(selected_partitions, function(part){
                 filter
-                    .append('<button class="filter-btn btn btn-sm" style="background-color:'+scale(part)+'" data-partition="'+part+'"><i class="fa fa-check-square-o"></button>');
+                    .append('<button class="filter-btn btn btn-sm" style="background-color:'+color_scale(part)+'" data-partition="'+part+'"><i class="fa fa-check-square-o"></button>');
             });
             
             $('#fa-filter-btn').on('click', function(){
@@ -807,10 +894,14 @@ jQuery(function($) {
             _.each(data['nodes'], function(node){
                 nodes_map[node.id] = node;
             });
- 
-            circularize(_.sortBy(data['nodes'], function(node){ return last_metrics.partitions[node.id]; }));
+            
+            var initial_graph = filtered_graph();
+            var isolated_nodes = _.where(initial_graph['nodes'], {isolated: true});
+            initial_graph['nodes'] = _.reject(initial_graph['nodes'], function(n){ return n.isolated });
+            
+            circularize(_.sortBy(initial_graph['nodes'], function(node){ return last_metrics.partitions[node.id]; }));
             network_graph = new sigma({
-              graph: filtered_graph(),
+              graph: initial_graph,
               renderer: {
                   container: document.getElementById('network'),
                   type: 'canvas'
@@ -879,6 +970,36 @@ jQuery(function($) {
                           node.y = n.y;
                       }
                   })
+                  // re-add the isolated nodes 
+                  // we put them on the bottom side evenly distributed
+                  if (isolated_nodes) {
+                      // Find the max and min x & y of the nodes
+                      var max_x = _.max(network_graph.graph.nodes(), function(n){ return n.x; }).x;
+                      var max_y = _.max(network_graph.graph.nodes(), function(n){ return n.y; }).y;
+                      var min_x = _.min(network_graph.graph.nodes(), function(n){ return n.x; }).x;
+                      var min_y = _.min(network_graph.graph.nodes(), function(n){ return n.y; }).y;
+                      // var origin_x = Math.floor(max_x);
+                      // var origin_y = Math.floor(max_y*0.50);
+                      // var width = Math.floor(max_x*0.15);
+                      // var height = Math.abs(Math.floor(max_y*0.5))
+                      // var sampler = MitchellBestCandidateSampler(width, height, 15, 5000);                      
+                      var origin_x = Math.floor(min_x);
+                      var origin_y = Math.floor(max_y*1.03);
+                      var step = Math.floor(Math.abs(max_x-min_x)/isolated_nodes.length+2);
+                      var index = 1
+                      _.each(isolated_nodes, function(n){
+                          var node = nodes_map[n.id];
+                          // var smpl = sampler();
+                          if (node) {
+                              node.x = n.x = Math.floor(origin_x+(index*step)); // origin_x+smpl[0]; 
+                              node.y = n.y = origin_y // origin_y+smpl[1]; 
+                              network_graph.graph.addNode(n);
+                              index += 1;
+                          }                          
+                      });
+                      network_graph.refresh();
+                      debugger
+                  }
                   $('#network-container .box-tools').show();
               }, 10000);
               $('#network').fadeIn();

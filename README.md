@@ -141,6 +141,7 @@ python python/build_network.py \
     - Share of Team/User Generated Comments in period
 - if no username and password are specified then the script assumes that the remote file is openly accessible i.e. it uses no authentication when downloading the files.
 - if no admin roles are specified the deafult behaviour is to consider part of the moderators team any user who has a *non empty* roles field
+- the script includes in the network also all the isolated active nodes, meaning nodes that have written a post but not received any comments. To exclude them you need to pass the ```--exclude-isolated``` option to the script
 
 ### Output json files
 
