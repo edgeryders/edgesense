@@ -369,7 +369,8 @@ jQuery(function($) {
             node_border_isolated = 'rgba(250,250,250,1)',
             node_fill_team = 'rgba(32, 32, 32, 1)',
             selected_partitions = [],  
-            show_moderators = true,  
+            current_user_filter = '',
+            show_moderators = true,
             preprocess_data = function(d){
                 data = d;
                 
@@ -572,8 +573,9 @@ jQuery(function($) {
                 return metric_values;
             },            
             build_graph = function(e){
-                var metric_name = metric_name_prefixed($(e).data('metric-name'));
                 var minichart = $(e).find('.minichart')[0];
+                if (!minichart) { return; }
+                var metric_name = metric_name_prefixed($(e).data('metric-name'));
                 var complete_metric = global_metric_series(metric_name);
                 var max_metric_value = _.max(complete_metric, function(e){ return e.y!=undefined ? e.y : 0; } ).y;
                 var min_metric_value = _.min(complete_metric, function(e){ return e.y!=undefined ? e.y : max_metric_value; } ).y;
@@ -759,6 +761,24 @@ jQuery(function($) {
                 to_expose[node.id] = node;
                 update_exposed();
                 network_graph.refresh();
+            },
+            search_and_expose = function(node_id_or_name){
+                if (node_id_or_name!='') {
+                    var node = search_node(node_id_or_name);
+                    if (node) {
+                        expose_node(node);
+                    }                    
+                } else {
+                    unexpose_node();                    
+                }
+                
+            },
+            unexpose_node = function(){
+                to_expose = undefined;
+                $('#node-marker').hide();
+                $('#node-marker').popover('destroy');
+                update_exposed();
+                network_graph.refresh();
             };
 
         function db(){
@@ -810,10 +830,7 @@ jQuery(function($) {
             expose_node(node);
         };
         db.search_and_expose = function(node_id_or_name){
-            var node = search_node(node_id_or_name);
-            if (node) {
-                expose_node(node);
-            }
+            search_and_expose(node_id_or_name);
         };
         
         db.run = function(){
@@ -890,6 +907,24 @@ jQuery(function($) {
                     b.on('click', toggle_partition);
                 })
             })
+            
+            $('#fa-search-btn').on('click', function(e){
+                $('.user-search').find('input').val(current_user_filter);
+                _.each($('.user-search-btn'), function(b){
+                    $(b).on('click', function(e){
+                        current_user_filter = $(this).closest('.user-search').find('input').val();
+                        search_and_expose(current_user_filter);
+                        e.preventDefault();
+                    });
+                })
+                _.each($('.user-search-clear-btn'), function(b){
+                    $(b).on('click', function(e){
+                        unexpose_node();
+                        e.preventDefault();
+                    });
+                })
+            })
+
             nodes_map = {}
             _.each(data['nodes'], function(node){
                 nodes_map[node.id] = node;
@@ -922,11 +957,7 @@ jQuery(function($) {
                 expose_node(e.data.node);
             });
             network_graph.bind('doubleClickStage', function(e) {
-                to_expose = undefined;
-                $('#node-marker').hide();
-                $('#node-marker').popover('destroy');
-                update_exposed();
-                network_graph.refresh();
+                unexpose_node();
             });
             network_graph.bind('clickNode', function(e) {
                 var offset = $(this).offset();
@@ -998,7 +1029,6 @@ jQuery(function($) {
                           }                          
                       });
                       network_graph.refresh();
-                      debugger
                   }
                   $('#network-container .box-tools').show();
               }, 10000);

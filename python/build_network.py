@@ -83,6 +83,9 @@ def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', ti
     for ts in timesteps_range:
         ts_metrics = {
             'ts': ts,
+            'full:users_count':0., # Number of Posts total
+            'user:users_count':0., # Number of Posts total
+            'team:users_count':0., # Number of Posts total
             'full:posts_count':0., # Number of Posts total
             'user:posts_count':0., #  - Number of Posts by contributors
             'team:posts_count':0., #  - Number of Posts by team
@@ -110,6 +113,15 @@ def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', ti
             'user:noteam_conversations': 0.,
             'user:conversations_share': 0.
         }
+        # Users count metrics
+        for u in allusers:
+            if int(u['created'])<=ts:
+                ts_metrics['full:users_count'] += 1
+                if eu.extract.is_team(u, admin_roles):
+                    ts_metrics['team:users_count'] += 1
+                else:
+                    ts_metrics['user:users_count'] += 1
+        
         # Posts Count metrics
         for p in posts_map.values():
             if p['created_ts']<=ts:

@@ -16,8 +16,15 @@
 .rickshaw_graph .x_tick {
     border-left: 1px dotted rgba(255,255,255,.3);
 }
-.metric {
+.big-metric {
     height: 185px;
+}
+.sub-metric {
+    text-align:right;
+    margin-right:10px;
+    font-size:16px;
+    line-height:16px;
+    clear: right;
 }
 .minichart {
     padding:10px;
@@ -79,6 +86,12 @@
     margin-bottom:5px;
     color:#fefefe;
 }
+.user-search {
+    font-size:12px;
+}
+.user-search .input-group {
+    margin-top: 8px;
+}
 .moderators-check-cnt {
     line-height:52px;
     font-size:12px;
@@ -127,8 +140,8 @@
     height:85px;
 }
 .small-box h3 {
-    font-size: 50px;
-    margin: 0 10px 10px 0;
+    font-size: 45px;
+    margin: 0 10px 0 0;
     float: right;
 }
 .small-box p {
