@@ -373,12 +373,16 @@ It receives a request from the tutorial javascript and:
 
 ### Configuring the dashboard
 
+The dashboard single-page-app is included in the static directory, to make it accessible to the users you'll need to expose the contents of the static directory from a webserver.
+It can be installed either as the root directory of a site or under a higher level path (e.g. http://example.com/edgesense).
+
 There are a few parameters that permit the configuration of the dashboad page. 
-One of the first things the page does on load is to read the parameters from a configuration.json file in the static/json directory, so to customize them one just needs to create the file (there is an example file in the static/json directory)
+One of the first things the page does on load is to read the parameters from a configuration.json file in the ```[dashboard url]/json``` directory, so to customize them one just needs to create the file (there is an example file in the ```[dashboard url]/json``` directory)
 
 The parameters currently available are:
 
 - ```dashboard_name```: this is used to set the page title
 - ```analytics_tracking_id```: this should be set to enable the google analytics tracking for the dashboard
 - ```tutorial_upload```: this should be set to a URL which can receive the POSTs from the tutorial with the results to be saved.
+- ```base_data_url```: this optional parameter should be set to the absolute URL where the page can access the data saved by the python script. If it is empty it will be the ```[dashboard url]/json/data``` URL. You can use this to separate the serving of the dashboard from the processing of the files (e.g. have the dashboard live at ```/edgesense``` and the data live at ```/data```. N.B. it is possible to have the processed data needs to reside on a different server but you'll have to proxy the json files from the same server as the dashboard.
 

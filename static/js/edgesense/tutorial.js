@@ -1,6 +1,5 @@
 jQuery(function($) {
     "use strict";
-
     
     /*
      * Simple linear regression to find the m in:
@@ -43,7 +42,7 @@ jQuery(function($) {
       };
     })();
     
-    var Tutorial = function(){
+    var tutorial = function(){
         
         var steps = [],
             dashboard = undefined,
@@ -543,7 +542,7 @@ jQuery(function($) {
         
         return t;
     };
-    window.Tutorial = Tutorial();
+    Edgesense.Tutorial = tutorial();
         
 });
 
