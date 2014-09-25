@@ -31,7 +31,6 @@
 
   $script.ready(['base', 'd3', 'sigma'], function () {
     
-      // $script('js/dash.js');
       $script(['js/edgesense/utils.js',
                'js/edgesense/help.js',
                'js/edgesense/analytics.js',

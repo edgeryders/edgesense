@@ -416,8 +416,8 @@ jQuery(function($) {
                 }
                 analytics.track('control', 'toggle_lock', mouse_enabled);
             },
-            toggle_team = function(e){
-                show_moderators = $(this).prop('checked');
+            toggle_team = function(show){
+                show_moderators = show;
                 // Update each metrics
                 _.each($('.metric'), update_metric);
                 // Update the network
@@ -475,7 +475,6 @@ jQuery(function($) {
         function db(){
         };
 
-
         db.configuration = function(new_configuration){
             if (!arguments.length) return configuration;
 
@@ -525,6 +524,9 @@ jQuery(function($) {
         };
         db.search_and_expose = function(node_id_or_name){
             search_and_expose(node_id_or_name);
+        };
+        db.toggle_team = function(show){
+          toggle_team(show);
         };
         
         db.run = function(){
@@ -723,7 +725,7 @@ jQuery(function($) {
             network_lock = $('#network-lock');
             network_lock.click(toggle_lock);
             
-            $('#moderators-check').on('ifChanged', toggle_team);
+            $('#moderators-check').on('ifChanged', function(e){ toggle_team($(this).prop('checked')); });
             window.network_lock = network_lock;
             
             Edgesense.Help().analytics(analytics).load();
