@@ -441,10 +441,11 @@ jQuery(function($) {
                 return color_scale(com);
             },
             search_node = function(node_id_or_name){
+                var re = RegExp("^"+node_id_or_name+"$", 'i');
                 return _.find(
                             network_graph.graph.nodes(), 
                             function(n){
-                                return n.id === node_id_or_name || n.name === node_id_or_name;
+                                return n.id === node_id_or_name || n.name.match(re);
                             });                
             },
             expose_node = function(node){
