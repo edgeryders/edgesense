@@ -1,5 +1,6 @@
 import os
 import json
+import csv
 import urllib2
 import base64
 
@@ -25,7 +26,7 @@ def save(thing, filename, dirname='', formatted=False):
         else:
             json.dump(thing, outfile)
 
-def load(thing, username=None, password=None):
+def get_data(thing, username=None, password=None):
     if thing.startswith("/") :
         thing = "file://"+thing
     # Adds the Basic http authenticaton header if needed
@@ -35,5 +36,14 @@ def load(thing, username=None, password=None):
         thing.add_header("Authorization", "Basic %s" % base64string)   
            
     data = urllib2.urlopen(thing)
+    return data
+    
+def load(thing, username=None, password=None):
+    data = get_data(thing, username, password)
     parsed = json.load(data)
+    return parsed
+
+def load_csv(thing, username=None, password=None):
+    data = get_data(thing, username, password)
+    parsed = [row for row in csv.DictReader(data)]
     return parsed

@@ -31,6 +31,8 @@ def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', ti
     links_list = []
     # a comment is 'valid' if it has a recipient and an author
     valid_comments = [e for e in comments_map.values() if e.get('recipient_id', None) and e.get('author_id', None)]
+    logging.info("%(v)i valid comments on %(t)i total" % {'v':len(valid_comments), 't':len(comments_map.values())})
+    
     # build the whole network to use for metrics
     for comment in valid_comments:
         link = {

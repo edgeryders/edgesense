@@ -33,7 +33,8 @@ jQuery(function($) {
             base_url = undefined,
             file = undefined,
             data = undefined,
-            date_format = d3.time.format('%B %d, %Y'),
+            slider_date_format = d3.time.format('%B %d, %Y'),
+            chart_date_format = d3.time.format(' %e/%m'),
             color_scale = d3.scale.category20(),
             generated = undefined,
             metrics_cf = undefined,
@@ -301,7 +302,7 @@ jQuery(function($) {
                 var unit = {
         			name: 'week',
         			seconds: (to_ts-from_ts)/6, 
-        			formatter: function(d) { return d3.time.format(' %e/%m')(d); }
+        			formatter: function(d) { return chart_date_format(d); }
                 };
 
                 var axes = new Rickshaw.Graph.Axis.Time( {
@@ -504,6 +505,14 @@ jQuery(function($) {
 
             return db;
         };
+        db.slider_date_format = function(format){
+            slider_date_format = d3.time.format(format);
+            return db;
+        };
+        db.chart_date_format = function(format){
+            chart_date_format = d3.time.format(format);
+            return db;
+        };
         
         db.data = function(){
             return data;
@@ -558,7 +567,7 @@ jQuery(function($) {
             metrics_bydate = metrics_cf.dimension(function(m) { return m.date; });
             from_date = metrics_bydate.bottom(1)[0].date;
             to_date = metrics_bydate.top(1)[0].date;
-            var all_dates = _.map(data['metrics'], function(e){ return date_format(e.date); });
+            var all_dates = _.map(data['metrics'], function(e){ return slider_date_format(e.date); });
             var track_date_format = d3.time.format('%Y-%m-%d');
             $("#date_range").ionRangeSlider({
                 type: "single",
