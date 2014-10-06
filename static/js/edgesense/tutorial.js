@@ -186,8 +186,8 @@ jQuery(function($) {
                     return;
                 }
                 // what percentile of the betweenness does the current node
-                var betweenness = _.values(Dashboard.current_metrics()['full:betweenness']);
-                var node_betweenness = Dashboard.current_metrics()['full:betweenness'][node.id];
+                var betweenness = _.values(Edgesense.current.current_metrics()['full:betweenness']);
+                var node_betweenness = Edgesense.current.current_metrics()['full:betweenness'][node.id];
                 var counts = _.countBy(betweenness, function(n){ return (n >= node_betweenness ? 'greater' : 'smaller') });
                 var percent = Math.round((counts.greater/betweenness.length)*100); // how many % are bigger than this?
                 
