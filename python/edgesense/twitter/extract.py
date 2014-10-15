@@ -4,17 +4,20 @@ import logging
 import json
 
 def map_data(tweet):
-    mapped = {}
-    mapped['id_str'] = tweet['id_str']
-    mapped['screen_name'] = tweet['from_user']
-    mapped['user_id'] = tweet['from_user_id_str']
-    created = datetime.strptime(tweet['time'], '%d/%m/%Y %H:%M:%S')
-    mapped['created_ts'] = int(time.mktime(created.timetuple()))
-    entities = json.loads(tweet['entities_str'])
-    mapped['user_mentions'] = [{'screen_name': t['screen_name'], 'user_id': t['id_str']} for t in entities['user_mentions']]
-    mapped['text'] = tweet['text']
-    return mapped
-
+    try:
+        mapped = {}
+        mapped['id_str'] = tweet['id_str']
+        mapped['screen_name'] = tweet['from_user']
+        mapped['user_id'] = tweet['from_user_id_str']
+        created = datetime.strptime(tweet['time'], '%d/%m/%Y %H:%M:%S')
+        mapped['created_ts'] = int(time.mktime(created.timetuple()))
+        entities = json.loads(tweet['entities_str'])
+        mapped['user_mentions'] = [{'screen_name': t['screen_name'], 'user_id': t['id_str']} for t in entities['user_mentions']]
+        mapped['text'] = tweet['text']
+        return mapped
+    except:
+        return None
+        
 """ Maps the tweet user into the requires data structure (the same as that used by the
     network script.)
     For each mentioned user the creation timestamp is the timestamp of the earliest

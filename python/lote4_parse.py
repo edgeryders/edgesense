@@ -50,6 +50,8 @@ def main(argv):
     # 2. parse the CSV file into a list of records
     raw_tweets = eu.resource.load_csv(source)
     tweets = [et.extract.map_data(t) for t in raw_tweets]
+    tweets = [t for t in tweets if t]
+    logging.info("LOTE4 tweets - read %(t)i tweets in CSV, using %(v)i valid tweets" % {'t': len(raw_tweets), 'v': len(tweets)})
     sorted_tweets = sorted(tweets, key=sort_by('created_ts'))
     
     # 3. extract the users from the tweets
