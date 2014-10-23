@@ -3,6 +3,7 @@ import json
 import csv
 import urllib2
 import base64
+import logging
 
 def mkdir(newdir):
     if os.path.isdir(newdir):
@@ -26,6 +27,14 @@ def save(thing, filename, dirname='', formatted=False):
         else:
             json.dump(thing, outfile)
 
+def dump_to_file(data, where):
+    if where:
+        with open(where, 'wb') as f:
+            f.write(data.read())
+        logging.info("Dumped data to %(s)s" % {'s': where})
+        return get_data(where)
+    return data
+    
 def get_data(thing, username=None, password=None):
     if thing.startswith("/") :
         thing = "file://"+thing
@@ -38,12 +47,14 @@ def get_data(thing, username=None, password=None):
     data = urllib2.urlopen(thing)
     return data
     
-def load(thing, username=None, password=None):
+def load(thing, username=None, password=None, dump_to=None):
     data = get_data(thing, username, password)
+    data = dump_to_file(data, dump_to)
     parsed = json.load(data)
     return parsed
 
-def load_csv(thing, username=None, password=None):
+def load_csv(thing, username=None, password=None, dump_to=None):
     data = get_data(thing, username, password)
+    data = dump_to_file(data, dump_to)
     parsed = [row for row in csv.DictReader(data)]
     return parsed

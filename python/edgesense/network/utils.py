@@ -1,8 +1,5 @@
 import networkx as nx
 
-def sort_by(key):
-    return (lambda e: e.get(key, None))
-
 def extract_dpsg(mdg, ts, team=True):
     dg=nx.DiGraph()
     # add all the nodes present at the time ts

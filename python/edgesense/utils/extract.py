@@ -63,7 +63,7 @@ def normalized_data(allusers, allnodes, allcomments, node_title_field='uid', adm
             user_data['isolated'] = False
             nodes_map[user['uid']] = user_data
         else:
-            print "User %(uid)s was alredy added to the map (??)" % user
+            logging.error("User %(uid)s was alredy added to the map (??)" % user)
 
     logging.info("nodes collected")  
 
@@ -135,7 +135,7 @@ def normalized_data(allusers, allnodes, allcomments, node_title_field='uid', adm
             comments_map[comment['cid']] = comment_data
     
         else:
-            print "Comment %(cid)s was alredy added to the map (??)" % comment
+            logging.error("Comment %(cid)s was alredy added to the map (??)" % comment)
     
     # second pass over comments, connect the comments to the parent comment
     for comment in allcomments:
@@ -156,6 +156,6 @@ def normalized_data(allusers, allnodes, allcomments, node_title_field='uid', adm
             #     recipient = nodes_map[comment_data['recipient_id']]
             #     comment_data['team'] = recipient['team'] and recipient['team_ts'] <= comment_data['created_ts']
         else:
-            print "Comment %(cid)s not found" % comment
+            logging.error("Comment %(cid)s not found" % comment)
     
     return nodes_map, posts_map, comments_map
