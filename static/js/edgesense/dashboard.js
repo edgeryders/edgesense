@@ -33,8 +33,40 @@ jQuery(function($) {
             base_url = undefined,
             file = undefined,
             data = undefined,
-            slider_date_format = d3.time.format('%B %d, %Y'),
-            chart_date_format = d3.time.format(' %e/%m'),
+            slider_date_format = function(date, from_time, to_time) {
+                var _cache = {};
+                var from_ts = d3.round(from_time.getTime()/1000);
+                var to_ts = d3.round(to_time.getTime()/1000);
+                var ts_key = from_ts+" "+to_ts;
+                
+                if (!_cache[ts_key]) {
+                    _cache[ts_key] = d3.time.format.multi([
+                        ["%B %e, %Y", function(d) { return from_time.getFullYear() != to_time.getFullYear(); }],
+                        ["%B %e", function(d) { return from_time.getMonth() != to_time.getMonth() || ((to_time.getTime() - from_time.getTime()) > 7*24*60*60*1000); }],
+                        ["%B %e - %H:%M", function(d) { return from_time.getDay() != to_time.getDay(); }],
+                        ["%H:%M", function(d) { return true; }]
+                    ]);
+                }
+                return _cache[ts_key](date);
+                // d3.time.format('%B %d, %Y');
+            },
+            chart_date_format = function(date, from_time, to_time) {
+                var _cache = {};
+                var from_ts = d3.round(from_time.getTime()/1000);
+                var to_ts = d3.round(to_time.getTime()/1000);
+                var ts_key = from_ts+" "+to_ts;
+                
+                if (!_cache[ts_key]) {
+                    _cache[ts_key] = d3.time.format.multi([
+                        [" %e/%m", function(d) { return (from_time.getMonth() != to_time.getMonth()) || (from_time.getFullYear() != to_time.getFullYear()); }],
+                        [" %e/%m", function(d) { return ((to_time.getTime() - from_time.getTime()) > 2*24*60*60*1000); }],
+                        [" %H:%M", function(d) { return true; }]
+                    ]);
+                }
+                return _cache[ts_key](date);
+                // d3.time.format(' %e/%m');
+            },
+            track_date_format = d3.time.format('%Y/%m/%d %H:%M'),
             color_scale = d3.scale.category20(),
             generated = undefined,
             metrics_cf = undefined,
@@ -302,7 +334,7 @@ jQuery(function($) {
                 var unit = {
         			name: 'week',
         			seconds: (to_ts-from_ts)/6, 
-        			formatter: function(d) { return chart_date_format(d); }
+        			formatter: function(d) { return chart_date_format(d, from_date, to_date); }
                 };
 
                 var axes = new Rickshaw.Graph.Axis.Time( {
@@ -506,12 +538,27 @@ jQuery(function($) {
             return db;
         };
         db.slider_date_format = function(format){
-            slider_date_format = d3.time.format(format);
+            if (_.isFunction(format)) {
+                slider_date_format = format;
+            } else {
+                slider_date_format = d3.time.format(format);
+            }
             return db;
         };
         db.chart_date_format = function(format){
-            chart_date_format = d3.time.format(format);
+            if (_.isFunction(format)) {
+                chart_date_format = format;
+            } else {
+                chart_date_format = d3.time.format(format);
+            }
             return db;
+        };
+        db.track_date_format = function(format){
+            if (_.isFunction(format)) {
+                track_date_format = format;
+            } else {
+                track_date_format = d3.time.format(format);
+            }
         };
         
         db.data = function(){
@@ -567,8 +614,7 @@ jQuery(function($) {
             metrics_bydate = metrics_cf.dimension(function(m) { return m.date; });
             from_date = metrics_bydate.bottom(1)[0].date;
             to_date = metrics_bydate.top(1)[0].date;
-            var all_dates = _.map(data['metrics'], function(e){ return slider_date_format(e.date); });
-            var track_date_format = d3.time.format('%Y-%m-%d');
+            var all_dates = _.map(data['metrics'], function(e){ return slider_date_format(e.date, from_date, to_date); });
             $("#date_range").ionRangeSlider({
                 type: "single",
                 values: all_dates,
@@ -576,7 +622,7 @@ jQuery(function($) {
                 hasGrid: true,
                 onFinish: function(i){ 
                     update_filter(i.fromNumber); 
-                    analytics.track('filter', 'date_range', track_date_format(current_metrics.date));
+                    analytics.track('filter', 'date_range', track_date_format(current_metrics.date, from_date, to_date));
                 } //onChange
             });
             update_filter(all_dates.length-1);

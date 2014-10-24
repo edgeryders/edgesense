@@ -52,8 +52,6 @@ jQuery(function($) {
           }
           dashboard
               .base(base_data_url+'/'+d.last)
-              .slider_date_format('%B %d - %H:%M')
-              .chart_date_format(' %H:%M')
               .load('network.min.json')
               .run();
           
