@@ -31,6 +31,8 @@ def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', ti
     links_list = []
     # a comment is 'valid' if it has a recipient and an author
     valid_comments = [e for e in comments_map.values() if e.get('recipient_id', None) and e.get('author_id', None)]
+    logging.info("%(v)i valid comments on %(t)i total" % {'v':len(valid_comments), 't':len(comments_map.values())})
+    
     # build the whole network to use for metrics
     for comment in valid_comments:
         link = {
@@ -53,7 +55,7 @@ def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', ti
         links_list.append(link)
 
 
-    network['edges'] = sorted(links_list, key=en.utils.sort_by('ts'))
+    network['edges'] = sorted(links_list, key=eu.sort_by('ts'))
 
     # filter out nodes that have not participated to the full:conversations
     inactive_nodes = []
@@ -221,7 +223,7 @@ def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', ti
             ts_metrics['partitions'] = None
         ts_metrics.update(en.metrics.extract_network_metrics(MDG, ts, team=False))
     
-    network['metrics'] = sorted(metrics.values(), key=en.utils.sort_by('ts'))
+    network['metrics'] = sorted(metrics.values(), key=eu.sort_by('ts'))
     logging.info("network metrics done")  
 
     # add the nodes as an array
@@ -271,15 +273,16 @@ def parse_options(argv):
     extraction_method = 'nested'
     admin_roles = set()
     exclude_isolated = False
+    dumpto = None
     try:
-        opts, args = getopt.getopt(argv,"hu:n:c:t:s:w:f:",["users=","nodes=","comments=", "node-title=", "timestep-size=", "timestep-window=", "timestep-count=", "username=", "password=", "extraction-method=", "admin-roles=", "exclude-isolated"])
+        opts, args = getopt.getopt(argv,"hu:n:c:t:s:w:f:",["users=","nodes=","comments=", "node-title=", "timestep-size=", "timestep-window=", "timestep-count=", "username=", "password=", "extraction-method=", "admin-roles=", "exclude-isolated", "dumpto="])
     except getopt.GetoptError:
         print 'build_network.py -u <users_resource> -n <nodes_resource> -c <comments_resource> -t <node title field> -s <timestep in seconds> -w <timestep window> -f <timestep count>'
         sys.exit(2)
     
     for opt, arg in opts:
         if opt == '-h':
-           print 'build_network.py -u <users_resource> -n <nodes_resource> -c <comments_resource> -t <node title field> -s <timestep in seconds> -w <timestep window> -f <timestep count> --username="<http basic auth user>" --password="<http basic auth password>" --admin-roles="<comma separated list of roles marking a user as part of the community team>" --exclude-isolated' 
+           print 'build_network.py -u <users_resource> -n <nodes_resource> -c <comments_resource> -t <node title field> -s <timestep in seconds> -w <timestep window> -f <timestep count> --username="<http basic auth user>" --password="<http basic auth password>" --admin-roles="<comma separated list of roles marking a user as part of the community team>" --exclude-isolated --dumpto="<where to save the downloaded file>"' 
            sys.exit()
         elif opt in ("-u", "--users"):
            users_resource = arg
@@ -305,13 +308,28 @@ def parse_options(argv):
            admin_roles = set([e.strip() for e in arg.split(",") if e.strip()])
         elif opt in ("--exclude-isolated"):
            exclude_isolated = True
+        elif opt in ("--dumpto"):
+           dumpto = arg
            
     logging.info("parsing files %(u)s %(n)s %(c)s" % {'u': users_resource, 'n': nodes_resource, 'c': comments_resource})       
-    return (users_resource,nodes_resource,comments_resource, node_title_field, timestep_size, timestep_window, timestep_count, username, password, extraction_method, admin_roles, exclude_isolated)
+    return (users_resource, 
+            nodes_resource,
+            comments_resource,
+            node_title_field,
+            timestep_size,
+            timestep_window,
+            timestep_count,
+            username, password,
+            extraction_method,
+            admin_roles,
+            exclude_isolated,
+            dumpto)
 
 def main(argv):
     initialize_logger('./log')
 
+    generated = datetime.now()
+    
     users_resource, \
     nodes_resource, \
     comments_resource, \
@@ -323,24 +341,39 @@ def main(argv):
     password, \
     extraction_method, \
     admin_roles, \
-    exclude_isolated = parse_options(argv)
+    exclude_isolated, \
+    dumpto = parse_options(argv)
     
-    logging.info("Network processing - started")  
+    if dumpto:
+        base_dump_dir = os.path.join(dumpto, generated.strftime('%Y-%m-%d-%H-%M-%S'))
+        eu.resource.mkdir(base_dump_dir)
+    
+    logging.info("Network processing - started")
     # load users
-    jusers = eu.resource.load(users_resource, username=username, password=password)
+    if dumpto:
+        dump_to = os.path.join(base_dump_dir, 'users.json')
+    else:
+        dump_to = None
+    jusers = eu.resource.load(users_resource, username=username, password=password, dump_to=dump_to)
     allusers = eu.extract.extract(extraction_method, 'users', jusers)
 
     # load nodes
-    jnodes = eu.resource.load(nodes_resource, username=username, password=password)
+    if dumpto:
+        dump_to = os.path.join(base_dump_dir, 'nodes.json')
+    else:
+        dump_to = None
+    jnodes = eu.resource.load(nodes_resource, username=username, password=password, dump_to=dump_to)
     allnodes = eu.extract.extract(extraction_method, 'nodes', jnodes)
 
     # load comments
-    jcomments = eu.resource.load(comments_resource, username=username, password=password)
+    if dumpto:
+        dump_to = os.path.join(base_dump_dir, 'comments.json')
+    else:
+        dump_to = None
+    jcomments = eu.resource.load(comments_resource, username=username, password=password, dump_to=dump_to)
     allcomments = eu.extract.extract(extraction_method, 'comments', jcomments)
 
     logging.info("file loaded")  
-    
-    generated = datetime.now()
     
     network = build(allusers, \
                     allnodes, \
