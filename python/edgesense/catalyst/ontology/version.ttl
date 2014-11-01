@@ -1,0 +1,201 @@
+@prefix aif: <http://www.arg.dundee.ac.uk/aif#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix sioc: <http://rdfs.org/sioc/ns#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix catalyst: <http://purl.org/catalyst/core#> .
+@prefix cs: <http://purl.org/vocab/changeset/schema#> .
+@prefix tb_change: <http://topbraid.org/change#> .
+@prefix version: <http://purl.org/catalyst/version#> .
+
+<http://purl.org/catalyst/version#> a owl:Ontology;
+    rdfs:comment """Version information should live in another graph than
+    the versioned objects. This is mandatory if the version information
+    includes ObjectSnapshot instances."""@eng.
+
+version:Update
+    a owl:Class;
+    owl:equivalentClass tb_change:Change, cs:ChangeSet.
+
+version:affected_object
+    a owl:ObjectProperty;
+    rdfs:domain version:Update.
+
+version:what
+    a owl:FunctionalProperty;
+    owl:subPropertyOf version:affected_object;
+    rdfs:domain version:Update;
+    owl:equivalentProperty cs:subjectOfChange.
+
+version:operations a owl:ObjectProperty;
+    owl:inverseOf version:what.
+
+version:revision
+    a owl:DatatypeProperty, owl:FunctionalProperty;
+    rdfs:domain version:Update;
+    rdfs:range xsd:integer;
+    rdfs:comment """Changes may optionally have a number.
+    Then, change order must determine History sequence order."""@eng.
+
+version:when
+    a owl:DatatypeProperty, owl:FunctionalProperty;
+    rdfs:domain version:Update;
+    rdfs:range xsd:dateTimeStamp;
+    rdfs:comment """Timestamp is mandatory. If present, 
+    revision numbers have precedence over timestamps."""@eng;
+    owl:equivalentProperty tb_change:timeStamp.
+
+version:who
+    a owl:ObjectProperty, owl:FunctionalProperty;
+    rdfs:domain version:Update;
+    rdfs:range sioc:UserAccount.  # Or sioc:User?
+
+cs:creatorName owl:equivalentProperty [
+    owl:propertyChainAxiom (
+        version:who sioc:account_of foaf:name)].
+
+version:Delete
+    a owl:Class;
+    owl:subClassOf version:Update.
+
+version:Create
+    a owl:Class;
+    owl:subClassOf version:Update.
+
+version:create_from 
+    a owl:ObjectProperty;
+    owl:subPropertyOf dcterms:source;
+    rdfs:comment """Objects created through cloning and merging should 
+    retain links to their source using this property."""@eng.
+
+version:updated_value a owl:ObjectProperty;
+    rdfs:domain version:Update;
+    rdfs:range rdf:Statement;
+    owl:equivalentProperty cs:statement;
+    rdfs:comment """Optional. Updates can have either updated_value
+        or a snapshot (see later.)"""@eng.
+
+version:values_added a owl:ObjectProperty;
+    owl:subPropertyOf version:updated_value;
+    owl:equivalentProperty cs:addition, tb_change:added.
+
+version:values_removed a owl:ObjectProperty;
+    owl:subPropertyOf version:updated_value;
+    owl:equivalentProperty cs:removal, tb_change:deleted.
+
+rdf:subject owl:propertyChainAxiom (
+    [owl:inverseOf version:updated_value] version:what).
+
+version:PerUserUpdate 
+    a owl:Class;
+    owl:subClassOf version:Update.
+
+version:Annotate
+    a owl:Class;
+    owl:subClassOf version:Create.
+
+version:annotation_target
+    a owl:ObjectProperty;
+    rdfs:domain version:Annotate;
+    rdfs:comment """Note that the 'what' property refers to the 
+        created object, which may be the annotating object 
+        or a link between that object and the annotation target"""@eng.
+
+version:StateChange
+    a owl:Class;
+    owl:subClassOf version:Update.
+
+version:affected_state
+    a owl:ObjectProperty;
+    rdfs:domain version:StateChange;
+    rdfs:range rdf:Property;
+    owl:propertyChainAxiom (version:updated_value rdf:property).
+
+version:ClassChange
+    a owl:Class;
+    owl:subClassOf version:Update;
+    rdfs:comment """All updated values objects must be classes. All
+        classes not mentioned in an update value object are erased."""@eng.
+
+version:ApprovalChange
+    a owl:Class;
+    owl:subClassOf version:StateChange, [
+                a owl:Restriction ;
+                owl:onProperty version:affected_state ;
+                owl:hasValue version:approval
+    ].
+
+version:PerUserStateChange
+    a owl:Class;
+    owl:subClassOf version:PerUserUpdate, version:StateChange.
+
+version:ReadStatusChange
+    a owl:Class;
+    owl:subClassOf version:PerUserStateChange, [
+                a owl:Restriction ;
+                owl:onProperty version:affected_state ;
+                owl:hasValue version:read_status
+    ].
+
+# Under consideration
+
+version:Move
+    a owl:Class;
+    owl:subClassOf version:Update;
+    rdfs:comment """Optional. Any move can be expressed as a sequence
+        of link delete and creates, even if the links share the
+        same resource identity."""@eng.
+
+version:old_links
+    owl:subPropertyOf version:affected_object;
+    rdfs:domain version:Move.
+
+version:new_links
+    owl:subPropertyOf version:affected_object;
+    rdfs:domain version:Move.
+
+# Level 2 history support: Record of past values
+
+version:ObjectSnapshot a owl:Class;
+    rdfs:comment """Object snapshots should share the class of the 
+        original object, but exist in a different graph. Properties
+        of the snapshots would point to the original targets,
+        not to snapshots of the targets."""@eng.
+
+version:Tombstone
+    a owl:Class;
+    owl:subClassOf version:ObjectSnapshot.
+
+version:snapshot
+    a owl:ObjectProperty;
+    rdfs:domain version:Create, version:Update;
+    rdfs:range version:ObjectSnapshot.
+
+version:target_snapshot
+    a owl:ObjectProperty, owl:FunctionalProperty;
+    owl:subPropertyOf version:snapshot.
+
+version:snapshot_of
+    a owl:ObjectProperty;
+    rdfs:domain version:ObjectSnapshot.
+
+version:has_snapshot
+    a owl:ObjectProperty;
+    owl:inverseOf version:snapshot_of;
+    owl:propertyChainAxiom (version:operations version:target_snapshot).
+
+version:previous_snapshot
+    a owl:ObjectProperty;
+    rdfs:domain version:ObjectSnapshot;
+    rdfs:range version:ObjectSnapshot;
+    rdfs:comment "Highly speculative."@eng.
+
+version:tombstone
+    a owl:ObjectProperty;
+    rdfs:domain version:Delete;
+    rdfs:range version:Tombstone.
+
+rdf:Statement a owl:Class.

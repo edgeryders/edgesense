@@ -1,0 +1,52 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix aif: <http://www.arg.dundee.ac.uk/aif#> .
+@prefix idea: <http://purl.org/catalyst/idea#> .
+@prefix ibis: <http://purl.org/catalyst/ibis#> .
+
+idea:GenericIdea owl:equivalentClass aif:Node .
+
+idea:IdeaRelation owl:equivalentClass [owl:subClassOf aif:Statement].
+
+idea:MutualRelevanceStatement owl:subClassOf aif:Statement.
+
+# Those specialized statements would have more complex Statement_Descriptions, akin to schemes. (TBD)
+# But they cannot be S-Nodes, because they lack premise and conclusion; 
+# And they cannot be aif:Scheme_Application, because 
+# aif:Scheme_Application owl:disjoint aif:Statement.
+
+# Comparison
+
+idea:ComparisonStatement owl:subClassOf aif:Statement.
+
+# Causality: Using AIF.
+
+idea:CausalStatement owl:subClassOf aif:CauseToEffect_Scheme.
+
+idea:CausalInference owl:subClassOf aif:CauseToEffect_Inference.
+
+# Questions.
+
+idea:Question owl:subClassOf aif:DialogueScheme_Application.
+
+ibis:Position owl:subClassOf aif:Statement.
+
+ibis:Argument owl:subClassOf aif:Statement.
+# it is part of Preference scheme, but a statement on its own.
+
+ibis:Reference owl:subClassOf aif:Statement.
+
+ibis:Decision owl:subClassOf aif:DialogueScheme_Application. # and Preference?
+# Decision --relevant to-->Issue, Decision--hasConclusion-->Position
+
+ibis:Position owl:subClassOf aif:Statement.
+
+ibis:Argument owl:subClassOf aif:Statement.
+# it is part of Preference scheme, but a statement on its own.
+
+ibis:Reference owl:subClassOf aif:Statement.
+
+ibis:Decision owl:subClassOf aif:DialogueScheme_Application. # and Preference?
+    # Decision --relevant to-->Issue, Decision--hasConclusion-->Position

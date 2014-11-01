@@ -1,0 +1,84 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix pa_ibis: <http://privatealpha.com/ontology/ibis/1#> .
+@prefix aif: <http://www.arg.dundee.ac.uk/aif#> .
+@prefix idea: <http://purl.org/catalyst/idea#> .
+
+# all that follows is out-of-scope for Catalyst 1.
+
+# Comparison
+
+idea:ComparisonStatement
+    a owl:Class;
+    rdfs:subClassOf idea:IdeaRelation .
+
+idea:is_compared
+    rdfs:subPropertyOf idea:relates_idea;
+    rdfs:range idea:ComparisonStatement.
+
+idea:compares
+    owl:inverseOf idea:is_compared.
+
+idea:is_compared_to owl:propertyChainAxiom (idea:is_compared idea:compares).
+
+idea:DistinctionStatement
+    a owl:Class;
+    rdfs:subClassOf idea:ComparisonStatement.
+
+idea:EquivalenceStatement
+    a owl:Class;
+    rdfs:subClassOf idea:ComparisonStatement.
+
+# Abstraction
+
+idea:AbstractionStatement
+    a owl:Class;
+    rdfs:subClassOf idea:ComparisonStatement, idea:DirectedIdeaRelation.
+
+idea:is_abstracted
+    rdfs:subPropertyOf idea:target_idea;
+    rdfs:range idea:AbstractionStatement.
+
+idea:abstracts
+    owl:inverseOf idea:is_abstracted.
+
+idea:is_specialized
+    rdfs:subPropertyOf idea:source_idea;
+    rdfs:range idea:AbstractionStatement.
+
+idea:specializes
+    owl:inverseOf idea:is_specialized.
+
+idea:is_abstraction_of owl:propertyChainAxiom (idea:is_abstracted idea:specializes).
+idea:is_abstraction_of owl:equivalentProperty pa_ibis:generalizes.
+
+# Causality
+
+idea:CausalStatement
+    a owl:Class;
+    rdfs:subClassOf idea:DirectedIdeaRelation.
+
+idea:CausalInference
+    a owl:Class;
+    rdfs:subClassOf idea:DirectedIdeaRelation.
+
+# Questions.
+
+idea:Question
+    a owl:Class;
+    rdfs:subClassOf idea:DirectedIdeaRelation.
+
+# Context.
+
+idea:ContextOfExpression
+    a owl:Class;
+    owl:disjoint idea:GenericIdeaNode. 
+    # Not sure that contexts are not ideas.
+    # This requires much future development.
+    # will be used to express quotes, hypothetical statements and inference, etc.
+    # Note that most Positions are hypothetical. 
+

@@ -1,0 +1,173 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix sioc_arg: <http://rdfs.org/sioc/argument#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix dc: <http://purl.org/dc/elements/1.1/> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix sioc: <http://rdfs.org/sioc/ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+
+dc:contributor
+    a owl:AnnotationProperty .
+
+dc:creator
+    a owl:AnnotationProperty .
+
+dc:description
+    a owl:AnnotationProperty .
+
+dc:subject
+    a owl:AnnotationProperty .
+
+dc:title
+    a owl:AnnotationProperty .
+
+<http://rdfs.org/sioc/argument#>
+    dc:creator "Christoph Lange <ch.lange@jacobs-university.de>", "Tudor Groza <tudor.groza@deri.org>", "Uldis Bojārs <uldis.bojars@deri.org>" ;
+    dc:description "A SIOC module for expressing argumentative discussions in social media sites.  Any of the types declared here can be given as an additional type to a sioc:Item or sioc:Post." ;
+    dc:subject "Argumentation" ;
+    dc:title "SIOC Argumentation Module" ;
+    a owl:Ontology ;
+    owl:versionInfo "0.1" .
+
+sioc_arg:Argument
+    dc:description "An argument about a statement.  An argument tries to be objective." ;
+    a owl:Class ;
+    owl:disjointWith sioc_arg:Decision, sioc_arg:Statement .
+
+sioc_arg:Decision
+    dc:description "A decision on whether an idea should be accepted, or an issue resolved" ;
+    a owl:Class ;
+    owl:disjointWith sioc_arg:Statement .
+
+sioc_arg:Elaboration
+    dc:description "An elaboration that follows up on a statement by adding more detail in the same line of argumentation.  An elaboration cannot start a discussion." ;
+    a owl:Class ;
+    rdfs:subClassOf sioc_arg:Statement ;
+    owl:disjointWith sioc_arg:Idea, sioc_arg:Issue .
+
+sioc_arg:Evaluation
+    dc:description "An argument supported by an evaluation" ;
+    a owl:Class ;
+    rdfs:subClassOf sioc_arg:Argument ;
+    owl:disjointWith sioc_arg:Example .
+
+sioc_arg:Example
+    dc:description "An argument by means of an example" ;
+    a owl:Class ;
+    rdfs:subClassOf sioc_arg:Argument .
+
+sioc_arg:Idea
+    dc:description "An idea that is argued about; can be in response to an issue (as a proposed solution), or on its own" ;
+    a owl:Class ;
+    rdfs:subClassOf sioc_arg:Statement ;
+    owl:disjointWith sioc_arg:Issue .
+
+sioc_arg:Issue
+    dc:description "An issue that is argued about; can be in response to an idea (as a concern), or on its own" ;
+    a owl:Class ;
+    rdfs:subClassOf sioc_arg:Statement .
+
+sioc_arg:Justification
+    dc:description "An argument that justifies the support or challenge of a statement" ;
+    a owl:Class ;
+    rdfs:subClassOf sioc_arg:Argument ;
+    owl:disjointWith sioc_arg:Evaluation, sioc_arg:Example .
+
+sioc_arg:Position
+    dc:description "A (subjective) position, opinion, or vote on a statement or argument" ;
+    a owl:Class ;
+    owl:disjointWith sioc_arg:Argument, sioc_arg:Decision, sioc_arg:Statement .
+
+sioc_arg:Statement
+    dc:description "A general statement.  Any statement, except an elaboration, can start an argumentative discussion." ;
+    a owl:Class .
+
+sioc_arg:agrees_with
+    dc:description "Expresses that a position agrees with a statement or argument" ;
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf sioc_arg:position_on .
+
+sioc_arg:argues_on
+    dc:description "The statement on which this argument was given" ;
+    a owl:ObjectProperty ;
+    rdfs:domain sioc_arg:Argument ;
+    rdfs:range sioc_arg:Statement ;
+    rdfs:subPropertyOf sioc_arg:refers_to .
+
+sioc_arg:arises_from
+    dc:description "The idea from which an issue arose, as a possible concern about the idea." ;
+    a owl:ObjectProperty ;
+    rdfs:domain sioc_arg:Issue ;
+    rdfs:range sioc_arg:Idea ;
+    rdfs:subPropertyOf sioc_arg:refers_to .
+
+sioc_arg:challenges
+    dc:description "Expresses that an argument challenges a statement" ;
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf sioc_arg:argues_on .
+
+sioc_arg:decides
+    dc:description "The issue or idea on which this decision was made" ;
+    a owl:ObjectProperty ;
+    rdfs:domain sioc_arg:Decision ;
+    rdfs:range [
+        owl:unionOf (sioc_arg:Issue
+            sioc_arg:Idea
+        )
+    ] ;
+    rdfs:subPropertyOf sioc_arg:refers_to .
+
+sioc_arg:disagrees_with
+    dc:description "Expresses that a position disagrees with a statement or argument" ;
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf sioc_arg:position_on .
+
+sioc_arg:elaborates_on
+    dc:description "The statement on which this elaboration elaborates" ;
+    a owl:ObjectProperty ;
+    rdfs:domain sioc_arg:Elaboration ;
+    rdfs:range sioc_arg:Statement ;
+    rdfs:subPropertyOf sioc_arg:refers_to .
+
+sioc_arg:neutral_towards
+    dc:description "Expresses that a position is neutral towards a statement or argument" ;
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf sioc_arg:position_on .
+
+sioc_arg:position_on
+    dc:description "The statement or argument on which this position was given" ;
+    a owl:ObjectProperty ;
+    rdfs:domain sioc_arg:Position ;
+    rdfs:range [
+        owl:unionOf (sioc_arg:Statement
+            sioc_arg:Argument
+        )
+    ] ;
+    rdfs:subPropertyOf sioc_arg:refers_to .
+
+sioc_arg:proposes_solution_for
+    dc:description "The issue which an idea proposes a solution for" ;
+    a owl:ObjectProperty ;
+    rdfs:domain sioc_arg:Idea ;
+    rdfs:range sioc_arg:Issue ;
+    rdfs:subPropertyOf sioc_arg:refers_to .
+
+sioc_arg:refers_to
+    dc:description "Expresses that an item of an argumentative discussion follows up on another such item." ;
+    a owl:ObjectProperty ;
+    rdfs:domain sioc:Item ;
+    rdfs:range sioc:Item ;
+    rdfs:subPropertyOf sioc:reply_of .
+
+sioc_arg:supported_by
+    dc:description "The position(s) that support this decision" ;
+    a owl:ObjectProperty ;
+    rdfs:domain sioc_arg:Decision ;
+    rdfs:range sioc_arg:Position ;
+    rdfs:subPropertyOf sioc_arg:refers_to .
+
+sioc_arg:supports
+    dc:description "Expresses that an argument supports a statement" ;
+    a owl:ObjectProperty ;
+    rdfs:subPropertyOf sioc_arg:argues_on .
+

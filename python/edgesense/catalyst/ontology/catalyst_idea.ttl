@@ -1,0 +1,114 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix pa_ibis: <http://privatealpha.com/ontology/ibis/1#> .
+@prefix idea: <http://purl.org/catalyst/idea#> .
+
+<http://purl.org/catalyst/idea#> a owl:Ontology.
+
+idea:GenericIdea
+    a owl:Class.
+
+idea:GenericIdeaNode
+    a owl:Class;
+    owl:subClassOf idea:GenericIdea.
+
+idea:IdeaRelation
+    a owl:Class;
+    owl:subClassOf idea:GenericIdea.
+
+idea:relates_idea
+    a owl:ObjectProperty;
+    rdfs:domain idea:IdeaRelation;
+    rdfs:range idea:GenericIdeaNode.
+
+idea:DirectedIdeaRelation
+    a owl:Class;
+    owl:subClassOf idea:IdeaRelation .
+
+idea:source_idea
+    a owl:ObjectProperty;
+    owl:subPropertyOf idea:relates_idea;
+    rdfs:domain idea:DirectedIdeaRelation;
+    rdfs:range idea:GenericIdeaNode.
+
+idea:target_idea
+    a owl:ObjectProperty;
+    owl:subPropertyOf idea:relates_idea;
+    rdfs:domain idea:DirectedIdeaRelation;
+    rdfs:range idea:GenericIdeaNode;
+    rdfs:comment "The destination is the parent"@eng.
+
+idea:InclusionRelation
+    a owl:Class;
+    owl:subClassOf idea:DirectedIdeaRelation;
+    rdfs:comment """This is a vague subordination property between ideas,
+        as in mind maps and assembl containment."""@eng.
+
+idea:includes
+    a owl:AsymmetricProperty;
+    owl:propertyChainAxiom (
+        [owl:inverseOf idea:target_idea;
+        rdfs:range idea:InclusionRelation]
+        idea:source_idea
+        ).
+
+
+idea:includedIn
+    a owl:AsymmetricProperty;
+    owl:inverseOf idea:includes;
+    owl:propertyChainAxiom (
+        [owl:inverseOf idea:source_idea;
+        rdfs:range idea:InclusionRelation]
+        idea:target_idea
+        ).
+
+idea:WholePartRelation
+    a owl:Class;
+    owl:subClassOf idea:InclusionRelation;
+    rdfs:comment """This is strict idea containment. Examples include
+        a proposal in many points, or identifying premises in an argument.
+        It may also be applied to Compendium-style maps (TBD.)"""@eng.
+
+idea:hasPart
+    owl:subPropertyOf idea:includes, dcterms:hasPart;
+    owl:propertyChainAxiom (
+        [owl:inverseOf idea:target_idea;
+        rdfs:range idea:WholePartRelation]
+        idea:source_idea
+        ).
+
+idea:isPartOf
+    owl:subPropertyOf idea:includedIn, dcterms:isPartOf;
+    owl:inverseOf idea:hasPart;
+    owl:propertyChainAxiom (
+        [owl:inverseOf idea:source_idea;
+        rdfs:range idea:WholePartRelation]
+        idea:target_idea
+        ).
+
+idea:partOf owl:inverseOf idea:hasPart .
+
+
+#map 
+
+idea:Map
+    a owl:Class;
+    owl:subClassOf idea:GenericIdea.
+    # Positional. We could just infer from in_map.
+
+idea:inMap
+    a owl:ObjectProperty;
+    owl:subPropertyOf idea:includes;
+    rdfs:range idea:Map.
+    # The map inclusion may not be referenced.
+    # Not clear that we need a reified relation here.
+
+# Relevance
+
+idea:MutualRelevanceStatement
+    a owl:Class;
+    owl:subClassOf idea:IdeaRelation .
