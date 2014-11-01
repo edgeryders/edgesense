@@ -1,0 +1,239 @@
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix trig: <http://www.w3.org/2004/03/trix/rdfg-1/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix sioc: <http://rdfs.org/sioc/ns#> .
+@prefix sioct: <http://rdfs.org/sioc/types#> .
+@prefix vs: <http://www.w3.org/2003/06/sw-vocab-status/ns#> .
+@prefix oa: <http://www.openannotation.org/ns/> .
+@prefix pdoa: <http://purl.org/pundit/ont/ao#> .
+@prefix pdao: <http://purl.org/pundit/ont/oa#> .
+@prefix cohere: <http://cohere.open.ac.uk/ontology/cohere.owl#> .
+@prefix dul: <http://www.loa-cnr.it/ontologies/DUL.owl#> .
+@prefix sarest: <http://www.knoesis.org/research/srl/standards/sa-rest/#> .
+@prefix idea: <http://purl.org/catalyst/idea#> .
+@prefix catalyst: <http://purl.org/catalyst/core#> .
+@prefix ibis: <http://purl.org/catalyst/ibis#> .
+
+
+<http://purl.org/catalyst/core#>
+    dcterms:description """The basic components of a conversation."""@en ;
+    dcterms:title "Catalyst Core Ontology Namespace"@en ;
+    a owl:Ontology, owl:Thing ;
+    owl:versionInfo "Revision: 0.1" .
+
+catalyst:Item a owl:Class;
+    owl:subClassOf sioc:Item, oa:Target, foaf:Document.
+
+catalyst:Service a owl:Class;
+    owl:subClassOf sarest:Service.
+
+catalyst:Site
+    a owl:Class;
+    owl:subClassOf sioc:Site.
+
+catalyst:service_maps_container
+    a owl:ObjectProperty;
+    rdfs:domain catalyst:Service;
+    rdfs:range sioc:Container.
+
+catalyst:service_maps_graph
+    a owl:ObjectProperty;
+    rdfs:domain catalyst:Service;
+    rdfs:range trig:Graph.
+
+catalyst:Map
+    a owl:Class;
+    owl:subClassOf idea:Map, sioc:Container.
+
+catalyst:inMap
+    a owl:Property;
+    owl:subPropertyOf idea:inMap, sioc:has_container;
+    rdfs:range catalyst:Map.
+
+catalyst:Conversation 
+    a owl:Class ;
+    rdfs:comment "A conversation."@en ;
+    rdfs:isDefinedBy <http://purl.org/catalyst/core#> ;
+    rdfs:label "conversation"@en ;
+    owl:subClassOf sioc:Container, sioc:Space, catalyst:Map, [
+        a owl:Restriction ;
+        owl:onProperty catalyst:participants ;
+        owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger
+    ].
+
+catalyst:primaryMap
+    a owl:Property;
+    rdfs:domain catalyst:Conversation;
+    rdfs:range catalyst:Map;
+    rdfs:comment "This map is (one of ) the focus of this conversation.".
+
+catalyst:Ideas
+    a owl:Class;
+    owl:subClassOf sioc:Container, sioct:ArgumentativeDiscussion,
+    [
+        a owl:Restriction;
+        owl:onProperty sioc:container_of ;
+        owl:allValuesFrom catalyst:GenericIdea
+    ];
+    vs:term_status "archaic" .
+
+catalyst:Messages
+    a owl:Class;
+    owl:subClassOf sioc:Forum,
+    [
+        a owl:Restriction;
+        owl:onProperty sioc:container_of ;
+        owl:allValuesFrom catalyst:Post
+    ];
+    vs:term_status "archaic" .
+
+catalyst:ParticipantGroup
+    a owl:Class;
+    owl:subClassOf sioc:Usergroup.
+
+catalyst:participants
+    a owl:ObjectProperty;
+    owl:subPropertyOf sioc:has_usergroup;
+    rdfs:domain catalyst:Conversation;
+    rdfs:range catalyst:ParticipantGroup.
+
+catalyst:uses_source
+    a owl:ObjectProperty;
+    rdfs:domain catalyst:Conversation;
+    rdfs:range sioc:Space.
+
+catalyst:Post 
+    a owl:Class ;
+    rdfs:comment "A post"@en ;
+    rdfs:isDefinedBy <http://purl.org/catalyst/core#> ;
+    rdfs:label "Post"@en ;
+    owl:subClassOf sioc:Post, catalyst:Item .
+
+catalyst:Idea
+    a owl:Class ;
+    rdfs:comment "An idea"@en ;
+    rdfs:isDefinedBy <http://purl.org/catalyst/core#> ;
+    rdfs:label "Idea"@en ;
+    owl:subClassOf catalyst:Item, idea:GenericIdea. 
+    # To be considered: owl:Thing , dul:Entity, cohere:abstract_object,
+    # aif:Node, cohere:abstract_idea?, aif:I-node? skos:Concept??
+
+catalyst:Excerpt a owl:Class;
+    rdfs:comment "A reference to a fragment of an item or document."@en;
+    owl:subClassOf oa:Annotation.
+
+catalyst:relevantToConversation a owl:ObjectProperty ;
+    # Domain: Web page or oa:SpecificResource
+    rdfs:range catalyst:Conversation;
+    rdfs:label "relevant to conversation"@en;
+    rdfs:subPropertyOf pdoa:isRelatedTo .
+
+catalyst:extractRelevantToIdea a owl:ObjectProperty ;
+    rdfs:range catalyst:Idea;
+    rdfs:label "relevant to the idea"@en;
+    rdfs:subPropertyOf pdoa:isRelatedTo .
+
+catalyst:expressesIdea a owl:ObjectProperty ;
+    rdfs:subPropertyOf catalyst:extractRelevantToIdea;
+    rdfs:label "expresses the idea"@en.
+
+catalyst:data_graph
+    a owl:ObjectProperty;
+    rdfs:domain catalyst:Conversation;
+    rdfs:range trig:Graph.
+
+catalyst:user_graph
+    a owl:ObjectProperty;
+    rdfs:domain catalyst:Site;
+    rdfs:range trig:Graph.
+
+catalyst:pseudonymization_graph
+    a owl:ObjectProperty;
+    rdfs:domain catalyst:Conversation;
+    rdfs:range trig:Graph.
+
+catalyst:history_graph
+    a owl:ObjectProperty;
+    rdfs:domain catalyst:Conversation;
+    rdfs:range trig:Graph.
+
+catalyst:full_data_service
+    a owl:ObjectProperty;
+    rdfs:domain catalyst:Site;
+    rdfs:range catalyst:Service.
+
+catalyst:data_selection_service
+    a owl:ObjectProperty;
+    rdfs:domain catalyst:Site;
+    rdfs:range catalyst:Service.
+
+catalyst:sparql_service
+    a owl:ObjectProperty;
+    rdfs:domain catalyst:Site;
+    rdfs:range catalyst:Service.
+
+catalyst:ideas_service
+    a owl:ObjectProperty;
+    rdfs:domain catalyst:Conversation;
+    rdfs:range [ 
+        owl:subClassOf catalyst:Service, [
+            a owl:Restriction;
+            owl:onProperty catalyst:service_maps_container ;
+            owl:allValuesFrom catalyst:Ideas
+        ]
+    ].
+
+catalyst:users_service
+    a owl:ObjectProperty;
+    rdfs:domain catalyst:Site;
+    rdfs:range catalyst:Service.
+
+catalyst:service_maps_graph owl:propertyChainAxiom (
+    [owl:inverseOf catalyst:users_service] catalyst:user_graph).
+
+
+catalyst:messages_service
+    a owl:ObjectProperty;
+    rdfs:domain catalyst:Site;
+    rdfs:range [
+        owl:subClassOf catalyst:Service, [
+            a owl:Restriction;
+            owl:onProperty catalyst:service_maps_container ;
+            owl:allValuesFrom catalyst:user_graph
+        ]
+    ].
+
+catalyst:pseudonyms_service
+    a owl:ObjectProperty;
+    rdfs:domain catalyst:Conversation;
+    rdfs:range catalyst:Service.
+
+catalyst:service_maps_graph owl:propertyChainAxiom (
+    [owl:inverseOf catalyst:pseudonyms_service] catalyst:pseudonymization_graph).
+
+catalyst:message_sources_service
+    a owl:ObjectProperty;
+    rdfs:domain catalyst:Conversation;
+    rdfs:range catalyst:Service.
+
+catalyst:votes_service
+    a owl:ObjectProperty;
+    rdfs:domain catalyst:Conversation;
+    rdfs:range catalyst:Service.
+
+catalyst:history_service
+    a owl:ObjectProperty;
+    rdfs:domain catalyst:Conversation;
+    rdfs:range catalyst:Service.
+
+catalyst:service_maps_graph owl:propertyChainAxiom (
+    [owl:inverseOf catalyst:history_service] catalyst:history_graph).
+
+catalyst:pseudonym_scope
+    a owl:ObjectProperty;
+    rdfs:domain [owl:unionOf (foaf:Agent sioc:UserAccount)];
+    rdfs:range catalyst:Conversation.

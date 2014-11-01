@@ -1,0 +1,69 @@
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix pa_ibis: <http://privatealpha.com/ontology/ibis/1#> .
+@prefix aif: <http://www.arg.dundee.ac.uk/aif#> .
+@prefix idea: <http://purl.org/catalyst/idea#> .
+@prefix catalyst: <http://purl.org/catalyst/core#> .
+@prefix vote: <http://purl.org/catalyst/vote#> .
+
+<http://purl.org/catalyst/vote#> a owl:Ontology.
+
+vote:Vote a owl:Class.
+
+vote:subject a owl:ObjectProperty;
+    rdfs:subPropertyOf dcterms:subject;
+    rdfs:domain vote:Vote;
+    rdfs:range idea:GenericIdea.
+
+vote:subject_node a owl:ObjectProperty;
+    rdfs:subPropertyOf vote:subject;
+    rdfs:range idea:GenericIdeaNode.
+
+vote:subject_link a owl:ObjectProperty;
+    rdfs:subPropertyOf vote:subject;
+    rdfs:range idea:IdeaRelation.
+
+vote:voter a owl:ObjectProperty;
+    rdfs:subPropertyOf dcterms:creator;
+    rdfs:domain vote:Vote;
+    rdfs:range foaf:Agent.
+
+vote:BinaryVote
+    a owl:Class;
+    owl:subClassOf vote:Vote.
+
+vote:positive a owl:DataProperty;
+    rdfs:domain vote:BinaryVote;
+    rdfs:range xsd:boolean.
+
+vote:LickertRange a owl:Class.
+vote:min a owl:DataProperty;
+    rdfs:domain vote:LickertRange;
+    rdfs:range xsd:integer.
+vote:max a owl:DataProperty;
+    rdfs:domain vote:LickertRange;
+    rdfs:range xsd:integer.
+
+vote:LickertVote a owl:Class;
+    owl:subClassOf vote:Vote.
+vote:lickert_in_range a owl:ObjectProperty;
+    rdfs:domain vote:LickertVote;
+    rdfs:range vote:LickertRange.
+vote:lickert_value a owl:DataProperty;
+    rdfs:domain vote:LickertVote;
+    rdfs:range xsd:integer.
+
+vote:OrderingVote a owl:Class;
+    owl:subClassOf vote:Vote.
+
+vote:ordered_ideas a owl:ObjectProperty;
+    rdfs:domain vote:OrderingVote;
+    rdfs:range [ a owl:Class;
+        rdfs:subClassOf rdf:Seq, [
+            a owl:Restriction ;
+            owl:allValuesFrom idea:GenericIdea ;
+            owl:onProperty rdfs:member ] ].

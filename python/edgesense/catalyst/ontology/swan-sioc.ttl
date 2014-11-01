@@ -1,0 +1,87 @@
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix vs: <http://www.w3.org/2003/06/sw-vocab-status/ns#> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix wot: <http://xmlns.com/wot/0.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix sioc: <http://rdfs.org/sioc/ns#> .
+
+<http://rdfs.org/sioc/swan#>
+    dcterms:description "Extends the SIOC Core Ontology (Semantically-Interlinked Online Communities) by defining mappings between SIOC and the SWAN ontology." ;
+    dcterms:title "SWAN/SIOC Ontology Module Namespace" ;
+    a owl:Ontology, owl:Thing ;
+    rdfs:seeAlso <http://rdfs.org/sioc/spec/#sec-modules> ;
+    owl:imports <http://rdfs.org/sioc/ns#>, <http://rdfs.org/sioc/types#>, <http://swan.mindinformatics.org/ontologies/1.2/swan.owl> .
+
+<http://rdfs.org/sioc/swan#OnlineJournal>
+    a owl:Class ;
+    rdfs:comment "An online Journal" ;
+    rdfs:subClassOf sioc:Container .
+
+<http://swan.mindinformatics.org/ontologies/1.2/citations/Citation>
+    rdfs:subClassOf sioc:Item .
+
+<http://swan.mindinformatics.org/ontologies/1.2/citations/JournalArticle>
+    rdfs:subClassOf sioc:Item .
+
+<http://swan.mindinformatics.org/ontologies/1.2/citations/WebArticle>
+    rdfs:subClassOf sioc:Post .
+
+<http://swan.mindinformatics.org/ontologies/1.2/citations/WebComment>
+    rdfs:subClassOf <http://rdfs.org/sioc/types#Comment> .
+
+<http://swan.mindinformatics.org/ontologies/1.2/citations/WebNews>
+    rdfs:subClassOf sioc:Post .
+
+<http://swan.mindinformatics.org/ontologies/1.2/discourse-elements/DiscourseElement>
+    rdfs:subClassOf sioc:Item .
+
+<http://swan.mindinformatics.org/ontologies/1.2/discourse-elements/ResearchComment>
+    rdfs:subClassOf sioc:Item .
+
+<http://swan.mindinformatics.org/ontologies/1.2/discourse-elements/ResearchQuestion>
+    rdfs:subClassOf sioc:Item .
+
+<http://swan.mindinformatics.org/ontologies/1.2/discourse-elements/ResearchStatement>
+    rdfs:subClassOf sioc:Item .
+
+<http://swan.mindinformatics.org/ontologies/1.2/discourse-relationships/agreesWith>
+    rdfs:subPropertyOf sioc:related_to .
+
+<http://swan.mindinformatics.org/ontologies/1.2/discourse-relationships/alternativeTo>
+    rdfs:subPropertyOf sioc:related_to .
+
+<http://swan.mindinformatics.org/ontologies/1.2/discourse-relationships/arousedFrom>
+    rdfs:subPropertyOf sioc:related_to .
+
+<http://swan.mindinformatics.org/ontologies/1.2/discourse-relationships/cites>
+    rdfs:subPropertyOf sioc:related_to .
+
+<http://swan.mindinformatics.org/ontologies/1.2/discourse-relationships/consistentWith>
+    rdfs:subPropertyOf sioc:related_to .
+
+<http://swan.mindinformatics.org/ontologies/1.2/discourse-relationships/disagreesWith>
+    rdfs:subPropertyOf sioc:related_to .
+
+<http://swan.mindinformatics.org/ontologies/1.2/discourse-relationships/discusses>
+    rdfs:subPropertyOf sioc:related_to .
+
+<http://swan.mindinformatics.org/ontologies/1.2/discourse-relationships/inResponseTo>
+    rdfs:subPropertyOf sioc:related_to, sioc:reply_of .
+
+<http://swan.mindinformatics.org/ontologies/1.2/discourse-relationships/inconsistentWith>
+    rdfs:subPropertyOf sioc:related_to .
+
+<http://swan.mindinformatics.org/ontologies/1.2/discourse-relationships/motivatedBy>
+    rdfs:subPropertyOf sioc:related_to .
+
+<http://swan.mindinformatics.org/ontologies/1.2/discourse-relationships/refersTo>
+    rdfs:subPropertyOf sioc:related_to .
+
+<http://swan.mindinformatics.org/ontologies/1.2/discourse-relationships/relatedTo>
+    rdfs:subPropertyOf sioc:related_to .
+
+<http://swan.mindinformatics.org/ontologies/1.2/discourse-relationships/relevantTo>
+    rdfs:subPropertyOf sioc:related_to .
+

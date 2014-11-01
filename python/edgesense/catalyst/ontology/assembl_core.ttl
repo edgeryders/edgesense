@@ -1,0 +1,66 @@
+@prefix xsd: <http://www.w3.org/2001/XMLSchema#> .
+@prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix trig: <http://www.w3.org/2004/03/trix/rdfg-1/> .
+@prefix foaf: <http://xmlns.com/foaf/0.1/> .
+@prefix dcterms: <http://purl.org/dc/terms/> .
+@prefix sioc: <http://rdfs.org/sioc/ns#> .
+@prefix sioct: <http://rdfs.org/sioc/types#> .
+@prefix oa: <http://www.openannotation.org/ns/> .
+@prefix pdoa: <http://purl.org/pundit/ont/ao#> .
+@prefix pdao: <http://purl.org/pundit/ont/oa#> .
+@prefix cohere: <http://cohere.open.ac.uk/ontology/cohere.owl#> .
+@prefix dul: <http://www.loa-cnr.it/ontologies/DUL.owl#> .
+@prefix aif: <http://www.arg.dundee.ac.uk/aif#> .
+@prefix idea: <http://purl.org/catalyst/idea#> .
+@prefix ibis: <http://purl.org/catalyst/ibis#> .
+@prefix catalyst: <http://purl.org/catalyst/core#> .
+@prefix assembl: <http://purl.org/assembl/core#> .
+
+
+<http://purl.org/assembl/core#>
+    dcterms:description """Notion of assembly, with its phases and forums. Documents, excerpts and concepts."""@en ;
+    dcterms:title "Assembl Core Ontology Namespace"@en ;
+    a owl:Ontology, owl:Thing ;
+    owl:versionInfo "Revision: 0.1" .
+
+assembl:db_id a owl:LiteralProperty.
+
+assembl:link_order a owl:LiteralProperty;
+    rdfs:domain idea:IdeaRelation;
+    rdfs:range xsd:number.
+
+assembl:PostSource a owl:Class;
+    owl:subClassOf sioc:Space.
+
+assembl:MailingList a owl:Class;
+    owl:subClassOf assembl:PostSource.
+
+assembl:has_origin a owl:ObjectProperty;
+    owl:subPropertyOf sioc:has_container;
+    rdfs:domain catalyst:Post;
+    rdfs:range assembl:PostSource.
+
+assembl:relatedToIdea a owl:ObjectProperty;
+    rdfs:range idea:GenericIdea.
+
+assembl:postLinkedToIdea a owl:ObjectProperty;
+    owl:subPropertyOf assembl:relatedToIdea;
+    rdfs:domain catalyst:Post.
+
+assembl:postHiddenLinkedToIdea
+    owl:subPropertyOf assembl:relatedToIdea;
+    rdfs:domain catalyst:Post.
+
+assembl:postDelinkedToIdea a owl:ObjectProperty;
+    owl:subPropertyOf assembl:relatedToIdea;
+    rdfs:domain catalyst:Post.
+
+assembl:postRelatedToIdea a owl:ObjectProperty;
+    owl:subPropertyOf assembl:postLinkedToIdea.
+
+assembl:postExtractRelatedToIdea a owl:ObjectProperty;
+    owl:subPropertyOf assembl:postRelatedToIdea;
+    owl:propertyChainAxiom (
+        [owl:inverseOf catalyst:ExcerptTarget] catalyst:extractRelevantToIdea).

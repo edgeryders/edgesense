@@ -1,0 +1,49 @@
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#> .
+@prefix owl: <http://www.w3.org/2002/07/owl#> .
+@prefix idea: <http://purl.org/catalyst/idea#> .
+@prefix aif: <http://www.arg.dundee.ac.uk/aif#> .
+@prefix ibis: <http://purl.org/catalyst/ibis#> .
+
+# IBIS Extension for Mark: Criterion. Also links with aif PreferenceScheme, which is lovely.
+
+ibis:Criterion
+    a owl:Class;
+    owl:subClassOf aif:PreferenceScheme, [
+        a owl:Restriction ;
+        owl:onProperty aif:relevantTo ;
+        owl:someValuesFrom ibis:Issue
+    ].
+
+ibis:CriterionApplication
+    a owl:Class;
+    owl:subClassOf aif:Preference, [
+        a owl:Restriction ;
+        owl:onProperty aif:fulfils ;
+        owl:someValuesFrom aif:Criterion
+    ], [
+        a owl:Restriction ;
+        owl:onProperty idea:hasPart ;
+        owl:someValuesFrom ibis:ArgumentOpposesPosition;
+        owl:someValuesFrom ibis:ArgumentSupportsPosition
+    ].
+
+ibis:argumentAdressesCriterion
+    rdfs:domain idea:Argument;
+    rdfs:range ibis:Criterion;
+    owl:propertyChainAxiom  ( idea:hasPart  aif:fulfils ) .
+    # AND the intermediate step is a CriterionApplication. Not sure how to say that in OWL.
+
+ibis:criterionSupports
+    a owl:ObjectProperty;
+    rdfs:subPropertyOf aif:hasPreferredElement, ibis:source_idea;
+    rdfs:domain ibis:CriterionApplication;
+    rdfs:range ibis:Position;
+    owl:propertyChainAxiom (idea:hasPart ibis:position_supported).
+
+ibis:criterionOpposes
+    a owl:ObjectProperty;
+    rdfs:subPropertyOf aif:hasDispreferredElement, ibis:target_idea;
+    rdfs:domain ibis:CriterionApplication;
+    rdfs:range ibis:Position;
+    owl:propertyChainAxiom (idea:hasPart ibis:position_opposed).
+
