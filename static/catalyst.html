@@ -305,6 +305,8 @@
                                             <button class="btn btn-primary btn-flat user-search-btn" type="button">Show</button>
                                         </span>
                                     </div><a class="user-search-clear-btn" href="#">Show all</a></div></div>
+                                   <button class="btn btn-info btn-sm popover-toggle" data-toggle="popover" id="filter-button"><i class="fa fa-filter"></i></button>
+                                   <div class="popover-content pull-right hide" id="network-filter"></div>
                                </div>
                                 <div id="network"></div>
                                 <div id="node-marker"></div>
@@ -381,6 +383,33 @@
                         
                     </div>
 
+                    <!-- Content metrics -->
+                    <div class="row">
+                        <div class="col-md-6">
+                            <div id="posts_by_contributor" class="box box-info multi-metric helped" data-metric-name="user:ts_posts_count" data-metric-legend="Posts"  >
+                                <div class="box-header">
+                                    <h3 class="box-title">Posts</h3>
+                                </div><!-- /.box-header -->
+                                <div class="box-body chart-cnt" >
+                                </div><!-- /.box-body -->
+                                <div class="box-body chart-legend"></div>
+                            </div><!-- /.box -->
+
+                        </div><!-- /.col -->
+                        <div class="col-md-6">
+
+                            <div id="comments_by_contributor" class="box box-info multi-metric helped" data-metric-name="user:ts_comments_count" data-metric-legend="Replies">
+                                <div class="box-header">
+                                    <h3 class="box-title">Post replies</h3>
+                                </div><!-- /.box-header -->
+                                <div class="box-body chart-cnt" >
+                                </div><!-- /.box-body -->
+                                <div class="box-body chart-legend"></div>
+                            </div><!-- /.box -->
+
+                        </div><!-- /.col -->
+ 
+                    </div><!-- /Content metrics -->
                 </section><!-- /.content -->
             </aside><!-- /.right-side -->
         </div><!-- ./wrapper -->
