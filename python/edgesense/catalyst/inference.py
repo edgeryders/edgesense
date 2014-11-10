@@ -1,7 +1,6 @@
 import sys
 from os import path
 from os.path import exists, abspath
-from argparse import ArgumentParser, FileType
 import requests
 import logging
 

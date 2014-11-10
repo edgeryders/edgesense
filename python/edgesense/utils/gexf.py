@@ -27,7 +27,7 @@ def save_gexf(graph, filename):
                 prepare_gefx_attributes(edge_attrs)
     
     # write the graph to the file
-    writer = GEXFExporter(mode='dynamic')
+    writer = GEXFExporter(mode='static')
     writer.add_graph(G)
     writer.write(filename)
     
