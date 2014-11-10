@@ -195,6 +195,9 @@
 .content-header .toprightmenu > li + li:before {
   content: '|\00a0';
 }
+#gexf-save .fa {
+ margin-left: 5px;   
+}
 @media screen and (max-width: 767px) {
   .right-side > .content-header > .toprightmenu {
     position: relative;

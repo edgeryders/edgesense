@@ -11,62 +11,9 @@ import logging
 from edgesense.utils.logger_initializer import initialize_logger
 import edgesense.utils as eu
 import edgesense.network as en
+import edgesense.content as ec
 
-def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', timestep_size=60*60*24*7, timestep_window=1, timestep_count=None, admin_roles=set(), exclude_isolated=False):
-    # this is the network object
-    # going forward it should be read from a serialized format to handle caching
-    network = {}
-
-    # Add some file metadata
-    network['meta'] = {}
-    # Timestamp of the file generation (to show in the dashboard)
-    network['meta']['generated'] = int(timestamp.strftime("%s"))
-    
-    nodes_map, posts_map, comments_map = eu.extract.normalized_data(allusers, allnodes, allcomments, node_title_field, admin_roles, exclude_isolated)
-    # build a mapping of nodes (users) keyed on their id
-
-    network['nodes'] = nodes_map
-
-    # build the whole network to dump on json
-    links_list = []
-    # a comment is 'valid' if it has a recipient and an author
-    valid_comments = [e for e in comments_map.values() if e.get('recipient_id', None) and e.get('author_id', None)]
-    logging.info("%(v)i valid comments on %(t)i total" % {'v':len(valid_comments), 't':len(comments_map.values())})
-    
-    # build the whole network to use for metrics
-    for comment in valid_comments:
-        link = {
-            'id': "{0}_{1}_{2}".format(comment['author_id'],comment['recipient_id'],comment['created_ts']),
-            'source': comment['author_id'],
-            'target': comment['recipient_id'],
-            'ts': comment['created_ts'],
-            'effort': comment['length'],
-            'team': comment['team']
-        }
-        if nodes_map.has_key(comment['author_id']):
-            nodes_map[comment['author_id']]['active'] = True
-        else:
-            logging.info("error: node %(n)s was linked but not found in the nodes_map" % {'n':comment['author_id']})  
-    
-        if nodes_map.has_key(comment['recipient_id']):
-            nodes_map[comment['recipient_id']]['active'] = True
-        else:
-            logging.info("error: node %(n)s was linked but not found in the nodes_map" % {'n':comment['recipient_id']})  
-        links_list.append(link)
-
-
-    network['edges'] = sorted(links_list, key=eu.sort_by('ts'))
-
-    # filter out nodes that have not participated to the full:conversations
-    inactive_nodes = []
-    for node_id in nodes_map.keys():
-        if not nodes_map[node_id]['active']:
-            inactive_nodes.append(nodes_map.pop(node_id, None))
-
-    logging.info("inactive nodes: %(n)i" % {'n':len(inactive_nodes)})  
-    network['nodes'] = nodes_map
-
-    # Parameters
+def calculate_timestamp_range(network, timestep_size=60*60*24*7, timestep_window=1, timestep_count=None):
     start_ts = network['edges'][0]['ts'] # first timestamp in the edges
     end_ts = network['edges'][-1]['ts'] # last timestamp in the edges
     day_ts = 60*60*24
@@ -79,160 +26,41 @@ def build(allusers, allnodes, allcomments, timestamp, node_title_field='uid', ti
     if timesteps_range[-1]<end_ts :
         timesteps_range.append(end_ts)
     
-    metrics = {}
-    # calculate content metrics
-    # For each timestep:
-    for ts in timesteps_range:
-        ts_metrics = {
-            'ts': ts,
-            'full:users_count':0., # Number of Posts total
-            'user:users_count':0., # Number of Posts total
-            'team:users_count':0., # Number of Posts total
-            'full:posts_count':0., # Number of Posts total
-            'user:posts_count':0., #  - Number of Posts by contributors
-            'team:posts_count':0., #  - Number of Posts by team
-            'user:posts_share':0., #  - Share of User Generated Posts
-            'user:team_posts_share':0., #  - Share of Team/User  Posts
-            'full:ts_posts_count': 0.,  #  - Number of Posts in period
-            'user:ts_posts_count':0., #  - Number of Posts by contributors in period
-            'team:ts_posts_count':0., #  - Number of Posts by team in period
-            'user:ts_posts_share': 0., #  - Share of User Generated Posts in period
-            'user:ts_team_posts_share': 0., #  - Share of Team/User  Posts in period
-            'full:comments_count':0., #  - Number of Comments total
-            'user:comments_count': 0., #  - Number of Comments by contributors
-            'team:comments_count': 0., #  - Number of Comments by team
-            'user:comments_share': 0., #  - Share of Team/User Generated Comments
-            'user:team_comments_share': 0., #  - Share of User Generated Comments
-            'full:ts_comments_count':0., #  - Number of Comments total in period
-            'user:ts_comments_count':0., #  - Number of Comments by contributors in period
-            'team:ts_comments_count':0., #  - Number of Comments by contributors in period
-            'user:ts_comments_share': 0., #  - Share of User Generated Comments in period
-            'user:ts_team_comments_share': 0., #  - Share of Team/User Generated Comments in period
-            'user:active_count': 0.,
-            'user:noteam_active_count': 0.,
-            'user:active_share': 0.,
-            'user:conversations': 0.,
-            'user:noteam_conversations': 0.,
-            'user:conversations_share': 0.
-        }
-        # Users count metrics
-        for u in allusers:
-            if int(u['created'])<=ts:
-                ts_metrics['full:users_count'] += 1
-                if eu.extract.is_team(u, admin_roles):
-                    ts_metrics['team:users_count'] += 1
-                else:
-                    ts_metrics['user:users_count'] += 1
-        
-        # Posts Count metrics
-        for p in posts_map.values():
-            if p['created_ts']<=ts:
-                ts_metrics['full:posts_count'] += 1
-                if p['team']:
-                    ts_metrics['team:posts_count'] += 1
-                else:
-                    ts_metrics['user:posts_count'] += 1
-            if p['created_ts']<=ts and p['created_ts']>=ts-timestep*timestep_window:
-                ts_metrics['full:ts_posts_count'] += 1
-                if p['team']:
-                    ts_metrics['team:ts_posts_count'] += 1
-                else:
-                    ts_metrics['user:ts_posts_count'] += 1
-        if ts_metrics['full:posts_count'] > 0:
-            ts_metrics['user:posts_share'] = float(ts_metrics['user:posts_count'])/float(ts_metrics['full:posts_count'])    
-        if ts_metrics['user:posts_count'] > 0:
-            ts_metrics['user:team_posts_share'] = float(ts_metrics['team:posts_count'])/float(ts_metrics['user:posts_count'])    
-        if ts_metrics['full:ts_posts_count'] > 0:
-            ts_metrics['user:ts_posts_share'] = float(ts_metrics['user:ts_posts_count'])/float(ts_metrics['full:ts_posts_count'])
-        if ts_metrics['user:ts_posts_count'] > 0:
-            ts_metrics['user:ts_team_posts_share'] = float(ts_metrics['team:ts_posts_count'])/float(ts_metrics['user:ts_posts_count'])
-    
-        # Comments Count metrics
-        for c in comments_map.values():
-            if c['created_ts']<=ts:
-                ts_metrics['full:comments_count'] += 1
-                if c['team']:
-                    ts_metrics['team:comments_count'] += 1
-                else:
-                    ts_metrics['user:comments_count'] += 1
-            if c['created_ts']<=ts and c['created_ts']>=ts-timestep*timestep_window:
-                ts_metrics['full:ts_comments_count'] += 1
-                if c['team']:
-                    ts_metrics['team:ts_comments_count'] += 1
-                else:
-                    ts_metrics['user:ts_comments_count'] += 1
-        if ts_metrics['full:comments_count'] > 0:
-            ts_metrics['user:comments_share'] = float(ts_metrics['user:comments_count'])/float(ts_metrics['full:comments_count'])
-        if ts_metrics['user:comments_count'] > 0:
-            ts_metrics['user:team_comments_share'] = float(ts_metrics['team:comments_count'])/float(ts_metrics['user:comments_count'])
-        if ts_metrics['full:ts_comments_count'] > 0:
-            ts_metrics['user:ts_comments_share'] = float(ts_metrics['user:ts_comments_count'])/float(ts_metrics['full:ts_comments_count'])
-        if ts_metrics['user:ts_comments_count'] > 0:
-            ts_metrics['user:ts_team_comments_share'] = float(ts_metrics['team:ts_comments_count'])/float(ts_metrics['user:ts_comments_count'])
-    
-        #  - User counts
-        actives = set()
-        noteam_actives = set()
-        conversations = set()
-        noteam_conversations = set()
-        for c in comments_map.values():
-            if c['created_ts']<=ts and nodes_map.has_key(c['author_id']) and nodes_map.has_key(c['recipient_id']):
-                a = nodes_map[c['author_id']]
-                r = nodes_map[c['recipient_id']]
-                cnv = '-'.join(sorted([c['author_id'], c['recipient_id']]))
-                if not (a['team'] and a['team_ts'] <=ts):
-                    actives.add(c['author_id'])
-                    conversations.add(cnv)
-                    if not (r['team'] and r['team_ts'] <=ts):
-                        noteam_actives.add(c['recipient_id'])
-                        noteam_conversations.add(cnv)
-        ts_metrics['user:active_count'] = len(actives)
-        ts_metrics['user:noteam_active_count'] = len(noteam_actives)
-        if ts_metrics['user:active_count'] > 0:
-            ts_metrics['user:active_share'] = float(ts_metrics['user:noteam_active_count'])/float(ts_metrics['user:active_count'])    
-        ts_metrics['user:conversations'] = len(conversations)
-        ts_metrics['user:noteam_conversations'] = len(noteam_conversations)
-        if ts_metrics['user:conversations'] > 0:
-            ts_metrics['user:conversations_share'] = float(ts_metrics['user:noteam_conversations'])/float(ts_metrics['user:conversations'])
-    
-        metrics[ts] = ts_metrics
+    return (timestep, timesteps_range)
 
-    logging.info("content metrics done")  
-
-    # build the whole network to use for metrics
-    MDG=nx.MultiDiGraph()
-
-    for node in network['nodes'].values():
-        MDG.add_node(node['id'], node)
-
-    for edge in network['edges']:
-        MDG.add_edge(edge['source'], edge['target'], attr_dict=edge)
+def load_files(users_resource, nodes_resource, comments_resource, username, password, extraction_method, dumpto):
+    if dumpto:
+        base_dump_dir = os.path.join(dumpto, generated.strftime('%Y-%m-%d-%H-%M-%S'))
+        eu.resource.mkdir(base_dump_dir)
     
-    en.metrics.set_isolated(nodes_map, MDG)
-    
-    logging.info("network built")  
+    # load users
+    if dumpto:
+        dump_to = os.path.join(base_dump_dir, 'users.json')
+    else:
+        dump_to = None
+    jusers = eu.resource.load(users_resource, username=username, password=password, dump_to=dump_to)
+    allusers = eu.extract.extract(extraction_method, 'users', jusers)
 
-    
-    for ts in timesteps_range:
-        ts_metrics = metrics[ts]
-        # all metrics
-        ts_metrics.update(en.metrics.extract_network_metrics(MDG, ts))
-        if ts_metrics.has_key('full:partitions'):
-            ts_metrics['partitions'] = ts_metrics['full:partitions']
-        else:
-            ts_metrics['partitions'] = None
-        ts_metrics.update(en.metrics.extract_network_metrics(MDG, ts, team=False))
-    
-    network['metrics'] = sorted(metrics.values(), key=eu.sort_by('ts'))
-    logging.info("network metrics done")  
+    # load nodes
+    if dumpto:
+        dump_to = os.path.join(base_dump_dir, 'nodes.json')
+    else:
+        dump_to = None
+    jnodes = eu.resource.load(nodes_resource, username=username, password=password, dump_to=dump_to)
+    allnodes = eu.extract.extract(extraction_method, 'nodes', jnodes)
 
-    # add the nodes as an array
-    network['nodes'] = nodes_map.values()
-    
-    return network
-    
+    # load comments
+    if dumpto:
+        dump_to = os.path.join(base_dump_dir, 'comments.json')
+    else:
+        dump_to = None
+    jcomments = eu.resource.load(comments_resource, username=username, password=password, dump_to=dump_to)
+    allcomments = eu.extract.extract(extraction_method, 'comments', jcomments)
 
-def write_network(network, timestamp):
+    logging.info("file loaded")
+    return (allusers,allnodes,allcomments)
+    
+def write_network(network, multi_network, timestamp):
     tag = timestamp.strftime('%Y-%m-%d-%H-%M-%S')
     basepath = os.path.dirname(__file__)
     destination_path = os.path.abspath(os.path.join(basepath, "..", "static", "json"))
@@ -251,7 +79,11 @@ def write_network(network, timestamp):
     eu.resource.save(network, 'network-no-metrics.min.json', tagged_dir)
     eu.resource.save(metrics, 'metrics.min.json', tagged_dir)
     logging.info("network+metrics dumped")  
-
+    
+    # dump the gexf file
+    gexf_file = os.path.join(tagged_dir, 'network.gexf')
+    eu.gexf.save_gexf(multi_network, gexf_file)
+    
     eu.resource.save({'last': tag}, 'last.json', destination_path)
 
 def parse_options(argv):
@@ -344,49 +176,42 @@ def main(argv):
     exclude_isolated, \
     dumpto = parse_options(argv)
     
-    if dumpto:
-        base_dump_dir = os.path.join(dumpto, generated.strftime('%Y-%m-%d-%H-%M-%S'))
-        eu.resource.mkdir(base_dump_dir)
-    
     logging.info("Network processing - started")
-    # load users
-    if dumpto:
-        dump_to = os.path.join(base_dump_dir, 'users.json')
-    else:
-        dump_to = None
-    jusers = eu.resource.load(users_resource, username=username, password=password, dump_to=dump_to)
-    allusers = eu.extract.extract(extraction_method, 'users', jusers)
-
-    # load nodes
-    if dumpto:
-        dump_to = os.path.join(base_dump_dir, 'nodes.json')
-    else:
-        dump_to = None
-    jnodes = eu.resource.load(nodes_resource, username=username, password=password, dump_to=dump_to)
-    allnodes = eu.extract.extract(extraction_method, 'nodes', jnodes)
-
-    # load comments
-    if dumpto:
-        dump_to = os.path.join(base_dump_dir, 'comments.json')
-    else:
-        dump_to = None
-    jcomments = eu.resource.load(comments_resource, username=username, password=password, dump_to=dump_to)
-    allcomments = eu.extract.extract(extraction_method, 'comments', jcomments)
-
-    logging.info("file loaded")  
     
-    network = build(allusers, \
-                    allnodes, \
-                    allcomments, \
-                    generated, \
-                    node_title_field=node_title_field, \
-                    timestep_size=timestep_size, \
-                    timestep_window=timestep_window, \
-                    timestep_count=timestep_count, \
-                    admin_roles=admin_roles, \
-                    exclude_isolated=exclude_isolated)
+    # Load the files
+    allusers, allnodes, allcomments = load_files(users_resource, nodes_resource, comments_resource, username, password, extraction_method, dumpto)
     
-    write_network(network, generated)
+    # extract a normalized set of data
+    nodes_map, posts_map, comments_map = eu.extract.normalized_data(allusers, allnodes, allcomments, node_title_field, admin_roles, exclude_isolated)
+
+    # this is the network object
+    # going forward it should be read from a serialized format to handle caching
+    network = {}
+
+    # Add some file metadata
+    network['meta'] = {}
+    # Timestamp of the file generation (to show in the dashboard)
+    network['meta']['generated'] = int(generated.strftime("%s"))
+        
+    network['edges'] = en.utils.extract_edges(nodes_map, comments_map)
+
+    # filter out nodes that have not participated to the full:conversations
+    inactive_nodes = en.utils.extract_inactive_nodes(nodes_map)
+    logging.info("inactive nodes: %(n)i" % {'n':len(inactive_nodes)})  
+    network['nodes'] = nodes_map.values()
+
+    # Parameters    
+    timestep, timesteps_range = calculate_timestamp_range(network, timestep_size, timestep_window, timestep_count)
+    
+    # build the whole network to use for metrics
+    directed_multiedge_network=en.utils.build_network(network)    
+    logging.info("network built")  
+
+    # calculate the metrics
+    network['metrics'] = en.metrics.all_metrics(nodes_map, posts_map, comments_map, directed_multiedge_network, timesteps_range, timestep, timestep_window)
+    logging.info("network metrics done")  
+    
+    write_network(network, directed_multiedge_network, generated)
     
     logging.info("Completed")  
 

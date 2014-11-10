@@ -1,8 +1,34 @@
 import networkx as nx
 import community as co
+from edgesense.content.metrics import extract_content_metrics
 from edgesense.network.utils import extract_dpsg
+from edgesense.utils import sort_by
 from datetime import datetime
+import logging
 
+def all_metrics(nodes_map, posts_map, comments_map, network, timesteps_range, timestep, timestep_window):
+    metrics = {}
+    # calculate content metrics
+    # For each timestep:
+    for ts in timesteps_range:       
+        metrics[ts] = extract_content_metrics(nodes_map, posts_map, comments_map, ts, timestep, timestep_window)
+    logging.info("content metrics done")  
+
+    # calculate the network metrics
+    for ts in timesteps_range:
+        ts_metrics = metrics[ts]
+        # all metrics
+        ts_metrics.update(extract_network_metrics(network, ts))
+        if ts_metrics.has_key('full:partitions'):
+            ts_metrics['partitions'] = ts_metrics['full:partitions']
+        else:
+            ts_metrics['partitions'] = None
+        ts_metrics.update(extract_network_metrics(network, ts, team=False))
+    
+    logging.info("network metrics done")  
+    return sorted(metrics.values(), key=sort_by('ts'))
+    
+    
 # build the deparallelized subnetworks to use for metrics
 # compute the metrics by timestep on the deparallelized network
 # Cluster, K-Cores, PageRank, 
@@ -54,14 +80,7 @@ def extract_network_metrics(mdg, ts, team=True):
         met[pre+'avg_distance'] = None
     return met
 
-def set_isolated(nodes_map, mdg):
-    ts = int(datetime.now().strftime("%s"))
-    dsg = extract_dpsg(mdg, ts, True)
-    usg = dsg.to_undirected()
-    for node in nx.isolates(usg):
-        if nodes_map.has_key(node):
-            nodes_map[node]['isolated'] = True
-        
+
 def extract_louvain_modularity(g):
     met = {}
     usg = g.copy()

@@ -42,7 +42,6 @@ def normalized_data(allusers, allnodes, allcomments, node_title_field='uid', adm
     # build a mapping of nodes (users) keyed on their id
     nodes_map = {}
     for user in allusers:
-        print user
         if not nodes_map.has_key(user['uid']):
             user_data = {}
             user_data['id'] = user['uid']

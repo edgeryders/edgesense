@@ -645,7 +645,7 @@ jQuery(function($) {
                     .append('<button class="filter-btn btn btn-sm" style="background-color:'+color_scale(part)+'" data-partition="'+part+'"><i class="fa fa-check-square-o"></button>');
             });
             
-            $('#fa-filter-btn').on('click', function(){
+            $('#filter-button').on('click', function(){
                 _.each($('.filter-btn'), function(b){
                     b = $(b);
                     if (_.indexOf(selected_partitions, b.data('partition'))>=0) {
@@ -657,7 +657,16 @@ jQuery(function($) {
                 })
             })
             
-            $('#fa-search-btn').on('click', function(e){
+            $('#gexf-save').on('click', function(e){
+                try {
+                    window.location = base_url+'/network.gexf';
+                } catch(exc){
+                    console.log(exc);
+                }
+                e.preventDefault();                    
+            })
+            
+            $('#search-button').on('click', function(e){
                 $('.user-search').find('input').val(current_user_filter);
                 _.each($('.user-search-btn'), function(b){
                     $(b).on('click', function(e){
