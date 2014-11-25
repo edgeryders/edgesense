@@ -8,10 +8,10 @@ import time
 import networkx as nx
 import logging
 
-from edgesense.utils.logger_initializer import initialize_logger
 import edgesense.utils as eu
-import edgesense.network as en
-import edgesense.content as ec
+from edgesense.utils.logger_initializer import initialize_logger
+from edgesense.network.utils import extract_edges, build_network
+from edgesense.metrics import compute_all_metrics
 
 def calculate_timestamp_range(network, timestep_size=60*60*24*7, timestep_window=1, timestep_count=None):
     start_ts = network['edges'][0]['ts'] # first timestamp in the edges
@@ -28,7 +28,7 @@ def calculate_timestamp_range(network, timestep_size=60*60*24*7, timestep_window
     
     return (timestep, timesteps_range)
 
-def load_files(users_resource, nodes_resource, comments_resource, username, password, extraction_method, dumpto):
+def load_files(users_resource, nodes_resource, comments_resource, username, password, extraction_method, dumpto, generated):
     if dumpto:
         base_dump_dir = os.path.join(dumpto, generated.strftime('%Y-%m-%d-%H-%M-%S'))
         eu.resource.mkdir(base_dump_dir)
@@ -179,7 +179,7 @@ def main(argv):
     logging.info("Network processing - started")
     
     # Load the files
-    allusers, allnodes, allcomments = load_files(users_resource, nodes_resource, comments_resource, username, password, extraction_method, dumpto)
+    allusers, allnodes, allcomments = load_files(users_resource, nodes_resource, comments_resource, username, password, extraction_method, dumpto, generated)
     
     # extract a normalized set of data
     nodes_map, posts_map, comments_map = eu.extract.normalized_data(allusers, allnodes, allcomments, node_title_field, admin_roles, exclude_isolated)
@@ -193,22 +193,22 @@ def main(argv):
     # Timestamp of the file generation (to show in the dashboard)
     network['meta']['generated'] = int(generated.strftime("%s"))
         
-    network['edges'] = en.utils.extract_edges(nodes_map, comments_map)
+    network['edges'] = extract_edges(nodes_map, comments_map)
 
     # filter out nodes that have not participated to the full:conversations
-    inactive_nodes = en.utils.extract_inactive_nodes(nodes_map)
-    logging.info("inactive nodes: %(n)i" % {'n':len(inactive_nodes)})  
-    network['nodes'] = nodes_map.values()
-
+    inactive_nodes = [ v for v in nodes_map.values() if not v['active'] ]
+    logging.info("inactive nodes: %(n)i" % {'n':len(inactive_nodes)})
+    network['nodes'] = [ v for v in nodes_map.values() if v['active'] ]
+    
     # Parameters    
     timestep, timesteps_range = calculate_timestamp_range(network, timestep_size, timestep_window, timestep_count)
     
     # build the whole network to use for metrics
-    directed_multiedge_network=en.utils.build_network(network)    
+    directed_multiedge_network=build_network(network)    
     logging.info("network built")  
 
     # calculate the metrics
-    network['metrics'] = en.metrics.all_metrics(nodes_map, posts_map, comments_map, directed_multiedge_network, timesteps_range, timestep, timestep_window)
+    network['metrics'] = compute_all_metrics(nodes_map, posts_map, comments_map, directed_multiedge_network, timesteps_range, timestep, timestep_window)
     logging.info("network metrics done")  
     
     write_network(network, directed_multiedge_network, generated)

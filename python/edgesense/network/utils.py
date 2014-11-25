@@ -19,12 +19,13 @@ def extract_dpsg(mdg, ts, team=True):
         if mdg.node[node]['created_ts'] <= ts and (team or not mdg.node[node]['team']):
             dg.add_node(node, mdg.node[node])
     
-    for node in mdg.nodes_iter():
+    for node in dg.nodes_iter():
         for neighbour in mdg[node].keys():
             count = sum(1 for e in mdg[node][neighbour].values() if e['ts'] <= ts and (team or not e['team']))
             effort = sum(e['effort'] for e in mdg[node][neighbour].values() if e['ts'] <= ts and (team or not e['team']))
             team_edge = sum(1 for e in mdg[node][neighbour].values() if e['ts'] <= ts and e['team'])>0
-            if count > 0 and (team or not team_edge):
+            # an edge should be added here only if either ends are included
+            if count > 0 and (team or not team_edge) and dg.has_node(neighbour):
                dg.add_edge(node, neighbour, {'source': node, 'target': neighbour, 'effort': effort, 'count': count, 'team': team_edge}) 
     
     return dg
