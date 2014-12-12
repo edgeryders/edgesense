@@ -140,19 +140,24 @@ def apply_catalyst_napespace_manager(graph):
 def catalyst_graph_for(file):
     if file.startswith('/'):
         file = 'file://'+file
+    logging.info("InferenceStore catalyst_graph_for started")
         
     quads = jsonld.to_rdf(file, {'format': 'application/nquads'})
+    logging.info("InferenceStore JSON-LD loaded")
 
     g = ConjunctiveGraph()
     apply_catalyst_napespace_manager(g)
     g.parse(data=quads, format='nquads')
+    logging.info("InferenceStore base graph loaded")
 
     # setup the inference engine
     f = FuXiInferenceStore()
     f.add_ontologies()
+    logging.info("InferenceStore engine setup")
 
     # get the inference engine
     cl = f.get_inference(g)
+    logging.info("InferenceStore inference graph loaded")
 
     union_g = rdflib.ConjunctiveGraph()
 
@@ -161,5 +166,7 @@ def catalyst_graph_for(file):
 
     for s,p,o in cl.triples( (None, None, None) ):
        union_g.add( (s,p,o) )
+
+    logging.info("InferenceStore union graph prepared")
 
     return union_g

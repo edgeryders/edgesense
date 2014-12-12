@@ -32,6 +32,16 @@ jQuery(function($) {
           
           var dashboard = Edgesense.Dashboard().configuration(configuration);
           
+          // Activate the analytics
+          var analytics_tracking_id = configuration.get("analytics_tracking_id");
+          if (analytics_tracking_id) {
+              var analytics = Edgesense.
+                               Analytics().
+                               tracking_id(analytics_tracking_id).
+                               start();
+              dashboard.analytics(analytics);
+          }
+
           var base_data_url = configuration.get("base_data_url");
           if (_.isEmpty(base_data_url)) {
               base_data_url = Edgesense.FullUrl('/json/data/');              
@@ -44,6 +54,8 @@ jQuery(function($) {
               .base(base_data_url+'/'+d.last)
               .load('network.min.json')
               .run();
+          
+          Edgesense.Help().analytics(dashboard.analytics()).load();
           
           Edgesense.Tutorial.dashboard(dashboard).setup();
           

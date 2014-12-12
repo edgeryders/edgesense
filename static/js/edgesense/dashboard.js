@@ -29,7 +29,7 @@ jQuery(function($) {
     Edgesense.Dashboard = function(){
 
         var configuration = undefined,
-            analytics = Edgesense.Analytics(),
+            analytics = {track: function(){ console.log(['analytics.track', arguments]); }},
             base_url = undefined,
             file = undefined,
             data = undefined,
@@ -442,10 +442,8 @@ jQuery(function($) {
                 network_graph.settings('touchEnabled', !touch_enabled);
                 if (mouse_enabled) {
                     network_lock.find('.fa').removeClass('fa-unlock').addClass('fa-lock');                    
-                    network_lock.tooltip('hide').attr('data-original-title', "Unlock").tooltip('fixTitle').tooltip('show');
                 } else {
                     network_lock.find('.fa').removeClass('fa-lock').addClass('fa-unlock');
-                    network_lock.tooltip('hide').attr('data-original-title', "Lock").tooltip('fixTitle').tooltip('show');
                 }
                 analytics.track('control', 'toggle_lock', mouse_enabled);
             },
@@ -560,6 +558,13 @@ jQuery(function($) {
                 track_date_format = d3.time.format(format);
             }
         };
+        db.analytics = function(analytics_object){
+            if (!arguments.length) return analytics;
+
+            analytics = analytics_object;
+            
+            return db;
+        };
         
         db.data = function(){
             return data;
@@ -595,15 +600,7 @@ jQuery(function($) {
                 $('#dashboard-title').html(dashboard_name);
                 document.title = dashboard_name+" | dashboard"
             }
-            
-            // Activate the analytics
-            var analytics_tracking_id = configuration.get("analytics_tracking_id");
-            if (analytics_tracking_id) {
-                analytics. 
-                    tracking_id(analytics_tracking_id).
-                    start();
-            }
-            
+                        
             // Show the date when it was generated
             if ( data && data['meta'] && data['meta']['generated']) {
                 var format = d3.time.format('%B %d, %Y - %H:%M:%S');
@@ -793,7 +790,6 @@ jQuery(function($) {
             $('#moderators-check').on('ifChanged', function(e){ toggle_team($(this).prop('checked')); });
             window.network_lock = network_lock;
             
-            Edgesense.Help().analytics(analytics).load();
             return db;
         };
 

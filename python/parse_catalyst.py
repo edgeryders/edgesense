@@ -47,6 +47,7 @@ def main(argv):
     generated = datetime.now()
     kind, source, outdir = parse_options(argv)
     logging.info("Parsing catalyst - Started")
+    logging.info("Parsing catalyst - Source file: %(s)s" % {'s':source})
     logging.info("Parsing catalyst - Output directory: %(s)s" % {'s':outdir})
     logging.info("Parsing catalyst - Extraction Kind: %(s)s" % {'s':kind})
     
