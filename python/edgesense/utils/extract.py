@@ -158,3 +158,18 @@ def normalized_data(allusers, allnodes, allcomments, node_title_field='uid', adm
             logging.error("Comment %(cid)s not found" % comment)
     
     return nodes_map, posts_map, comments_map
+
+def calculate_timestamp_range(network, timestep_size=60*60*24*7, timestep_window=1, timestep_count=None):
+    start_ts = network['edges'][0]['ts'] # first timestamp in the edges
+    end_ts = network['edges'][-1]['ts'] # last timestamp in the edges
+    day_ts = 60*60*24
+    if timestep_count:
+        timestep = max(int(round((end_ts-start_ts)/timestep_count)), day_ts)
+    else:
+        timestep = timestep_size
+    
+    timesteps_range = range(start_ts, end_ts, timestep)
+    if timesteps_range[-1]<end_ts :
+        timesteps_range.append(end_ts)
+    
+    return (timestep, timesteps_range)

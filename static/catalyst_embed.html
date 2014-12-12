@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="UTF-8">
+        <title>Edgesense | Dashboard</title>
+        <meta content='width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no' name='viewport'>
+        <!-- font Awesome -->
+        <link href="css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+        <!-- Ion Slider -->
+        <link href="css/ionslider/ion.rangeSlider.css" rel="stylesheet" type="text/css" />
+        <!-- ion slider Nice -->
+        <link href="css/ionslider/ion.rangeSlider.skinNice.css" rel="stylesheet" type="text/css" />
+        <!-- Rickshaw style -->
+        <link href="css/rickshaw.min.css" rel="stylesheet" type="text/css" />
+        
+        <!-- Minimal embedded style -->
+        <style>
+        /*!
+         * Minimal Bootstrap CSS required to have the popover work
+         * Generated using the Bootstrap Customizer (http://getbootstrap.com/customize/?id=275758aa022d43e9c0cb)
+         * Config saved to config.json and https://gist.github.com/275758aa022d43e9c0cb
+         *//*! normalize.css v3.0.2 | MIT License | git.io/normalize */
+        .popover {
+          position: absolute;
+          top: 0;
+          left: 0;
+          z-index: 1060;
+          display: none;
+          max-width: 276px;
+          padding: 1px;
+          font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+          font-size: 14px;
+          font-weight: normal;
+          line-height: 1.42857143;
+          text-align: left;
+          background-color: #ffffff;
+          -webkit-background-clip: padding-box;
+                  background-clip: padding-box;
+          border: 1px solid #cccccc;
+          border: 1px solid rgba(0, 0, 0, 0.2);
+          border-radius: 6px;
+          -webkit-box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 5px 10px rgba(0, 0, 0, 0.2);
+          white-space: normal;
+        }
+        .popover.top {
+          margin-top: -10px;
+        }
+        .popover.right {
+          margin-left: 10px;
+        }
+        .popover.bottom {
+          margin-top: 10px;
+        }
+        .popover.left {
+          margin-left: -10px;
+        }
+        .popover-title {
+          margin: 0;
+          padding: 8px 14px;
+          font-size: 14px;
+          background-color: #f7f7f7;
+          border-bottom: 1px solid #ebebeb;
+          border-radius: 5px 5px 0 0;
+        }
+        .popover-content {
+          padding: 9px 14px;
+        }
+        .popover > .arrow,
+        .popover > .arrow:after {
+          position: absolute;
+          display: block;
+          width: 0;
+          height: 0;
+          border-color: transparent;
+          border-style: solid;
+        }
+        .popover > .arrow {
+          border-width: 11px;
+        }
+        .popover > .arrow:after {
+          border-width: 10px;
+          content: "";
+        }
+        .popover.top > .arrow {
+          left: 50%;
+          margin-left: -11px;
+          border-bottom-width: 0;
+          border-top-color: #999999;
+          border-top-color: rgba(0, 0, 0, 0.25);
+          bottom: -11px;
+        }
+        .popover.top > .arrow:after {
+          content: " ";
+          bottom: 1px;
+          margin-left: -10px;
+          border-bottom-width: 0;
+          border-top-color: #ffffff;
+        }
+        .popover.right > .arrow {
+          top: 50%;
+          left: -11px;
+          margin-top: -11px;
+          border-left-width: 0;
+          border-right-color: #999999;
+          border-right-color: rgba(0, 0, 0, 0.25);
+        }
+        .popover.right > .arrow:after {
+          content: " ";
+          left: 1px;
+          bottom: -10px;
+          border-left-width: 0;
+          border-right-color: #ffffff;
+        }
+        .popover.bottom > .arrow {
+          left: 50%;
+          margin-left: -11px;
+          border-top-width: 0;
+          border-bottom-color: #999999;
+          border-bottom-color: rgba(0, 0, 0, 0.25);
+          top: -11px;
+        }
+        .popover.bottom > .arrow:after {
+          content: " ";
+          top: 1px;
+          margin-left: -10px;
+          border-top-width: 0;
+          border-bottom-color: #ffffff;
+        }
+        .popover.left > .arrow {
+          top: 50%;
+          right: -11px;
+          margin-top: -11px;
+          border-right-width: 0;
+          border-left-color: #999999;
+          border-left-color: rgba(0, 0, 0, 0.25);
+        }
+        .popover.left > .arrow:after {
+          content: " ";
+          right: 1px;
+          border-right-width: 0;
+          border-left-color: #ffffff;
+          bottom: -10px;
+        }
+        .pull-right {
+          float: right !important;
+        }
+        .pull-left {
+          float: left !important;
+        }
+        .hide {
+          display: none !important;
+        }
+        .show {
+          display: block !important;
+        }
+        
+        .edgesense #network-container {
+            width:600px;
+            height:600px; 
+            position: relative;
+            border-top: 0 !important;
+            background-color: #101010;
+            margin-top:70px;
+        }
+        .edgesense #network-container #dashboard-controls {
+            position:absolute;
+            z-index:900;
+            right:10px;
+            top:-60px;
+            width:580px;
+            display:none;
+        }
+        .edgesense #network-container #node-marker {
+            position:absolute;
+            width:1px;
+            height:1px;
+            background-color:transparent;
+            z-index:999;
+        }
+        .edgesense #network-container #node-marker,
+        .edgesense #network-container .popover {
+            pointer-events: none;    
+        }
+        .edgesense #network {
+            overflow: hidden;
+            height:600px;
+            z-index:100;
+        }
+        .node-hover-title {
+            font-size:11px;
+            font-weight:bold;
+        }
+        .node-hover-data {
+            padding-left: 0px;
+            font-size: 10px;
+            white-space:nowrap;
+            list-style-type:none;
+            margin:0;
+        }
+        .node-hover-data li span {
+            font-weight:bold;    
+        }
+        .edgesense .filter-btn {
+            width:19px;
+            height:19px;
+            display:block;
+            padding:0;
+            margin-bottom:5px;
+            color:#fefefe;
+            border:0;
+        }
+        .edgesense .metric {
+            width: 280px;
+            margin: 5px;
+            padding: 5px;
+            float: left;
+            background-color:#c0c0c0;
+        }
+        .edgesense .metric .minichart {
+            padding: 10px;
+            height: 90px;
+            margin: 0 auto;
+        }
+        .edgesense .metric .inner {
+            padding: 10px;
+        }
+        .edgesense .metric .inner h3 {
+            float:right;
+            font-size:3em;
+            margin:0;
+        }
+        .edgesense .rickshaw_graph .x_tick .title {
+            left: -3px;
+            font-size:10px;
+        }
+        .edgesense .rickshaw_graph .x_tick {
+            border-left: 1px dotted rgba(255,255,255,.3);
+        }
+        .edgesense .minichart .x_tick .title {
+            font-size:10px;
+            margin-left:0px;
+            left:3px;
+        }
+        .edgesense .bg-navy {
+            color:#f0f0f0;
+            background-color: #001f3f !important;
+        }
+        .edgesense .bg-green {
+            color:#f0f0f0;
+            background-color: #00a65a !important;
+        }
+        .edgesense .bg-yellow {
+            color:#f0f0f0;
+            background-color: #f39c12 !important;
+        }
+        .edgesense .bg-maroon {
+            color:#f0f0f0;
+            background-color: #85144b !important;
+        }
+        .edgesense-btn {
+          display: inline-block;
+          text-align: center;
+          white-space: nowrap;
+          vertical-align: middle;
+          cursor: pointer;
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
+          -o-user-select: none;
+          user-select: none;
+          font-weight: 500;
+          -webkit-border-radius: 3px;
+          -moz-border-radius: 3px;
+          border-radius: 3px;
+          border: 1px solid transparent;
+          -webkit-box-shadow: inset 0px -2px 0px 0px rgba(0, 0, 0, 0.09);
+          -moz-box-shadow: inset 0px -2px 0px 0px rgba(0, 0, 0, 0.09);
+          box-shadow: inset 0px -1px 0px 0px rgba(0, 0, 0, 0.09);
+          padding: 3px 6px;
+          font-size: 10px;
+          line-height: 1.5;
+          margin-top:8px;
+        }
+        .filter-btn {
+            width: 19px;
+            height: 19px;
+            display: block;
+            padding: 0;
+            margin-bottom: 5px;
+            color: #fefefe;
+            border:0;
+        }
+        .edgesense-btn.btn-danger {
+            color:#f0f0f0;
+            background-color: #f56954;
+            border-color: #f4543c;
+        }
+        .edgesense-btn.btn-info {
+            color:#f0f0f0;
+            background-color: #00c0ef;
+            border-color: #00acd6;
+        }
+        .edgesense-btn.btn-primary {
+            color:#f0f0f0;
+            background-color: #3c8dbc;
+            border-color: #367fa9;
+        }
+        .edgesense {
+            font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+            font-size: 14px;
+            line-height: 1.42857143;
+            color: #333;
+            background-color: #fff;
+            width:600px;
+        }
+        .edgesense #timestamp {
+            font-size:0.8em;
+            text-align:right;
+            padding-bottom:8px;
+            margin:0 10px;
+        }
+        </style>
+    </head>
+    <body>
+        <div>
+            <input type="text" id="source-url"> <button id="process-source" type="button">Process</button>&nbsp;<span id="process-message"></span>
+        </div>
+        <div class="edgesense">
+            <!-- <div id="timestamp">
+               <i class="fa fa-clock-o"></i> <span id="generated-ts">&nbsp;</span>
+            </div>  -->
+                               
+            <!-- Network graph -->
+            <div id="network-container">
+                <div id="dashboard-controls" class="box-tools">
+                    <div>
+                        <input id="date_range" type="text" name="date_range" value="" />
+                    </div>
+                    <div class="pull-right">
+                    <button class="edgesense-btn btn-danger" id="network-lock"><i class="fa fa-lock"></i></button>
+                    <button class="edgesense-btn btn-primary popover-toggle" data-toggle="popover" id="search-button"><i class="fa fa-search"></i></button>
+                    <div class="popover-content pull-right hide"><div class="user-search">Enter a username or id and press 'Show' to highlight it.<div class="input-group input-group-sm">
+                        <input type="text" class="form-control user-search-field">
+                        <span class="input-group-btn">
+                            <button class="btn btn-primary btn-flat user-search-btn" type="button">Show</button>
+                        </span>
+                        </div><a class="user-search-clear-btn" href="#">Show all</a></div>
+                    </div>
+                    <button class="edgesense-btn btn-info popover-toggle" data-toggle="popover" id="filter-button"><i class="fa fa-filter"></i></button>
+                    <div class="popover-content hide" id="network-filter"></div>                    
+                    </div>
+                </div>
+                <div id="network"></div>
+                <div id="node-marker"></div>
+            </div><!-- /#network -->
+            <!-- /Network graph -->
+        
+            <div class="row">
+                <div class="big-metric metric bg-navy" data-metric-name="nodes_count" data-metric-round="3">
+                    <div class="inner">
+                        <h3 class="value">
+            
+                        </h3>
+                        <p>
+                            N° of nodes
+                        </p>
+                    </div>
+                    <div class="minichart">
+                    </div>
+                </div>
+                <div class="big-metric metric bg-green" data-metric-name="edges_count" data-metric-round="2">
+                    <div class="inner">
+                        <h3 class="value">
+            
+                        </h3>
+                        <p>
+                            N° of edges
+                        </p>
+                    </div>
+                    <div class="minichart">
+                    </div>
+                </div>
+            
+            </div>
+            
+        </div>
+        
+        <script src="js/script.min.js"></script>
+        <script src="js/edgesense/catalyst_embed.js"></script>
+        <script>
+        ;(function(undefined) {
+          'use strict';
+  
+          $script.ready(['edgesense'], function(){
+              $('.popover-toggle').popover({
+                  container: 'body',
+                  html: true,
+                  placement: 'bottom',
+                  content: function () {
+                      return $(this).next('.popover-content').html();
+                  }
+              });
+              
+              // The main configuration
+              var configuration = Edgesense
+                                    .Configuration()
+                                    .data({
+                                            "dashboard_name": "Edgesense - CATALYST",
+                                            "analytics_tracking_id": "UA-51375002-6",
+                                            "metrics_server": "http://127.0.0.1:5000"
+                                         });
+
+              Edgesense.run = function(data){
+                  
+                  
+                  // The script produces an index json with the last date when it was run
+                  var dashboard = Edgesense.Dashboard().configuration(configuration);
+
+                  
+                  // Activate the analytics
+                  var analytics_tracking_id = configuration.get("analytics_tracking_id");
+                  if (analytics_tracking_id) {
+                      var analytics = Edgesense.
+                                        Analytics().
+                                        tracking_id(analytics_tracking_id).
+                                        start();
+                      dashboard.analytics(analytics);
+                  }
+
+                  dashboard
+                      .base(configuration.get("metrics_server")+data["base_path"])
+                      .load(data["metrics"])
+                      .run();
+
+                  Edgesense.current = dashboard;                  
+              };
+              
+              Edgesense.cleanup = function(){
+                  $('#network-container .box-tools').hide();
+                  $('#network').html('');
+                  $('.metric .value').html('');
+                  $('.metric .minichart').html('');
+              }
+              
+              $('#process-source').on('click', function(){
+                  var source_url = $('#source-url').val();                  
+                  if (source_url) {
+                      // we post the file to the remote CIF parsing server
+                      $('#process-source').attr('disabled','disabled');
+                      $('#source-url').attr('disabled','disabled');
+                      $('#process-message').html('Processing file ...');
+                      $.ajax({
+                          type: 'POST',
+                          url: configuration.get("metrics_server")+'/parse',
+                          crossDomain: true,
+                          data: {source: source_url},
+                          dataType: 'json',
+                          success: function(responseData, textStatus, jqXHR) {
+                              $('#process-source').removeAttr('disabled');
+                              $('#source-url').removeAttr('disabled');
+                              $('#process-message').html('')
+                              console.log(responseData);
+                              // we run the viz with the response data, this is an example of what we receive:
+                              // {
+                              //   "base_path": "/json/data/2014-12-12-11-19-24",
+                              //   "gexf": "network.gexf",
+                              //   "last": "2014-12-12-11-19-24",
+                              //   "metrics": "network.min.json"
+                              // }
+                              Edgesense.cleanup();
+                              Edgesense.run(responseData);
+                          },
+                          error: function (responseData, textStatus, errorThrown) {
+                              $('#process-source').removeAttr('disabled');
+                              $('#source-url').removeAttr('disabled');
+                              $('#process-message').html('Error processing file.');
+                          }
+                      });
+                  }
+              })
+              
+          })
+
+  
+        }).call(this);
+        </script>
+    </body>
+</html>

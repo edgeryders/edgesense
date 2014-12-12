@@ -55,6 +55,14 @@ jQuery(function($) {
             return c;
         };
         
+        c.data = function(d){
+            if (!arguments.length) return data;
+
+            data = d;
+
+            return c;
+        };
+        
         c.get = function(key){
             return data[key];
         };
