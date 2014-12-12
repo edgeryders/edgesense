@@ -154,7 +154,84 @@
         .show {
           display: block !important;
         }
-        
+
+        @keyframes loadingStart {
+          0% {
+            opacity: 0;
+          }
+          100% {
+            opacity: 1;
+          }
+        }
+        @keyframes loading {
+          0% {
+            transform: rotate(0deg);
+          }
+          50% {
+            transform: rotate(180deg);
+          }
+          100% {
+            transform: rotate(360deg);
+          }
+        }
+
+        .loading {
+          position: relative;
+          pointer-events: none;
+        }
+
+        #css-input:checked ~ .loading .loading-overlay {
+          position: absolute;
+          top: 0;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          -webkit-animation: loadingStart 3s 300ms linear 1 both;
+          -moz-animation: loadingStart 3s 300ms linear 1 both;
+          -o-animation: loadingStart 3s 300ms linear 1 both;
+          animation: loadingStart 3s 300ms linear 1 both;
+          background: rgba(255, 255, 255, 0.5);
+          text-align: center;
+        }
+        #css-input:checked ~ .loading .loading-text {
+          font-size: 0.875rem;
+          line-height: 1.3125rem;
+          text-shadow: white 0 0 1em, white 0 0 0.5em, white 0 0 0.25em;
+          position: relative;
+          display: block;
+          text-transform: uppercase;
+          font-weight: bold;
+        }
+        #css-input:checked ~ .loading .loading-text:after {
+          content: "...";
+        }
+        #css-input:checked ~ .loading .loading-spinner {
+          position: absolute;
+          top: 50%;
+          bottom: 0;
+          left: 0;
+          right: 0;
+          margin: -3.9375rem auto 0;
+          color: #1a1d1d;
+          text-align: center;
+        }
+        #css-input:checked ~ .loading .loading-icon {
+          font-size: 4.8125rem;
+          line-height: 5.25rem;
+          text-shadow: rgba(255, 255, 255, 0.75) 0 0 0.5em;
+          -webkit-animation: loading 1s steps(4) infinite;
+          -moz-animation: loading 1s steps(4) infinite;
+          -o-animation: loading 1s steps(4) infinite;
+          animation: loading 1s steps(4) infinite;
+          display: block;
+          vertical-align: middle;
+        }
+        #css-input:checked ~ .loading .loading-icon:before {
+          vertical-align: middle;
+          content: "\e000";
+          font-family: "demo";
+        }
+                
         .edgesense #network-container {
             width:600px;
             height:600px; 
@@ -313,6 +390,7 @@
             color: #333;
             background-color: #fff;
             width:600px;
+            display:none;
         }
         .edgesense #timestamp {
             font-size:0.8em;
@@ -320,11 +398,32 @@
             padding-bottom:8px;
             margin:0 10px;
         }
+        #messages {
+            width:100%;
+            height:100%;
+            position: absolute;
+            background-color:#f0f0f0;
+            color:#000;
+        }
+        body {
+            margin:0;
+            padding:0;
+            font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+        }
+        #messages div {
+            width:200px;
+            margin:50px auto;
+            font-size:20px;
+            text-align:center;
+        }
+        #messages div.alert {
+            color:#660000;
+        }
         </style>
     </head>
     <body>
-        <div>
-            <input type="text" id="source-url"> <button id="process-source" type="button">Process</button>&nbsp;<span id="process-message"></span>
+        <div id="messages">
+            
         </div>
         <div class="edgesense">
             <!-- <div id="timestamp">
@@ -390,99 +489,106 @@
         <script src="js/edgesense/catalyst_embed.js"></script>
         <script>
         ;(function(undefined) {
-          'use strict';
-  
-          $script.ready(['edgesense'], function(){
-              $('.popover-toggle').popover({
-                  container: 'body',
-                  html: true,
-                  placement: 'bottom',
-                  content: function () {
-                      return $(this).next('.popover-content').html();
-                  }
-              });
-              
-              // The main configuration
-              var configuration = Edgesense
-                                    .Configuration()
-                                    .data({
+            'use strict';
+
+            $script.ready(['edgesense'], function() {
+                $('.popover-toggle').popover({
+                    container: 'body',
+                    html: true,
+                    placement: 'bottom',
+                    content: function() {
+                        return $(this).next('.popover-content').html();
+                    }
+                });
+
+                var get_url_parameter = function(name) {
+                    name = name.replace(/[\[]/, "\\[").replace(/[\]]/, "\\]");
+                    var regex = new RegExp("[\\?&]" + name + "=([^&#]*)"),
+                        results = regex.exec(location.search);
+                    return results === null ? "" : decodeURIComponent(results[1].replace(/\+/g, " "));
+                }
+                
+                // The main configuration
+                var configuration = Edgesense
+                                        .Configuration()
+                                        .data({
                                             "dashboard_name": "Edgesense - CATALYST",
                                             "analytics_tracking_id": "UA-51375002-6",
-                                            "metrics_server": "http://127.0.0.1:5000"
-                                         });
+                                            "metrics_server": ""
+                                        });
 
-              Edgesense.run = function(data){
-                  
-                  
-                  // The script produces an index json with the last date when it was run
-                  var dashboard = Edgesense.Dashboard().configuration(configuration);
+                Edgesense.run = function(data) {
+                    // The script produces an index json with the last date when it was run
+                    var dashboard = Edgesense.Dashboard().configuration(configuration);
 
-                  
-                  // Activate the analytics
-                  var analytics_tracking_id = configuration.get("analytics_tracking_id");
-                  if (analytics_tracking_id) {
-                      var analytics = Edgesense.
-                                        Analytics().
-                                        tracking_id(analytics_tracking_id).
-                                        start();
-                      dashboard.analytics(analytics);
-                  }
 
-                  dashboard
-                      .base(configuration.get("metrics_server")+data["base_path"])
-                      .load(data["metrics"])
-                      .run();
+                    // Activate the analytics
+                    var analytics_tracking_id = configuration.get("analytics_tracking_id");
+                    if (analytics_tracking_id) {
+                        var analytics = Edgesense.
+                        Analytics().
+                        tracking_id(analytics_tracking_id).
+                        start();
+                        dashboard.analytics(analytics);
+                    }
 
-                  Edgesense.current = dashboard;                  
-              };
-              
-              Edgesense.cleanup = function(){
-                  $('#network-container .box-tools').hide();
-                  $('#network').html('');
-                  $('.metric .value').html('');
-                  $('.metric .minichart').html('');
-              }
-              
-              $('#process-source').on('click', function(){
-                  var source_url = $('#source-url').val();                  
-                  if (source_url) {
-                      // we post the file to the remote CIF parsing server
-                      $('#process-source').attr('disabled','disabled');
-                      $('#source-url').attr('disabled','disabled');
-                      $('#process-message').html('Processing file ...');
-                      $.ajax({
-                          type: 'POST',
-                          url: configuration.get("metrics_server")+'/parse',
-                          crossDomain: true,
-                          data: {source: source_url},
-                          dataType: 'json',
-                          success: function(responseData, textStatus, jqXHR) {
-                              $('#process-source').removeAttr('disabled');
-                              $('#source-url').removeAttr('disabled');
-                              $('#process-message').html('')
-                              console.log(responseData);
-                              // we run the viz with the response data, this is an example of what we receive:
-                              // {
-                              //   "base_path": "/json/data/2014-12-12-11-19-24",
-                              //   "gexf": "network.gexf",
-                              //   "last": "2014-12-12-11-19-24",
-                              //   "metrics": "network.min.json"
-                              // }
-                              Edgesense.cleanup();
-                              Edgesense.run(responseData);
-                          },
-                          error: function (responseData, textStatus, errorThrown) {
-                              $('#process-source').removeAttr('disabled');
-                              $('#source-url').removeAttr('disabled');
-                              $('#process-message').html('Error processing file.');
-                          }
-                      });
-                  }
-              })
-              
-          })
+                    dashboard
+                        .base(configuration.get("metrics_server") + data["base_path"])
+                        .load(data["metrics"])
+                        .run();
 
-  
+                    Edgesense.current = dashboard;
+                };
+
+                Edgesense.cleanup = function() {
+                    $('#network-container .box-tools').hide();
+                    $('#network').html('');
+                    $('.metric .value').html('');
+                    $('.metric .minichart').html('');
+                }
+
+                var source_url = get_url_parameter('url');
+
+                if (source_url) {
+                    
+                    $('.edgesense').hide();
+                    $('#messages').html('<div class="wait">Processing file<br><img src="/img/ajax-loader.gif"/></div>').show();
+                    $.ajax({
+                        type: 'POST',
+                        url: configuration.get("metrics_server") + '/parse',
+                        crossDomain: true,
+                        data: {
+                            source: source_url
+                        },
+                        dataType: 'json',
+                        success: function(responseData, textStatus, jqXHR) {
+                            $('#messages').html('').hide();
+                            $('.edgesense').show();
+                            console.log(responseData);
+                            // we run the viz with the response data, this is an example of what we receive:
+                            // {
+                            //   "base_path": "/json/data/2014-12-12-11-19-24",
+                            //   "gexf": "network.gexf",
+                            //   "last": "2014-12-12-11-19-24",
+                            //   "metrics": "network.min.json"
+                            // }
+                            Edgesense.cleanup();
+                            Edgesense.run(responseData);
+                        },
+                        error: function(responseData, textStatus, errorThrown) {
+                            Edgesense.cleanup();
+                            $('.edgesense').hide();
+                            $('#messages').html('<div class="alert">Error processing file.</div>').show();
+                        }
+                    });                    
+                } else {
+                    $('.edgesense').hide();
+                    $('#messages').html('<div class="alert">No file specified.</div>').show();
+                }
+
+            })
+
+
         }).call(this);
         </script>
     </body>

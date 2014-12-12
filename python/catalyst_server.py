@@ -59,8 +59,10 @@ class InvalidUsage(Exception):
         rv = dict(self.payload or ())
         rv['message'] = self.message
         return rv
-        
-app = Flask(__name__, static_folder='../static', static_url_path='')
+
+basepath = os.path.dirname(__file__)
+static_path = os.path.abspath(os.path.join(basepath, "..", "static"))
+app = Flask(__name__, static_folder=static_path, static_url_path='')
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
 
@@ -126,8 +128,7 @@ def parse():
     
     # save the results
     tag = generated.strftime('%Y-%m-%d-%H-%M-%S')
-    basepath = os.path.dirname(__file__)
-    destination_path = os.path.abspath(os.path.join(basepath, "..", "static", "json"))
+    destination_path = os.path.abspath(os.path.join(static_path, "json"))
     tagged_dir = os.path.join(destination_path, "data", tag)
 
     # dump the network to a json file, minified
