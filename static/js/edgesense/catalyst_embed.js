@@ -10,6 +10,7 @@
   // asynchronous loading of the js files
   $script('//ajax.googleapis.com/ajax/libs/jquery/2.0.2/jquery.min.js', function() {
       $script(['js/jquery-ui-1.10.3.min.js', 
+               'js/spin.min.js', 
                'js/underscore-min.js', 
                'js/bootstrap.min.js', 
                'js/plugins/ionslider/ion.rangeSlider.min.js'
