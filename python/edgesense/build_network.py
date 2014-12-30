@@ -143,9 +143,8 @@ def parse_options(argv):
             exclude_isolated,
             dumpto)
 
-def main(argv):
+def main():
     initialize_logger('./log')
-
     generated = datetime.now()
     
     users_resource, \
@@ -160,7 +159,7 @@ def main(argv):
     extraction_method, \
     admin_roles, \
     exclude_isolated, \
-    dumpto = parse_options(argv)
+    dumpto = parse_options(sys.argv[1:])
     
     logging.info("Network processing - started")
     
@@ -202,5 +201,5 @@ def main(argv):
     logging.info("Completed")  
 
 if __name__ == "__main__":
-   main(sys.argv[1:])
+   main()
 

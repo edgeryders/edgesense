@@ -41,11 +41,11 @@ def parse_options(argv):
     logging.info("parsing url %(s)s" % {'s': source})
     return (kind,source,outdir)
 
-def main(argv):
+def main():
     initialize_logger('./log')
     
     generated = datetime.now()
-    kind, source, outdir = parse_options(argv)
+    kind, source, outdir = parse_options(sys.argv[1:])
     logging.info("Parsing catalyst - Started")
     logging.info("Parsing catalyst - Source file: %(s)s" % {'s':source})
     logging.info("Parsing catalyst - Output directory: %(s)s" % {'s':outdir})
@@ -76,5 +76,5 @@ def main(argv):
     logging.info("Parsing catalyst - Completed")
 
 if __name__ == "__main__":
-   main(sys.argv[1:])
+   main()
 

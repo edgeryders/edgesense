@@ -1,0 +1,7 @@
+rdflib==3.4.0
+Flask==0.10.1
+Flask-Cors==1.10.0
+requests==2.2.1
+simplejson==3.6.4
+PyLD==0.6.3
+https://github.com/maparent/FuXi/archive/d5c4e3d3e389825b032072b4004bd2e22a9f8f1a.zip
