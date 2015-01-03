@@ -147,6 +147,11 @@ def parse():
     return jsonify({'last': tag, 'base_path': base_path, 'metrics': 'network.min.json', 'gexf': 'network.gexf' })
 
 
-if __name__ == "__main__":
+
+def main(debug=False):
     initialize_logger('./log')
-    app.run(debug=True)
+    app.run(debug=debug, host=(None if debug else '0.0.0.0'))
+
+
+if __name__ == "__main__":
+    main(True)
