@@ -61,7 +61,7 @@ class InvalidUsage(Exception):
         return rv
 
 basepath = os.path.dirname(__file__)
-static_path = os.path.abspath(os.path.join(basepath, "..", "static"))
+static_path = os.path.abspath(os.path.join(basepath, "..", "..", "static"))
 app = Flask(__name__, static_folder=static_path, static_url_path='')
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
