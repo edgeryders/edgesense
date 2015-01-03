@@ -1,5 +1,6 @@
 {
 	'name': 'edgesense_exported_graph',
+	'description':'The Edgeryders community interaction network, expressed as a graph. Nodes encode users, edges encode comments. The network is directed; parallel edges are supported.'
 	'license': {
 		'type':'CC BY 4.0',
 		'url': 'https://creativecommons.org/licenses/by/4.0/legalcode'
@@ -13,6 +14,7 @@
 		'url': 'http://edgeryders.edgesense.spazidigitali.com',
 		'path': '/',
 		'format': 'gexf',
+		'format specifications':'http://gexf.net/format',
 		'schema':{
 			'attributes': [{
 				'class':'edge',
