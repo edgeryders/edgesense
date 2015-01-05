@@ -61,7 +61,7 @@ class InvalidUsage(Exception):
         return rv
 
 basepath = os.path.dirname(__file__)
-static_path = os.path.abspath(os.path.join(basepath, "..", "static"))
+static_path = os.path.abspath(os.path.join(basepath, "..", "..", "static"))
 app = Flask(__name__, static_folder=static_path, static_url_path='')
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -147,6 +147,11 @@ def parse():
     return jsonify({'last': tag, 'base_path': base_path, 'metrics': 'network.min.json', 'gexf': 'network.gexf' })
 
 
-if __name__ == "__main__":
+
+def main(debug=False):
     initialize_logger('./log')
-    app.run(debug=True)
+    app.run(debug=debug, host=(None if debug else '0.0.0.0'))
+
+
+if __name__ == "__main__":
+    main(True)

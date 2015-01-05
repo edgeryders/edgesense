@@ -3,5 +3,6 @@ static/json/last.json
 static/json/configuration.json
 log
 *.gexf
+*.pyc
 python/edgesense.egg-info
 python/dist
