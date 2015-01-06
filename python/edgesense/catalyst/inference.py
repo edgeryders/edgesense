@@ -16,7 +16,7 @@ from FuXi.Rete.Network import ReteNetwork
 from simplejson import load, dump
 from pyld import jsonld
 
-ONTOLOGY_ROOT = path.join(path.dirname(__file__), 'ontology')
+ONTOLOGY_ROOT = path.abspath(path.join(path.dirname(__file__), 'ontology'))
 
 # Ontology loading
 CATALYST_RULES = [
