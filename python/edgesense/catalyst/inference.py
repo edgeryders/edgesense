@@ -86,6 +86,9 @@ class InferenceStore(object):
         return graph
 
 class FuXiInferenceStore(InferenceStore):
+
+    _instance = None
+
     def __init__(self, ontology_root=ONTOLOGY_ROOT, use_owl=False):
         super(FuXiInferenceStore, self).__init__(ontology_root)
         (self.rule_store, self.rule_graph, self.network) = SetupRuleStore(
@@ -110,6 +113,16 @@ class FuXiInferenceStore(InferenceStore):
         logging.info("InferenceStore ontology loaded")
         network.feedFactsToAdd(generateTokenSet(graph))
         return network.inferredFacts
+
+    @classmethod
+    def get_instance(cls):
+        if not cls._instance:
+            store = FuXiInferenceStore()
+            store.add_ontologies()
+            cls._instance = store
+            logging.info("InferenceStore engine setup")
+        return cls._instance
+
 
 def apply_catalyst_napespace_manager(graph):
     # setup the RDF graph to be parsed
@@ -150,10 +163,7 @@ def catalyst_graph_for(file):
     g.parse(data=quads, format='nquads')
     logging.info("InferenceStore base graph loaded")
 
-    # setup the inference engine
-    f = FuXiInferenceStore()
-    f.add_ontologies()
-    logging.info("InferenceStore engine setup")
+    f = FuXiInferenceStore.get_instance()
 
     # get the inference engine
     cl = f.get_inference(g)
