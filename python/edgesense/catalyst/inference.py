@@ -104,7 +104,8 @@ class FuXiInferenceStore(InferenceStore):
             prefix = "@prefix rdfs: <%s>.\n" % (RDFS, )
             rules = [
                 "{?A rdfs:subClassOf ?B. ?S a ?A} => {?S a ?B}.",
-                #"{?P @has rdfs:subPropertyOf ?R. ?S ?P ?O} => {?S ?R ?O}."
+                "{?P @has rdfs:domain ?C. ?S ?P ?O} => {?S a ?C}.",
+                "{?P @has rdfs:range ?C. ?S ?P ?O} => {?O a ?C}.",
             ]
             for rule in HornFromN3(StringIO.StringIO(prefix+"\n".join(rules))):
                 self.network.buildNetworkFromClause(rule)
