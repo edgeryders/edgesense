@@ -3,9 +3,10 @@ from os import path
 from os.path import exists, abspath
 import requests
 import logging
+import cStringIO as StringIO
 
 import rdflib
-from rdflib import Graph, URIRef, RDF, ConjunctiveGraph
+from rdflib import Graph, URIRef, RDF, ConjunctiveGraph, RDFS
 from rdflib.namespace import NamespaceManager, Namespace
 
 from FuXi.Horn.HornRules import HornFromN3
@@ -16,7 +17,7 @@ from FuXi.Rete.Network import ReteNetwork
 from simplejson import load, dump
 from pyld import jsonld
 
-ONTOLOGY_ROOT = path.join(path.dirname(__file__), 'ontology')
+ONTOLOGY_ROOT = path.abspath(path.join(path.dirname(__file__), 'ontology'))
 
 # Ontology loading
 CATALYST_RULES = [
@@ -74,7 +75,7 @@ class InferenceStore(object):
             return open(uri)
         else:
             raise ValueError
-            
+
     def add_ontologies(self, rules=CATALYST_RULES):
         for r in rules:
             self.add_ontology(self.as_file(r))
@@ -85,24 +86,39 @@ class InferenceStore(object):
     def get_inference(self, graph):
         return graph
 
+
 class FuXiInferenceStore(InferenceStore):
-    def __init__(self, ontology_root=ONTOLOGY_ROOT, use_owl=False):
+
+    _instance = None
+
+    def __init__(self, ontology_root=ONTOLOGY_ROOT, use_rdfs=False, use_owl=False):
         super(FuXiInferenceStore, self).__init__(ontology_root)
         (self.rule_store, self.rule_graph, self.network) = SetupRuleStore(
             makeNetwork=True)
-        self.use_owl = use_owl
         self.ontology = Graph()
-        rulesets = ['rdfs-rules.n3']
-        if self.use_owl:
+        rulesets = []
+        if use_rdfs:
+            rulesets.append('rdfs-rules.n3')
+        else:
+            # minimum ruleset: only subclassing.
+            prefix = "@prefix rdfs: <%s>.\n" % (RDFS, )
+            rules = [
+                "{?A rdfs:subClassOf ?B. ?S a ?A} => {?S a ?B}.",
+                "{?P @has rdfs:domain ?C. ?S ?P ?O} => {?S a ?C}.",
+                "{?P @has rdfs:range ?C. ?S ?P ?O} => {?O a ?C}.",
+            ]
+            for rule in HornFromN3(StringIO.StringIO(prefix+"\n".join(rules))):
+                self.network.buildNetworkFromClause(rule)
+        if use_owl:
             # Does not work yet
             rulesets.append('owl-rules.n3')
         for ruleset in rulesets:
             for rule in HornFromN3(self.as_file(ruleset)):
                 self.network.buildNetworkFromClause(rule)
-                
+
     def add_ontology(self, source, format='turtle'):
         self.ontology.parse(source, format=format)
-        
+
     def get_inference(self, graph):
         network = self.network
         network.reset()
@@ -110,6 +126,16 @@ class FuXiInferenceStore(InferenceStore):
         logging.info("InferenceStore ontology loaded")
         network.feedFactsToAdd(generateTokenSet(graph))
         return network.inferredFacts
+
+    @classmethod
+    def get_instance(cls):
+        if not cls._instance:
+            store = FuXiInferenceStore()
+            store.add_ontologies()
+            cls._instance = store
+            logging.info("InferenceStore engine setup")
+        return cls._instance
+
 
 def apply_catalyst_napespace_manager(graph):
     # setup the RDF graph to be parsed
@@ -150,10 +176,7 @@ def catalyst_graph_for(file):
     g.parse(data=quads, format='nquads')
     logging.info("InferenceStore base graph loaded")
 
-    # setup the inference engine
-    f = FuXiInferenceStore()
-    f.add_ontologies()
-    logging.info("InferenceStore engine setup")
+    f = FuXiInferenceStore.get_instance()
 
     # get the inference engine
     cl = f.get_inference(g)

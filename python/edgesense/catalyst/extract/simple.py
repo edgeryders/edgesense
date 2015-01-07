@@ -59,6 +59,7 @@ def extract_users(posts_mapped):
 def users_nodes_comments_from(graph):
     # mapping posts      
     all_posts_mapped = [get_post_map(post, graph) for post in graph.subjects(RDF.type, CatalystPost)]
+    all_posts_mapped = filter(None, all_posts_mapped)
     # users are the creators of the posts
     all_users = extract_users(all_posts_mapped)
     # nodes are posts without a reply_of
