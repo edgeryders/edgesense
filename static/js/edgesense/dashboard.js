@@ -95,6 +95,7 @@ jQuery(function($) {
             selected_partitions = [],  
             current_user_filter = '',
             show_moderators = true,
+            show_datapackage = false,
             preprocess_data = function(d){
                 data = d;
                 
@@ -535,6 +536,13 @@ jQuery(function($) {
 
             return db;
         };
+        db.show_datapackage = function(do_show){
+            if (!arguments.length) return show_datapackage;
+
+            show_datapackage = !!do_show;
+
+            return db;
+        };
         db.slider_date_format = function(format){
             if (_.isFunction(format)) {
                 slider_date_format = format;
@@ -654,14 +662,28 @@ jQuery(function($) {
                 })
             })
             
-            $('#gexf-save').on('click', function(e){
-                try {
-                    window.location = base_url+'/network.gexf';
-                } catch(exc){
-                    console.log(exc);
-                }
-                e.preventDefault();                    
-            })
+            // Setup datapackage save
+            if (show_datapackage) {
+                $('#datapackage-save').on('click', function(e){
+                    try {
+                        window.location = base_url+'../../../datapackage.json';
+                    } catch(exc){
+                        console.log(exc);
+                    }
+                    e.preventDefault();                    
+                })
+                $('#gexf-save').on('click', function(e){
+                    try {
+                        window.location = base_url+'/network.gexf';
+                    } catch(exc){
+                        console.log(exc);
+                    }
+                    e.preventDefault();                    
+                })
+                
+            } else {
+                $('#datapackage').html('');
+            }
             
             $('#search-button').on('click', function(e){
                 $('.user-search').find('input').val(current_user_filter);

@@ -1,0 +1,46 @@
+<?php
+/**
+ * @file
+ * Install file for edgesense.
+ */
+
+/**
+ * Implements hook_uninstall().
+ */
+function edgesense_uninstall() {
+  file_unmanaged_delete_recursive('public://edgesense');
+  file_unmanaged_delete_recursive('private://edgesense');
+  variable_del('edgesense_config_uri');
+  variable_del('edgesense_help_uri');
+  variable_del('edgesense_param_uri');
+}
+
+
+/**
+ * Implements hook_install().
+ */
+function edgesense_install() {
+    drupal_mkdir('public://edgesense');
+    drupal_mkdir('public://edgesense/json');
+    drupal_mkdir('public://edgesense/json/data');
+    
+    // setup the initial help file
+    $help = 'public://edgesense/json/help.json';
+    file_unmanaged_copy(drupal_get_path('module', 'edgesense').'/help.json', $help, FILE_EXISTS_REPLACE);
+    
+    // setup the initial configuration
+    $configuration = array(
+        'dashboard_name' => 'Edgesense '.variable_get('site_name', 'Drupal'),
+        'analytics_tracking_id' => '',
+        'base_data_url' => '',
+        'tutorial_upload' => url('edgesense/tutorial_upload'),
+    );
+    $data = drupal_json_encode($configuration);
+    $destination = variable_get('edgesense_config_uri', 'public://edgesense/json/configuration.json');
+    $file = file_unmanaged_save_data($data, $destination, FILE_EXISTS_REPLACE);
+    
+    drupal_mkdir('private://edgesense');
+    drupal_mkdir('private://edgesense/script');
+    drupal_mkdir('private://edgesense/tutorial_uploads');
+
+}
