@@ -20,14 +20,28 @@ jQuery(function($) {
         radioClass: 'iradio_minimal'
     });
 
+    Edgesense.FullUrl = (function() {
+        var base = window.location.protocol + '//' + window.location.hostname;
+        base += window.location.port ? (':' + window.location.port) : '';
+        base += "/sites/default/files/edgesense";
+        
+        var full = function(path){
+            return base+path;
+        }
+        return full;
+    })();
+
+    var cur_date = new Date();
+    var cur_time = cur_date.getTime();
+    
     // Load the main configuration
-    var configuration = Edgesense.Configuration().load();
+    var configuration = Edgesense.Configuration().file('configuration.json?'+cur_time).load();
     
     // The script produces an index json with the last date when it was run
     $.ajax({
       dataType: "json",
       async: false,
-      url: Edgesense.FullUrl("/json/last.json"), 
+      url: Edgesense.FullUrl("/json/last.json?"+cur_time), 
       success: function( d ) {
           
           var dashboard = Edgesense.Dashboard().configuration(configuration);
@@ -53,7 +67,7 @@ jQuery(function($) {
           dashboard
               .base(base_data_url+'/'+d.last)
               .show_datapackage(d.datapackage)
-              .load('network.min.json')
+              .load('network.min.json?'+cur_time)
               .run();
           
           Edgesense.Help().analytics(dashboard.analytics()).load();

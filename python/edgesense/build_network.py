@@ -46,10 +46,8 @@ def load_files(users_resource, nodes_resource, comments_resource, username, pass
     logging.info("file loaded")
     return (allusers,allnodes,allcomments)
     
-def write_network(network, multi_network, timestamp):
+def write_network(network, multi_network, timestamp, create_datapackage, license_type, license_url, destination_path):
     tag = timestamp.strftime('%Y-%m-%d-%H-%M-%S')
-    basepath = os.path.dirname(__file__)
-    destination_path = os.path.abspath(os.path.join(basepath, "..", "static", "json"))
     tagged_dir = os.path.join(destination_path, "data", tag)
 
     # dump the network to a json file, minified
@@ -66,11 +64,29 @@ def write_network(network, multi_network, timestamp):
     eu.resource.save(metrics, 'metrics.min.json', tagged_dir)
     logging.info("network+metrics dumped")  
     
-    # dump the gexf file
-    gexf_file = os.path.join(tagged_dir, 'network.gexf')
-    eu.gexf.save_gexf(multi_network, gexf_file)
+    # create the datapackage
+    if create_datapackage:
+        try:
+            # load the datapackage template
+            basepath = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+            with open(os.path.join(basepath, "datapackage_template.json"), 'r') as datafile:
+                datapackage = json.load(datafile)
+                datapackage['license'] = {'type': license_type, 'url': license_url}
+                datapackage['last_updated'] = timestamp.strftime('%Y-%m-%dT%H:%M:%S')
+                datapackage['resources'][0].pop('url', None)
+                datapackage['resources'][0]['path'] = os.path.join('data', tag, 'network.gexf')
+
+                # dump the gexf file
+                gexf_file = os.path.join(tagged_dir, 'network.gexf')
+                eu.gexf.save_gexf(multi_network, gexf_file)
+                # dump the datapackage
+                eu.resource.save(datapackage, 'datapackage.json', destination_path, True)
+                logging.info("datapackage saved")
+        except:
+            logging.error("Error reading the datapackage template")
+            create_datapackage = False
     
-    eu.resource.save({'last': tag}, 'last.json', destination_path)
+    eu.resource.save({'last': tag, 'datapackage': create_datapackage}, 'last.json', destination_path)
 
 def parse_options(argv):
     import getopt
@@ -92,15 +108,20 @@ def parse_options(argv):
     admin_roles = set()
     exclude_isolated = False
     dumpto = None
+    create_datapackage = False
+    license_type = None
+    license_url = None
+    destination_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "static", "json"))
+
     try:
-        opts, args = getopt.getopt(argv,"hu:n:c:t:s:w:f:",["users=","nodes=","comments=", "node-title=", "timestep-size=", "timestep-window=", "timestep-count=", "username=", "password=", "extraction-method=", "admin-roles=", "exclude-isolated", "dumpto="])
+        opts, args = getopt.getopt(argv,"hu:n:c:t:s:w:f:o:",["users=","nodes=","comments=", "node-title=", "timestep-size=", "timestep-window=", "timestep-count=", "output-directory=", "username=", "password=", "extraction-method=", "admin-roles=", "exclude-isolated", "datapackage-license-type=", "datapackage-license-url=", "dumpto="])
     except getopt.GetoptError:
-        print 'build_network.py -u <users_resource> -n <nodes_resource> -c <comments_resource> -t <node title field> -s <timestep in seconds> -w <timestep window> -f <timestep count>'
+        print 'build_network.py -u <users_resource> -n <nodes_resource> -c <comments_resource> -t <node title field> -s <timestep in seconds> -w <timestep window> -f <timestep count> -o <output directory>'
         sys.exit(2)
     
     for opt, arg in opts:
         if opt == '-h':
-           print 'build_network.py -u <users_resource> -n <nodes_resource> -c <comments_resource> -t <node title field> -s <timestep in seconds> -w <timestep window> -f <timestep count> --username="<http basic auth user>" --password="<http basic auth password>" --admin-roles="<comma separated list of roles marking a user as part of the community team>" --exclude-isolated --dumpto="<where to save the downloaded file>"' 
+           print 'build_network.py -u <users_resource> -n <nodes_resource> -c <comments_resource> -t <node title field> -s <timestep in seconds> -w <timestep window> -f <timestep count> -o <output directory> --username="<http basic auth user>" --password="<http basic auth password>" --admin-roles="<comma separated list of roles marking a user as part of the community team>" --exclude-isolated --datapackage-license-type="<license name for the datapackage>" --datapackage-license-url="<license url for the datapackage>" --dumpto="<where to save the downloaded file>"' 
            sys.exit()
         elif opt in ("-u", "--users"):
            users_resource = arg
@@ -116,6 +137,8 @@ def parse_options(argv):
            timestep_window = int(arg)
         elif opt in ("-f", "--timestep-count"):
            timestep_count = int(arg)
+        elif opt in ("-o", "--output-directory"):
+           destination_path = arg
         elif opt in ("--username"):
            username = arg
         elif opt in ("--password"):
@@ -128,7 +151,14 @@ def parse_options(argv):
            exclude_isolated = True
         elif opt in ("--dumpto"):
            dumpto = arg
-           
+        elif opt in ("--datapackage-license-type"):
+           license_type = arg
+        elif opt in ("--datapackage-license-url"):
+           license_url = arg
+    
+    if license_type and license_url:
+        create_datapackage = True
+      
     logging.info("parsing files %(u)s %(n)s %(c)s" % {'u': users_resource, 'n': nodes_resource, 'c': comments_resource})       
     return (users_resource, 
             nodes_resource,
@@ -141,7 +171,11 @@ def parse_options(argv):
             extraction_method,
             admin_roles,
             exclude_isolated,
-            dumpto)
+            dumpto,
+            create_datapackage,
+            license_type,
+            license_url,
+            destination_path)
 
 def main():
     initialize_logger('./log')
@@ -159,7 +193,11 @@ def main():
     extraction_method, \
     admin_roles, \
     exclude_isolated, \
-    dumpto = parse_options(sys.argv[1:])
+    dumpto, \
+    create_datapackage, \
+    license_type, \
+    license_url, \
+    destination_path = parse_options(sys.argv[1:])
     
     logging.info("Network processing - started")
     
@@ -196,7 +234,13 @@ def main():
     network['metrics'] = compute_all_metrics(nodes_map, posts_map, comments_map, directed_multiedge_network, timesteps_range, timestep, timestep_window)
     logging.info("network metrics done")  
     
-    write_network(network, directed_multiedge_network, generated)
+    write_network(network, \
+                  directed_multiedge_network, \
+                  generated, \
+                  create_datapackage, \
+                  license_type, \
+                  license_url, \
+                  destination_path)
     
     logging.info("Completed")  
 

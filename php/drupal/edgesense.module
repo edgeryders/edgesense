@@ -1,0 +1,130 @@
+<?php
+/**
+ * @file
+ * edgesense module file
+ */
+
+/**
+ * Implements hook_permission().
+ */
+function edgesense_permission() {
+  return array(
+    'administer edgesense' => array(
+      'title' => t('Administer Edgesense'),
+      'description' => t('Administer Edgesense SNA module'),
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu().
+ */
+function edgesense_menu() {
+
+  $items['admin/edgesense'] = array(
+    'title' => 'Edgesense',
+    'description' => 'Configuration for the Edgesense module',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('edgesense_admin_param_form'),
+    'access arguments' => array('administer edgesense'),
+    'file' => 'edgesense.admin.inc',
+    'weight' => 10,
+  );
+
+  $items['admin/edgesense/config'] = array(
+    'title' => 'Dashboard Configuration',
+    'type' => MENU_DEFAULT_LOCAL_TASK,
+    'file' => 'edgesense.admin.inc',
+    'weight' => 10,
+  );
+
+  $items['admin/edgesense/script-param'] = array(
+    'title' => 'Script Parameters',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('edgesense_admin_script_param_form'),
+    'access arguments' => array('administer edgesense'),
+    'file' => 'edgesense.admin.inc',
+    'weight' => 20,
+  );
+
+  $items['admin/edgesense/script-run'] = array(
+    'title' => 'Script Run',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('edgesense_script_run_form'),
+    'access arguments' => array('administer edgesense'),
+    'file' => 'edgesense.admin.inc',
+    'weight' => 25,
+  );
+
+  $items['admin/edgesense/help'] = array(
+    'title' => 'Inline Help Configuration',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('edgesense_admin_help_form'),
+    'access arguments' => array('administer edgesense'),
+    'file' => 'edgesense.admin.inc',
+    'weight' => 30,
+  );
+
+  $items['admin/edgesense/dashboard'] = array(
+    'title' => 'Open Dashboard',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'drupal_open_dashboard',
+    'access arguments' => array('administer edgesense'),
+    'file' => 'edgesense.admin.inc',
+    'weight' => 35,
+  );
+
+  $items['edgesense/tutorial_upload'] = array(
+     'page callback' => 'edgesense_tutorial_upload_api',
+     'access arguments' => array('access content'),
+     'file' => 'edgesense.admin.inc',
+  );
+
+  // $items['admin/edgesense/module-config'] = array(
+  //   'title' => 'Module config',
+  //   'type' => MENU_LOCAL_TASK,
+  //   'page callback' => 'drupal_get_form',
+  //   'page arguments' => array('edgesense_admin_config_form'),
+  //   'access arguments' => array('administer edgesense'),
+  //   'file' => 'edgesense.admin.inc',
+  //   'weight' => 10,
+  // );
+
+  return $items;
+}
+
+/**
+* Display help and module information.
+* @param path
+*   Which path of the site we're displaying help.
+* @param arg
+*   Array that holds the current path as would be returned from arg() function.
+* @return
+*   help text for the path.
+*/
+function edgesense_help($path, $arg) {
+  $output = '';
+  switch ($path) {
+    case "admin/help#edgesense":
+      $output = '';
+      $output .= '<h3>Edgesense Social Network Analysis</h3>';
+      $output .= '<p>The current Edgesense SNA tool is made up of two components:</p>';
+      $output .= '<h5>A python library</h5>';
+      $output .= '<p>This is used to build the network from the source json files and to compute all the metrics. See: <a href="https://github.com/Wikitalia/edgesense/blob/master/python/README.md" target="_blank">https://github.com/Wikitalia/edgesense/blob/master/python/README.md</a>.</p>';
+      $output .= '<h5>A dashboard</h5>';
+      $output .= '<p>This is a single-page HTML5/javascript application that reads the json produced by the python library and builds a dashboard with the visualization of the network and the metrics. For more informations see the <a href="https://github.com/Wikitalia/edgesense" target="_blank">projects github page</a></p>';
+      
+      $output .= '<h3>The steps to use this module</h3>';
+      $output .= '<ol>';
+      $output .= '<li>Install the python library.</li>';
+      $output .= '<li>Configure the JSON views to extract the data.</li>';
+      $output .= '<li>Configure the dashboard.</li>';
+      $output .= '<li>Schedule the script to produce the outputs.</li>';
+      $output .= '</ol>';
+      break;
+  }
+  return $output;
+}

@@ -1,8 +1,12 @@
 static/json/data
 static/json/last.json
 static/json/configuration.json
+static/json/datapackage.json
 log
 *.gexf
 *.pyc
 python/edgesense.egg-info
 python/dist
+php/drupal/*.json
+php/build
+php/out

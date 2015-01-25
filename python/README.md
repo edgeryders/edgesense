@@ -131,6 +131,7 @@ edgesense_build_network \
        -u <url or path to users json> \
        -n <url or path to nodes json> \
        -c <url or path to comments json> \
+       -o <path to the directory where the json files will be generated> \
        -t <field in the users json to use for the user label> \
        -s <the size of the timestep to use in seconds> \
        -f <the exact number of timesteps to use> \
@@ -157,6 +158,7 @@ edgesense_build_network \
 - if no username and password are specified then the script assumes that the remote file is openly accessible i.e. it uses no authentication when downloading the files.
 - if no admin roles are specified the deafult behaviour is to consider part of the moderators team any user who has a *non empty* roles field
 - the script includes in the network also all the isolated active nodes, meaning nodes that have written a post but not received any comments. To exclude them you need to pass the ```--exclude-isolated``` option to the script
+- if you want to generate an open data package with the raw data from the network data, then you'll need to pass the license type and license url to customize the datapackage that is generated: ```--datapackage-license-type="<license name for the datapackage>" --datapackage-license-url="<license url for the datapackage>"```
 
 #### Parsing the CATALYST format
 

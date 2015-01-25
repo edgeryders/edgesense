@@ -16,7 +16,7 @@ See https://github.com/Wikitalia/edgesense/python/README.md for more information
 
 setup(
     name='edgesense',
-    version='0.9.2',
+    version='0.11.0',
     description='Edgesense Social Network Analysis and Visualization',
     long_description=long_description,
 
@@ -65,11 +65,13 @@ setup(
     },
 
     package_data={
+        'edgesense': ['datapackage_template.json']
     },
     data_files=[],
 
     entry_points={
         'console_scripts': [
+            'edgesense_drupal=edgesense.drupal_script:main',
             'edgesense_build_network=edgesense.build_network:main',
             'edgesense_catalyst_server=edgesense.catalyst_server:main',
             'edgesense_parse_catalyst=edgesense.parse_catalyst:main',
