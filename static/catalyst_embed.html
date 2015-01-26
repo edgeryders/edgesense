@@ -513,8 +513,7 @@
                                         .Configuration()
                                         .data({
                                             "dashboard_name": "Edgesense - CATALYST",
-                                            "analytics_tracking_id": "UA-51375002-6",
-                                            "metrics_server": ""
+                                            "analytics_tracking_id": "UA-51375002-6"
                                         });
 
                 Edgesense.run = function(data) {
@@ -533,7 +532,7 @@
                     }
 
                     dashboard
-                        .base(configuration.get("metrics_server") + data["base_path"])
+                        .base("." + data["base_path"])
                         .load(data["metrics"])
                         .run();
 
@@ -552,10 +551,10 @@
                 if (source_url) {
                     
                     $('.edgesense').hide();
-                    $('#messages').html('<div class="wait">Processing file<br><img src="/img/ajax-loader.gif"/></div>').show();
+                    $('#messages').html('<div class="wait">Processing file<br><img src="img/ajax-loader.gif"/></div>').show();
                     $.ajax({
                         type: 'POST',
-                        url: configuration.get("metrics_server") + '/parse',
+                        url: 'parse',
                         crossDomain: true,
                         data: {
                             source: source_url
