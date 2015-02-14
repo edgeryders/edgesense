@@ -16,7 +16,7 @@ See https://github.com/Wikitalia/edgesense/python/README.md for more information
 
 setup(
     name='edgesense',
-    version='0.11.0',
+    version='0.12.0',
     description='Edgesense Social Network Analysis and Visualization',
     long_description=long_description,
 
@@ -76,6 +76,7 @@ setup(
             'edgesense_catalyst_server=edgesense.catalyst_server:main',
             'edgesense_parse_catalyst=edgesense.parse_catalyst:main',
             'edgesense_parse_tweets=edgesense.parse_tweets:main',
+            'edgesense_parse_mailinglist=edgesense.parse_mailinglist:main',
         ],
     },
 )

@@ -1,6 +1,8 @@
 import utils
 import network
 import content
+import mailinglist
+
 # Optional packages
 try:
     import twitter
