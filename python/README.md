@@ -115,7 +115,7 @@ If present the ```comment``` and ```subject``` fields are used to compute the 'w
 To build the metrics you need to run the python script:
 
 ```
-python python/edgesense/build_network.py 
+python python/run_script.py build_network
 ```
 
 if you have installed the library with pip, a convenient wrapper has been created:
@@ -162,11 +162,42 @@ edgesense_build_network \
 
 #### Parsing the CATALYST format
 
-The following command allow one to parse the catalyst format and obtain a set of json files in the format accepted by the build_network script
+The following command allows one to parse the catalyst format and obtain a set of json files in the format accepted by the build_network script
 
 ```
-edgesense_parse_catalyst -s <parse source file or URL> -o <out put directory>
+edgesense_parse_catalyst -s <parse source file or URL> -o <output directory>
 ```
+
+Then you would run the build_network script on the output files:
+
+```
+edgesense_build_network \
+       -u <output directory>/users.json \
+       -n <output directory>/nodes.json \
+       -c <output directory>/comments.json
+```
+
+#### Parsing a mailing list archive
+
+It is possible to use Edgesense to analyse the network of interactions that happen in a mailing list. All you need to do is to download an archive of the mailing list in mbox format and run the parsing script on the archive. The most common mailing list software usually permit creating such archive files.
+ 
+
+```
+edgesense_parse_mailinglist -s <archive files (if more than one put them here separated by a comma, without spaces)> \
+                            -o <output directory> \
+                            -m <moderators emails, comma separated> \
+                            --charset="<charset of the archive file (default utf-8)>"
+```
+
+Then you would run the build_network script on the output files:
+
+```
+edgesense_build_network \
+       -u <output directory>/users.json \
+       -n <output directory>/nodes.json \
+       -c <output directory>/comments.json
+```
+
 
 ### Output json files
 
