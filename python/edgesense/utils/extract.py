@@ -85,11 +85,19 @@ def normalized_data(allusers, allnodes, allcomments, node_title_field='uid', adm
             else:
                 post_data['author_id'] = None
                 post_data['team'] = False
+            # additional authors
+            if post.has_key('other_uids') and hasattr(post['other_uids'], '__iter__'):
+                post_data['all_authors'] = [ouid for ouid in post['other_uids'] if nodes_map.has_key(ouid)]
+                if not exclude_isolated:
+                    for ouid in post_data['all_authors']:
+                        nodes_map[ouid]['active'] = True
+            else:
+                post_data['all_authors'] = None            
             # length
             post_data['length'] = 0
-            if post.has_key('Full text'):
+            if post.has_key('Full text') and post['Full text']:
                 post_data['length'] += len(post['Full text'])
-            if post.has_key('title'):
+            if post.has_key('title') and post['title']:
                 post_data['length'] += len(post['title'])
             posts_map[post_data['id']] = post_data
         else:
@@ -121,14 +129,21 @@ def normalized_data(allusers, allnodes, allcomments, node_title_field='uid', adm
             if comment.has_key('nid') and posts_map.has_key(comment['nid']):
                 post = posts_map[comment['nid']]
                 comment_data['post_author_id'] = post['author_id']
+                # additional authors of the post
+                if post.has_key('all_authors') and hasattr(post['all_authors'], '__iter__'):
+                    for ouid in post['all_authors']:
+                        comment_data['post_all_authors'] = post['all_authors']
+                else:
+                    comment_data['post_all_authors'] = None            
             else:
                 comment_data['post_author_id'] = None
+            
         
             # length
             comment_data['length'] = 0
-            if comment.has_key('comment'):
+            if comment.has_key('comment') and comment['comment']:
                 comment_data['length'] += len(comment['comment'])
-            if comment.has_key('subject'):
+            if comment.has_key('subject') and comment['subject']:
                 comment_data['length'] += len(comment['subject'])
         
             comments_map[comment['cid']] = comment_data

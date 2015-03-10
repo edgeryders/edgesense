@@ -10,7 +10,7 @@ import logging
 
 import edgesense.utils as eu
 from edgesense.utils.logger_initializer import initialize_logger
-from edgesense.network.utils import extract_edges, build_network
+from edgesense.network.utils import extract_edges, extract_multiauthor_post_edges, build_network
 from edgesense.metrics import compute_all_metrics
 from edgesense.utils.extract import calculate_timestamp_range
 
@@ -46,7 +46,7 @@ def load_files(users_resource, nodes_resource, comments_resource, username, pass
     logging.info("file loaded")
     return (allusers,allnodes,allcomments)
     
-def write_network(network, multi_network, timestamp, create_datapackage, license_type, license_url, destination_path):
+def write_network(network, multi_network, timestamp, create_datapackage, datapackage_title, license_type, license_url, destination_path):
     tag = timestamp.strftime('%Y-%m-%d-%H-%M-%S')
     tagged_dir = os.path.join(destination_path, "data", tag)
 
@@ -72,6 +72,8 @@ def write_network(network, multi_network, timestamp, create_datapackage, license
             with open(os.path.join(basepath, "datapackage_template.json"), 'r') as datafile:
                 datapackage = json.load(datafile)
                 datapackage['license'] = {'type': license_type, 'url': license_url}
+                if datapackage_title:
+                    datapackage['title'] = datapackage_title
                 datapackage['last_updated'] = timestamp.strftime('%Y-%m-%dT%H:%M:%S')
                 datapackage['resources'][0].pop('url', None)
                 datapackage['resources'][0]['path'] = os.path.join('data', tag, 'network.gexf')
@@ -111,17 +113,18 @@ def parse_options(argv):
     create_datapackage = False
     license_type = None
     license_url = None
+    datapackage_title = None
     destination_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "static", "json"))
 
     try:
-        opts, args = getopt.getopt(argv,"hu:n:c:t:s:w:f:o:",["users=","nodes=","comments=", "node-title=", "timestep-size=", "timestep-window=", "timestep-count=", "output-directory=", "username=", "password=", "extraction-method=", "admin-roles=", "exclude-isolated", "datapackage-license-type=", "datapackage-license-url=", "dumpto="])
+        opts, args = getopt.getopt(argv,"hu:n:c:t:s:w:f:o:",["users=","nodes=","comments=", "node-title=", "timestep-size=", "timestep-window=", "timestep-count=", "output-directory=", "username=", "password=", "extraction-method=", "admin-roles=", "exclude-isolated", "datapackage-license-type=", "datapackage-license-url=", "datapackage-title=", "dumpto="])
     except getopt.GetoptError:
         print 'build_network.py -u <users_resource> -n <nodes_resource> -c <comments_resource> -t <node title field> -s <timestep in seconds> -w <timestep window> -f <timestep count> -o <output directory>'
         sys.exit(2)
     
     for opt, arg in opts:
         if opt == '-h':
-           print 'build_network.py -u <users_resource> -n <nodes_resource> -c <comments_resource> -t <node title field> -s <timestep in seconds> -w <timestep window> -f <timestep count> -o <output directory> --username="<http basic auth user>" --password="<http basic auth password>" --admin-roles="<comma separated list of roles marking a user as part of the community team>" --exclude-isolated --datapackage-license-type="<license name for the datapackage>" --datapackage-license-url="<license url for the datapackage>" --dumpto="<where to save the downloaded file>"' 
+           print 'build_network.py -u <users_resource> -n <nodes_resource> -c <comments_resource> -t <node title field> -s <timestep in seconds> -w <timestep window> -f <timestep count> -o <output directory> --username="<http basic auth user>" --password="<http basic auth password>" --admin-roles="<comma separated list of roles marking a user as part of the community team>" --exclude-isolated --datapackage-license-type="<license name for the datapackage>" --datapackage-license-url="<license url for the datapackage>" --datapackage-title="<title for the datapackage>" --dumpto="<where to save the downloaded file>"' 
            sys.exit()
         elif opt in ("-u", "--users"):
            users_resource = arg
@@ -155,6 +158,8 @@ def parse_options(argv):
            license_type = arg
         elif opt in ("--datapackage-license-url"):
            license_url = arg
+        elif opt in ("--datapackage-title"):
+           datapackage_title = arg
     
     if license_type and license_url:
         create_datapackage = True
@@ -173,6 +178,7 @@ def parse_options(argv):
             exclude_isolated,
             dumpto,
             create_datapackage,
+            datapackage_title,
             license_type,
             license_url,
             destination_path)
@@ -195,6 +201,7 @@ def main():
     exclude_isolated, \
     dumpto, \
     create_datapackage, \
+    datapackage_title, \
     license_type, \
     license_url, \
     destination_path = parse_options(sys.argv[1:])
@@ -217,6 +224,7 @@ def main():
     network['meta']['generated'] = int(generated.strftime("%s"))
         
     network['edges'] = extract_edges(nodes_map, comments_map)
+    network['edges'] += extract_multiauthor_post_edges(nodes_map, posts_map)
 
     # filter out nodes that have not participated to the full:conversations
     inactive_nodes = [ v for v in nodes_map.values() if not v['active'] ]
@@ -238,6 +246,7 @@ def main():
                   directed_multiedge_network, \
                   generated, \
                   create_datapackage, \
+                  datapackage_title, \
                   license_type, \
                   license_url, \
                   destination_path)

@@ -17,12 +17,13 @@ def write_file(elements, name, destination_path):
 def parse_options(argv):
     import getopt
     # defaults
-    source = None
+    source_csv = None
+    source_dir = None
     outdir = '.'
     dumpto = None
     
     try:
-        opts, args = getopt.getopt(argv,"s:o:",["source-csv=","outdir=", "dumpto="])
+        opts, args = getopt.getopt(argv,"s:d:o:",["source-csv=","source-dir=","outdir=", "dumpto="])
     except getopt.GetoptError:
         logging.error('parse_tweets.py -s <source CSV> -o <output directory> --dumpto="<where to save the downloaded file>"')
         sys.exit(2)
@@ -32,20 +33,22 @@ def parse_options(argv):
            logging.info('parse_tweets.py -s <source CSV> -o <output directory>')
            sys.exit()
         elif opt in ("-s", "--source-csv"):
-           source = arg
+           source_csv = arg
+        elif opt in ("-d", "--source-dir"):
+           source_dir = arg
         elif opt in ("-o", "--outdir"):
            outdir = arg
         elif opt in ("--dumpto"):
            dumpto = arg
            
     logging.info("parsing url %(s)s" % {'s': source})
-    return (source,outdir,dumpto)
+    return (source_csv,source_dir,outdir,dumpto)
 
 def main():
     initialize_logger('./log')
     
     generated = datetime.now()
-    source, outdir, dumpto = parse_options(sys.argv[1:])
+    source_csv, source_dir, outdir, dumpto = parse_options(sys.argv[1:])
     logging.info("Parsing tweets - Started")
     logging.info("Parsing tweets - Output directory: %(s)s" % {'s':outdir})
     
@@ -55,8 +58,14 @@ def main():
         dump_to = os.path.join(dumpto, tag)
     else:
         dump_to = None
-    tweets = et.csv_tweets.load_and_parse(source, sort_key='created_ts', dump_to=dump_to)
     
+    tweets = []
+    if source_csv:
+        tweets += et.parse.load_and_parse_csv(source_csv, sort_key='created_ts', dump_to=dump_to)
+
+    if source_dir:
+        tweets += et.parse.load_and_parse_from_dir(source_dir, sort_key='created_ts', dump_to=dump_to)
+        
     # 2. extract the users from the tweets
     users = et.extract.extract_users(tweets)
     sorted_users = sorted(users, key=eu.sort_by('created'))

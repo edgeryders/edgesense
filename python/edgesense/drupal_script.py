@@ -65,6 +65,7 @@ def parse_options(argv):
     destination_path = os.path.abspath(os.path.join(basepath, "..", "static", "json"))
     log_path = './log'
     create_datapackage = False
+    datapackage_title = None
     license_type = None
     license_url = None
     site_url = None
@@ -134,6 +135,8 @@ def parse_options(argv):
      try:
          license_type = data['datapackage']['license_type']
          license_url = data['datapackage']['license_url']
+         if data['datapackage'].has_key('title'):
+             datapackage_title = data['datapackage']['title']
          site_url = data['datapackage']['site_url']
          create_datapackage = True
      except:
@@ -160,6 +163,7 @@ def parse_options(argv):
             dumpto,
             destination_path,
             create_datapackage,
+            datapackage_title,
             license_type,
             license_url,
             site_url)
@@ -180,6 +184,7 @@ def main():
     dumpto, \
     destination_path, \
     create_datapackage, \
+    datapackage_title, \
     license_type, \
     license_url, \
     site_url = parse_options(sys.argv[1:])
@@ -236,6 +241,8 @@ def main():
             with open(os.path.join(basepath, "datapackage_template.json"), 'r') as datafile:
                 datapackage = json.load(datafile)
                 datapackage['license'] = {'type': license_type, 'url': license_url}
+                if datapackage_title:
+                    datapackage['title'] = datapackage_title
                 datapackage['last_updated'] = generated.strftime('%Y-%m-%dT%H:%M:%S')
                 datapackage['resources'][0]['url'] = site_url
                 datapackage['resources'][0]['path'] = os.path.join('data', tag, 'network.gexf')

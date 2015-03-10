@@ -100,7 +100,7 @@ def extract_content_metrics(nodes_map, posts_map, comments_map, ts, timestep, ti
         if c['created_ts']<=ts and nodes_map.has_key(c['author_id']) and nodes_map.has_key(c['recipient_id']):
             a = nodes_map[c['author_id']]
             r = nodes_map[c['recipient_id']]
-            cnv = '-'.join(sorted([c['author_id'], c['recipient_id']]))
+            cnv = '-'.join(sorted([str(c['author_id']), str(c['recipient_id'])]))
             if not (a['team'] and a['team_ts'] <=ts):
                 actives.add(c['author_id'])
                 conversations.add(cnv)

@@ -19,7 +19,7 @@ def force_name_as_address(containers):
     
 def map_user(container, moderators, charset='utf-8'):
     user = {
-        'uid': container.message.sender_address,
+        'uid': unicode(container.message.sender_address, charset),
         'created': container.message.created
     }
     if container.message.sender_name:
@@ -30,17 +30,17 @@ def map_user(container, moderators, charset='utf-8'):
 
 def map_node(container, charset='utf-8'):
     node = {
-        'nid': container.message.message_id,
-        'uid': container.message.sender_address,
+        'nid': unicode(container.message.message_id, charset),
+        'uid': unicode(container.message.sender_address, charset),
         'created': container.message.created
     }
     return node
 
 def map_comment(container, root_message, charset='utf-8'):
     comment = {
-        'cid': container.message.message_id,
-        'uid': container.message.sender_address,
-        'nid': root_message.message.message_id,
+        'cid': unicode(container.message.message_id, charset),
+        'uid': unicode(container.message.sender_address, charset),
+        'nid': unicode(root_message.message.message_id, charset),
         'created': container.message.created
     }
     if container.parent and container.parent.message:

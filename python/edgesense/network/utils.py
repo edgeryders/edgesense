@@ -2,6 +2,7 @@ import networkx as nx
 import logging
 import edgesense.utils as eu
 from datetime import datetime
+import itertools 
 
 def set_isolated(nodes_list, mdg):
     ts = int(datetime.now().strftime("%s"))
@@ -43,6 +44,17 @@ def build_network(network):
     
     return MDG
 
+def make_edge(comment, recipient):
+    link = {
+        'id': "{0}_{1}_{2}".format(comment['author_id'],recipient,comment['created_ts']),
+        'source': comment['author_id'],
+        'target': recipient,
+        'ts': comment['created_ts'],
+        'effort': comment['length'],
+        'team': comment['team']
+    }
+    return link
+    
 def extract_edges(nodes_map, comments_map):
     # build the list of edges
     edges_list = []
@@ -50,27 +62,57 @@ def extract_edges(nodes_map, comments_map):
     valid_comments = [e for e in comments_map.values() if e.get('recipient_id', None) and e.get('author_id', None)]
     logging.info("%(v)i valid comments on %(t)i total" % {'v':len(valid_comments), 't':len(comments_map.values())})
     
-    # build the whole network to use for metrics
+    # build the comments network to use for metrics
     for comment in valid_comments:
-        link = {
-            'id': "{0}_{1}_{2}".format(comment['author_id'],comment['recipient_id'],comment['created_ts']),
-            'source': comment['author_id'],
-            'target': comment['recipient_id'],
-            'ts': comment['created_ts'],
-            'effort': comment['length'],
-            'team': comment['team']
-        }
         if nodes_map.has_key(comment['author_id']):
             nodes_map[comment['author_id']]['active'] = True
         else:
             logging.info("error: node %(n)s was linked but not found in the nodes_map" % {'n':comment['author_id']})  
-    
-        if nodes_map.has_key(comment['recipient_id']):
-            nodes_map[comment['recipient_id']]['active'] = True
+        
+        if comment.get('post_all_authors', None) and hasattr(comment['post_all_authors'], '__iter__'):
+            links = [make_edge(comment, recipient) for recipient in comment['post_all_authors']]
         else:
-            logging.info("error: node %(n)s was linked but not found in the nodes_map" % {'n':comment['recipient_id']})  
-        edges_list.append(link)
+            links = [make_edge(comment, comment['recipient_id'])]
+        
+        for link in links:
+            if nodes_map.has_key(link['target']):
+                nodes_map[link['target']]['active'] = True
+            else:
+                logging.info("error: node %(n)s was linked but not found in the nodes_map" % {'n':link['target']})  
+            edges_list.append(link)
 
+
+    return sorted(edges_list, key=eu.sort_by('ts'))
+
+def extract_multiauthor_post_edges(nodes_map, posts_map):
+    # build the list of edges
+    edges_list = []
+    # a comment is 'valid' if it has a recipient and an author
+    multiauthor_posts = [e for e in posts_map.values() if e.get('all_authors', None) and hasattr(e.get('all_authors', None), '__iter__') and len(e.get('all_authors', None))>1]
+    logging.info("%(v)i multiauthor posts on %(t)i total" % {'v':len(multiauthor_posts), 't':len(posts_map.values())})
+    
+    # build the posts network to use for metrics
+    for post in multiauthor_posts:
+        for authors in itertools.product(post['all_authors'], post['all_authors']):
+            if authors[0]!=authors[1]:
+                link = {
+                    'id': "{0}_{1}_{2}".format(authors[0],authors[1],post['created_ts']),
+                    'source': authors[0],
+                    'target': authors[1],
+                    'ts': post['created_ts'],
+                    'effort': post['length'],
+                    'team': post['team']
+                }
+                if nodes_map.has_key(authors[0]):
+                    nodes_map[authors[0]]['active'] = True
+                else:
+                    logging.info("error: node %(n)s was linked but not found in the nodes_map" % {'n':authors[0]})  
+        
+                if nodes_map.has_key(authors[1]):
+                    nodes_map[authors[1]]['active'] = True
+                else:
+                    logging.info("error: node %(n)s was linked but not found in the nodes_map" % {'n':authors[1]})  
+                edges_list.append(link)
 
     return sorted(edges_list, key=eu.sort_by('ts'))
 
