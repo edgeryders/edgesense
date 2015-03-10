@@ -4,6 +4,7 @@ import csv
 from datetime import datetime
 import time
 import logging
+from functools import partial
 
 from edgesense.utils.logger_initializer import initialize_logger
 import edgesense.utils as eu
@@ -19,10 +20,11 @@ def parse_options(argv):
     # defaults
     source = None
     outdir = '.'
-    kind = 'simple'
+    kind = 'both'
+    moderator = None
     
     try:
-        opts, args = getopt.getopt(argv,"k:s:o:",["kind=","source-json=","outdir="])
+        opts, args = getopt.getopt(argv,"k:s:o:m:",["kind=","source-json=","outdir=","moderator="])
     except getopt.GetoptError:
         logging.error('parse_catalyst.py -k <extraction kind (simple)> -s <source JSON> -o <output directory> ')
         sys.exit(2)
@@ -37,15 +39,17 @@ def parse_options(argv):
            source = arg
         elif opt in ("-o", "--outdir"):
            outdir = arg
+        elif opt in ("-m", "--moderator"):
+           moderator = arg
            
     logging.info("parsing url %(s)s" % {'s': source})
-    return (kind,source,outdir)
+    return (kind,source,outdir,moderator)
 
 def main():
     initialize_logger('./log')
     
     generated = datetime.now()
-    kind, source, outdir = parse_options(sys.argv[1:])
+    kind, source, outdir, moderator = parse_options(sys.argv[1:])
     logging.info("Parsing catalyst - Started")
     logging.info("Parsing catalyst - Source file: %(s)s" % {'s':source})
     logging.info("Parsing catalyst - Output directory: %(s)s" % {'s':outdir})
@@ -56,23 +60,20 @@ def main():
     graph = ec.inference.catalyst_graph_for(source)
     
     # 2. extract the usersnodes,comments from the graph
-    if kind == 'simple':
-        users,nodes,comments = ec.extract.simple.users_nodes_comments_from(graph)
-    elif kind == 'excerpts':
-        users,nodes,comments = ec.extract.excerpts.users_nodes_comments_from(graph)
-    else:
-        logging.info("Parsing catalyst - Extraction kind not supported")
-        return
-        
+    use_posts = (kind == 'posts') or (kind == 'both')
+    use_ideas = (kind == 'ideas') or (kind == 'both')
+    assert use_ideas or use_posts, "kind must be ideas, posts or both"
+    moderator_test = None
+    if moderator:
+        moderator_test = partial(ec.extract.is_moderator, graph, moderator_roles=(moderator,))
+    nodes, edges = ec.extract.ideas.graph_to_network(graph, use_ideas, use_posts, moderator_test)
     # 3. sort the lists
-    sorted_users = sorted(users, key=eu.sort_by('created'))
-    sorted_nodes = sorted(nodes, key=eu.sort_by('created'))
-    sorted_comments = sorted(comments, key=eu.sort_by('created'))
-    
+    nodes.sort(key=eu.sort_by('created'))
+    edges.sort(key=eu.sort_by('created'))
     # 4. saves the files
-    write_file(sorted_users, 'users.json', outdir)
-    write_file(sorted_nodes, 'nodes.json', outdir)
-    write_file(sorted_comments, 'comments.json', outdir)
+    write_file(nodes, 'nodes.json', outdir)
+    write_file(edges, 'edges.json', outdir)
+
     logging.info("Parsing catalyst - Completed")
 
 if __name__ == "__main__":
