@@ -29,6 +29,7 @@ def save_gexf(graph, filename):
     # write the graph to the file
     writer = GEXFExporter(mode='static')
     writer.add_graph(G)
+    writer.adjust_format()
     writer.write(filename)
     
 def prepare_gefx_attributes(dict):
@@ -41,6 +42,11 @@ def prepare_gefx_attributes(dict):
             dict['start'] = datetime.fromtimestamp(v).isoformat()
 
 class GEXFExporter(GEXFWriter):
+    def adjust_format(self):
+        self.graph_element.set('timeformat', 'string')
+        for a in self.graph_element.findall("attributes"):
+            a.set('timeformat', 'string')
+                
     def add_nodes(self, G, graph_element):
         nodes_element = Element('nodes')
         for node,data in G.nodes_iter(data=True):
