@@ -16,6 +16,7 @@ from FuXi.Rete.Network import ReteNetwork
 
 from simplejson import load, dump
 from pyld import jsonld
+from .namespaces import *
 
 ONTOLOGY_ROOT = path.abspath(path.join(path.dirname(__file__), 'ontology'))
 
@@ -40,20 +41,25 @@ CATALYST_RULES = [
     "version.ttl",
 ]
 
-SiocPost = URIRef(u'http://rdfs.org/sioc/ns#Post')
-CatalystPost = URIRef(u'http://purl.org/catalyst/core#Post')
-UserAccount = URIRef(u'http://rdfs.org/sioc/ns#UserAccount')
-Created = URIRef(u'http://purl.org/dc/terms/created')
-HasCreator = URIRef(u'http://rdfs.org/sioc/ns#has_creator')
-ReplyOf = URIRef(u'http://rdfs.org/sioc/ns#reply_of')
-CatalystIdea = URIRef(u'http://purl.org/catalyst/core#Idea')
-GenericIdeaNode = URIRef(u'http://purl.org/catalyst/idea#GenericIdeaNode')
-InclusionRelation = URIRef(u'http://purl.org/catalyst/idea#InclusionRelation')
-Excerpt = URIRef(u'http://purl.org/catalyst/core#Excerpt')
-ExpressesIdea = URIRef(u'http://purl.org/catalyst/core#expressesIdea')
-HasTarget = URIRef(u'http://www.openannotation.org/ns/hasTarget')
-HasSource = URIRef(u'http://www.openannotation.org/ns/hasSource')
-HasBody = URIRef(u'http://www.openannotation.org/ns/hasBody')
+SiocPost = SIOC.Post
+UserAccount = SIOC.UserAccount
+HasCreator = SIOC.has_creator
+ReplyOf = SIOC.reply_of
+
+CatalystPost = CATALYST.Post
+CatalystIdea = CATALYST.Idea
+Excerpt = CATALYST.Excerpt
+ExpressesIdea = CATALYST.expressesIdea
+
+Created = DCTERMS.created
+
+GenericIdeaNode = IDEA.GenericIdeaNode
+InclusionRelation = IDEA.InclusionRelation
+DirectedIdeaRelation = IDEA.DirectedIdeaRelation
+
+HasTarget = OA.hasTarget
+HasSource = OA.hasSource
+HasBody = OA.hasBody
 
 class InferenceStore(object):
     def __init__(self, ontology_root=ONTOLOGY_ROOT):
@@ -137,32 +143,6 @@ class FuXiInferenceStore(InferenceStore):
         return cls._instance
 
 
-def apply_catalyst_napespace_manager(graph):
-    # setup the RDF graph to be parsed
-    npm = NamespaceManager(Graph())
-    npm.bind("owl", "http://www.w3.org/2002/07/owl#")
-    npm.bind("rdf", "http://www.w3.org/1999/02/22-rdf-syntax-ns#")
-    npm.bind("rdfs", "http://www.w3.org/2000/01/rdf-schema#")
-    npm.bind("xsd", "http://www.w3.org/2001/XMLSchema#")
-    npm.bind("trig", "http://www.w3.org/2004/03/trix/rdfg-1/")
-    npm.bind("foaf", "http://xmlns.com/foaf/0.1/")
-    npm.bind("dcterms", "http://purl.org/dc/terms/")
-    npm.bind("sioc", "http://rdfs.org/sioc/ns#")
-    npm.bind("oa", "http://www.openannotation.org/ns/")
-    npm.bind("idea", "http://purl.org/catalyst/idea#")
-    npm.bind("ibis", "http://purl.org/catalyst/ibis#")
-    npm.bind("assembl", "http://purl.org/assembl/core#")
-    npm.bind("catalyst", "http://purl.org/catalyst/core#")
-    npm.bind("version", "http://purl.org/catalyst/version#")
-    npm.bind("vote", "http://purl.org/catalyst/vote#")
-    npm.bind("eg_site", "http://www.assembl.net/")
-    npm.bind("eg_d1", "http://www.assembl.net/discussion/1/")
-    npm.bind("kmieg", "http://maptesting.kmi.open.ac.uk/api/")
-    npm.bind("kmiegnodes", "http://maptesting.kmi.open.ac.uk/api/nodes/")
-    graph.namespace_manager=npm
-    for c in graph.contexts():
-        c.namespace_manager=npm
-    
 def catalyst_graph_for(file):
     if file.startswith('/'):
         file = 'file://'+file
@@ -172,7 +152,7 @@ def catalyst_graph_for(file):
     logging.info("InferenceStore JSON-LD loaded")
 
     g = ConjunctiveGraph()
-    apply_catalyst_napespace_manager(g)
+    g.namespace_manager = namespace_manager
     g.parse(data=quads, format='nquads')
     logging.info("InferenceStore base graph loaded")
 
