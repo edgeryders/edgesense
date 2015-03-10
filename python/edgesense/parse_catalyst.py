@@ -4,6 +4,7 @@ import csv
 from datetime import datetime
 import time
 import logging
+from functools import partial
 
 from edgesense.utils.logger_initializer import initialize_logger
 import edgesense.utils as eu
@@ -20,9 +21,10 @@ def parse_options(argv):
     source = None
     outdir = '.'
     kind = 'both'
+    moderator = None
     
     try:
-        opts, args = getopt.getopt(argv,"k:s:o:",["kind=","source-json=","outdir="])
+        opts, args = getopt.getopt(argv,"k:s:o:m:",["kind=","source-json=","outdir=","moderator="])
     except getopt.GetoptError:
         logging.error('parse_catalyst.py -k <extraction kind (simple)> -s <source JSON> -o <output directory> ')
         sys.exit(2)
@@ -37,15 +39,17 @@ def parse_options(argv):
            source = arg
         elif opt in ("-o", "--outdir"):
            outdir = arg
+        elif opt in ("-m", "--moderator"):
+           moderator = arg
            
     logging.info("parsing url %(s)s" % {'s': source})
-    return (kind,source,outdir)
+    return (kind,source,outdir,moderator)
 
 def main():
     initialize_logger('./log')
     
     generated = datetime.now()
-    kind, source, outdir = parse_options(sys.argv[1:])
+    kind, source, outdir, moderator = parse_options(sys.argv[1:])
     logging.info("Parsing catalyst - Started")
     logging.info("Parsing catalyst - Source file: %(s)s" % {'s':source})
     logging.info("Parsing catalyst - Output directory: %(s)s" % {'s':outdir})
@@ -59,7 +63,10 @@ def main():
     use_posts = (kind == 'posts') or (kind == 'both')
     use_ideas = (kind == 'ideas') or (kind == 'both')
     assert use_ideas or use_posts, "kind must be ideas, posts or both"
-    nodes, edges = ec.extract.ideas.graph_to_network(graph, use_ideas, use_posts)
+    moderator_test = None
+    if moderator:
+        moderator_test = partial(ec.extract.is_moderator, graph, moderator_roles=(moderator,))
+    nodes, edges = ec.extract.ideas.graph_to_network(graph, use_ideas, use_posts, moderator_test)
     # 3. sort the lists
     nodes.sort(key=eu.sort_by('created'))
     edges.sort(key=eu.sort_by('created'))

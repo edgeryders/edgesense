@@ -51,7 +51,7 @@ user_template = {
 def is_moderator(graph, user, moderator_roles=None):
     if not moderator_roles:
         return False
-    roles = {role for (s, p, role) in graph.triples(user, SIOC.has_function, None)}
+    roles = {role for (s, p, role) in graph.triples((user, SIOC.has_function, None))}
     for role in roles:
         role_names = graph.value(role, FOAF.name)
         if role_name and str(role_name) in moderator_roles:
@@ -60,11 +60,11 @@ def is_moderator(graph, user, moderator_roles=None):
 
 
 def user_as_node(graph, user, moderator_test=None):
-    moderator_test = moderator_test or (lambda graph, user: False)
+    moderator_test = moderator_test or (lambda user: False)
     info = dict(user_template)
     info['id'] = str(user)
     info['name'] = stringify(graph.value(user, FOAF.name)) or str(user)
-    info['team'] = moderator_test(graph, user)
+    info['team'] = moderator_test(user)
     created = graph.value(user, DCTERMS.created)
     if not created:
         posts = {post for (post, p, u) in graph.triples((None, SIOC.has_creator, user))}
@@ -92,6 +92,7 @@ post_template = {
 def post_as_link(
         graph, post, reply_to_post, post_author=None, reply_to_post_author=None, moderator_test=None):
     info = dict(post_template)
+    moderator_test = moderator_test or (lambda user: False)
     if not post_author:
         post_author = stringify(graph.value(post, SIOC.has_creator))
     if not reply_to_post_author:
@@ -102,10 +103,7 @@ def post_as_link(
     info['target'] = reply_to_post_author
     info["id"] = post
     info['ts'] = as_timestamp(graph.value(post, DCTERMS.created))
-    if moderator_test is not None:
-        info['team'] = moderator_test(graph, post_author) or moderator_test(graph, reply_to_post_author)
-    else:
-        info['team'] = False
+    info['team'] = moderator_test(post_author) or moderator_test(reply_to_post_author)
     return info
 
 def convert_to_network(graph, posts, creator_of_post, reply_of, moderator_test=None):

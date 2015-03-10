@@ -1,4 +1,3 @@
-from functools import partial
 from itertools import chain
 from collections import defaultdict
 from edgesense.catalyst.namespaces import SIOC, CATALYST, DCTERMS, RDF, IDEA, FOAF, ASSEMBL
@@ -6,7 +5,6 @@ from . import convert_to_network
 
 
 def extract_ideas(graph, creator_of_post=None):
-    import pdb; pdb.set_trace()
     # mapping ideas
     node_ids = list(graph.subjects(RDF.type, IDEA.GenericIdeaNode))
     edge_ids = list(graph.subjects(RDF.type, IDEA.DirectedIdeaRelation))
@@ -26,7 +24,7 @@ def extract_ideas(graph, creator_of_post=None):
         return sources.get(edge, None) is not None and targets.get(edge, None) is not None
     edge_ids = filter(complete_edge, edge_ids)
     reply_of = defaultdict(list)
-    # some edges will act as ideas
+    # some edges will act as ideas; if the creator is different from the source.
     pseudo_nodes = []
     for edge in edge_ids:
         creator = creator_of_post.get(edge, None)
