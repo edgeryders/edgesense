@@ -11,8 +11,7 @@ import logging
 import edgesense.utils as eu
 from edgesense.utils.logger_initializer import initialize_logger
 from edgesense.network.utils import extract_edges, extract_multiauthor_post_edges, build_network
-from edgesense.metrics import compute_all_metrics
-from edgesense.utils.extract import calculate_timestamp_range
+from edgesense.metrics import calculate_network_metrics
 
 def load_files(users_resource, nodes_resource, comments_resource, username, password, extraction_method, dumpto, generated):
     if dumpto:
@@ -46,50 +45,6 @@ def load_files(users_resource, nodes_resource, comments_resource, username, pass
     logging.info("file loaded")
     return (allusers,allnodes,allcomments)
     
-def write_network(network, multi_network, timestamp, create_datapackage, datapackage_title, license_type, license_url, destination_path):
-    tag = timestamp.strftime('%Y-%m-%d-%H-%M-%S')
-    tagged_dir = os.path.join(destination_path, "data", tag)
-
-    # dump the network to a json file, minified
-    eu.resource.save(network, 'network.min.json', tagged_dir)
-    logging.info("network dumped")  
-
-    # dump the network to a json file, formatted
-    eu.resource.save(network, 'network.json', tagged_dir, True)
-    logging.info("network large dumped")  
-
-    # dump the metrics and the network to separate files:
-    metrics = network.pop('metrics', None)
-    eu.resource.save(network, 'network-no-metrics.min.json', tagged_dir)
-    eu.resource.save(metrics, 'metrics.min.json', tagged_dir)
-    logging.info("network+metrics dumped")  
-    
-    # create the datapackage
-    if create_datapackage:
-        try:
-            # load the datapackage template
-            basepath = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
-            with open(os.path.join(basepath, "datapackage_template.json"), 'r') as datafile:
-                datapackage = json.load(datafile)
-                datapackage['license'] = {'type': license_type, 'url': license_url}
-                if datapackage_title:
-                    datapackage['title'] = datapackage_title
-                datapackage['last_updated'] = timestamp.strftime('%Y-%m-%dT%H:%M:%S')
-                datapackage['resources'][0].pop('url', None)
-                datapackage['resources'][0]['path'] = os.path.join('data', tag, 'network.gexf')
-
-                # dump the gexf file
-                gexf_file = os.path.join(tagged_dir, 'network.gexf')
-                eu.gexf.save_gexf(multi_network, gexf_file)
-                # dump the datapackage
-                eu.resource.save(datapackage, 'datapackage.json', destination_path, True)
-                logging.info("datapackage saved")
-        except:
-            logging.error("Error reading the datapackage template")
-            create_datapackage = False
-    
-    eu.resource.save({'last': tag, 'datapackage': create_datapackage}, 'last.json', destination_path)
-
 def parse_options(argv):
     import getopt
     # defaults
@@ -233,14 +188,14 @@ def main():
     
     directed_multiedge_network = calculate_network_metrics(nodes_map, posts_map, comments_map, network, timestep_size, timestep_window, timestep_count)
     
-    write_network(network, \
-                  directed_multiedge_network, \
-                  generated, \
-                  create_datapackage, \
-                  datapackage_title, \
-                  license_type, \
-                  license_url, \
-                  destination_path)
+    eu.resource.write_network(network, \
+                     directed_multiedge_network, \
+                     generated, \
+                     create_datapackage, \
+                     datapackage_title, \
+                     license_type, \
+                     license_url, \
+                     destination_path)
     
     logging.info("Completed")  
 

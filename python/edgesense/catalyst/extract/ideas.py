@@ -16,7 +16,7 @@ def extract_ideas(graph, creator_of_post=None):
         return creator_of_post.get(n, None) is not None
     node_ids = filter(has_creator, node_ids)
     if not node_ids:
-        return ([], [], [])
+        return ([], {})
     sources = {link: node for (link, p, node) in graph.triples((None, IDEA.source_idea, None)) if node in node_ids}
     targets = {link: node for (link, p, node) in graph.triples((None, IDEA.target_idea, None)) if node in node_ids}
     # filter incomplete edges (with no usable source or target)
@@ -53,7 +53,7 @@ def extract_posts(graph, creator_of_post=None):
         return creator_of_post.get(n, None) is not None
     node_ids = filter(has_creator, node_ids)
     if not node_ids:
-        return ([], [], [])
+        return ([], {})
     reply_of = {
         post: [reply for (s, p, reply) in graph.triples((post, SIOC.reply_of, None))]
         for post in node_ids

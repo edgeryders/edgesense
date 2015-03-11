@@ -9,7 +9,6 @@ from functools import partial
 from edgesense.utils.logger_initializer import initialize_logger
 import edgesense.utils as eu
 import edgesense.catalyst as ec
-from edgesense.build_network import write_network
 from edgesense.metrics import calculate_network_metrics
 
 def write_file(elements, name, destination_path):
@@ -92,15 +91,17 @@ def main():
     if moderator:
         moderator_test = partial(ec.extract.is_moderator, graph, moderator_roles=(moderator,))
     network = ec.extract.ideas.graph_to_network(generated, graph, use_ideas, use_posts, moderator_test)
+    
     directed_multiedge_network = calculate_network_metrics({}, {}, {}, network, timestep_size, timestep_window, timestep_count)
-    write_network(network, \
-                  directed_multiedge_network, \
-                  generated, \
-                  create_datapackage, \
-                  datapackage_title, \
-                  license_type, \
-                  license_url, \
-                  destination_path)
+    
+    eu.resource.write_network(network, \
+                     directed_multiedge_network, \
+                     generated, \
+                     create_datapackage, \
+                     datapackage_title, \
+                     license_type, \
+                     license_url, \
+                     destination_path)
 
     logging.info("Parsing catalyst - Completed")
 

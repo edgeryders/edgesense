@@ -125,3 +125,4 @@ def extract_inactive_nodes(nodes_map):
             inactive_nodes.append(nodes_map.pop(node_id, None))
 
     return inactive_nodes
+

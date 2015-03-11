@@ -6,4 +6,5 @@ networkx==1.8.1
 python-louvain==0.3
 simplejson==3.6.4
 PyLD==0.6.3
+py-dateutil==2.2
 https://github.com/maparent/FuXi/archive/d5c4e3d3e389825b032072b4004bd2e22a9f8f1a.zip
