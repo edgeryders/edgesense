@@ -106,6 +106,7 @@ def post_as_link(
         return None
     info["source"] = post_author
     info['target'] = reply_to_post_author
+    info["reply_of"] = reply_to_post
     info["id"] = post
     info['ts'] = as_timestamp(graph.value(post, DCTERMS.created))
     info['team'] = moderator_test(post_author) or moderator_test(reply_to_post_author)
