@@ -119,7 +119,7 @@ def convert_to_network(generated, graph, posts, creator_of_post, reply_of, moder
     nodes = [account_as_node(graph, account, moderator_test) for account in all_creators]
     edges = []
     for post in posts:
-        for replying in reply_of[post]:
+        for replying in reply_of.get(post, ()):
             edges.append(post_as_link(graph, post, replying, creator_of_post[post], creator_of_post[replying], moderator_test))
 
     nodes.sort(key=eu.sort_by('created_ts'))
