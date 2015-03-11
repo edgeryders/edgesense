@@ -155,7 +155,7 @@ def catalyst_graph_for(file):
     g = ConjunctiveGraph()
     g.namespace_manager = namespace_manager
     # g.parse(data=quads, format='nquads')
-    # g.load(file, format="json-ld")
+    g.load(file, format="json-ld")
     logging.info("InferenceStore base graph loaded")
 
     f = FuXiInferenceStore.get_instance()
