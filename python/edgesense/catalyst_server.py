@@ -63,7 +63,7 @@ def parse():
     license_type = None
     license_url = None
     datapackage_title = None
-    kind = 'ideas'
+    kind = 'both'
     moderator = None
     generated = datetime.now()
     
