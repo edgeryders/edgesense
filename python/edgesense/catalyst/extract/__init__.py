@@ -54,7 +54,7 @@ def is_moderator(graph, account, moderator_roles=None):
         return False
     roles = {role for (s, p, role) in graph.triples((account, SIOC.has_function, None))}
     for role in roles:
-        role_names = graph.value(role, FOAF.name)
+        role_names = graph.value(role, SIOC.name)
         if role_name and str(role_name) in moderator_roles:
             return True
     return False
