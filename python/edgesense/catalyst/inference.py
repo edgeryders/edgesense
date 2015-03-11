@@ -6,7 +6,7 @@ import logging
 import cStringIO as StringIO
 
 import rdflib
-from rdflib import Graph, URIRef, RDF, ConjunctiveGraph, RDFS
+from rdflib import Graph, URIRef, RDF, ConjunctiveGraph, RDFS, OWL
 from rdflib.namespace import NamespaceManager, Namespace
 
 from FuXi.Horn.HornRules import HornFromN3
@@ -107,10 +107,12 @@ class FuXiInferenceStore(InferenceStore):
             rulesets.append('rdfs-rules.n3')
         else:
             # minimum ruleset: only subclassing.
-            prefix = "@prefix rdfs: <%s>.\n" % (RDFS, )
+            prefix = "@prefix rdfs: <%s>.\n@prefix owl: <%s>.\n" % (RDFS, OWL)
             rules = [
                 "{?A rdfs:subClassOf ?B. ?S a ?A} => {?S a ?B}.",
                 "{?P @has rdfs:subPropertyOf ?R. ?S ?P ?O} => {?S ?R ?O}.",
+                "{?A owl:subClassOf ?B. ?S a ?A} => {?S a ?B}.",
+                "{?P @has owl:subPropertyOf ?R. ?S ?P ?O} => {?S ?R ?O}.",
                 "{?P @has rdfs:domain ?C. ?S ?P ?O} => {?S a ?C}.",
                 "{?P @has rdfs:range ?C. ?S ?P ?O} => {?O a ?C}.",
             ]
