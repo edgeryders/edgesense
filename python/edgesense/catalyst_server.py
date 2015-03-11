@@ -33,6 +33,7 @@ class InvalidUsage(Exception):
 
 basepath = os.path.dirname(__file__)
 static_path = os.path.abspath(os.path.join(basepath, "..", "..", "static"))
+destination_path = os.path.abspath(os.path.join(static_path, "json"))
 app = Flask(__name__, static_folder=static_path, static_url_path='')
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -100,6 +101,7 @@ def parse():
                      destination_path)
 
     # return the result URL
+    tag = generated.strftime('%Y-%m-%d-%H-%M-%S')
     base_path = os.path.join("/json/data", tag)
     result_path = os.path.join(base_path, "network.min.json")
     

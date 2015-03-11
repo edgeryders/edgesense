@@ -105,10 +105,10 @@ def post_as_link(
         reply_to_post_author = stringify(graph.value(reply_to_post, SIOC.has_creator))
     if (not post_author) or (not reply_to_post_author):
         return None
-    info["source"] = post_author
-    info['target'] = reply_to_post_author
-    info["reply_of"] = reply_to_post
-    info["id"] = post
+    info["source"] = stringify(post_author)
+    info['target'] = stringify(reply_to_post_author)
+    info["reply_of"] = stringify(reply_to_post)
+    info["id"] = stringify(post)
     info['ts'] = as_timestamp(graph.value(post, DCTERMS.created))
     info['team'] = moderator_test(post_author) or moderator_test(reply_to_post_author)
     return info
