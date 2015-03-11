@@ -48,10 +48,10 @@ user_template = {
 }
 
 
-def is_moderator(graph, user, moderator_roles=None):
+def is_moderator(graph, account, moderator_roles=None):
     if not moderator_roles:
         return False
-    roles = {role for (s, p, role) in graph.triples((user, SIOC.has_function, None))}
+    roles = {role for (s, p, role) in graph.triples((account, SIOC.has_function, None))}
     for role in roles:
         role_names = graph.value(role, FOAF.name)
         if role_name and str(role_name) in moderator_roles:
@@ -59,15 +59,20 @@ def is_moderator(graph, user, moderator_roles=None):
     return False
 
 
-def user_as_node(graph, user, moderator_test=None):
+def account_as_node(graph, account, moderator_test=None):
+    # We have a bug in early CIF files where posts are linked directly to users
+    user = graph.value(account, SIOC.account_of) or account
     moderator_test = moderator_test or (lambda user: False)
     info = dict(user_template)
     info['id'] = str(user)
     info['name'] = stringify(graph.value(user, FOAF.name)) or str(user)
-    info['team'] = moderator_test(user)
-    created = graph.value(user, DCTERMS.created)
+    info['team'] = moderator_test(account)
+    created = graph.value(account, DCTERMS.created)
     if not created:
-        posts = {post for (post, p, u) in graph.triples((None, SIOC.has_creator, user))}
+        t = graph.triples((None, SIOC.has_creator, account))
+        if account is not user:
+            t = chain(t, graph.triples((None, SIOC.has_creator, user)))
+        posts = {post for (post, p, u) in t}
         created = {graph.value(post, DCTERMS.created) for post in posts}
         created.discard(None)
         if created:
@@ -92,7 +97,7 @@ post_template = {
 def post_as_link(
         graph, post, reply_to_post, post_author=None, reply_to_post_author=None, moderator_test=None):
     info = dict(post_template)
-    moderator_test = moderator_test or (lambda user: False)
+    moderator_test = moderator_test or (lambda account: False)
     if not post_author:
         post_author = stringify(graph.value(post, SIOC.has_creator))
     if not reply_to_post_author:
@@ -109,7 +114,7 @@ def post_as_link(
 def convert_to_network(graph, posts, creator_of_post, reply_of, moderator_test=None):
     all_creators = {creator_of_post.get(n, None) for n in posts}
     all_creators.discard(None)
-    nodes = [user_as_node(graph, user, moderator_test) for user in all_creators]
+    nodes = [account_as_node(graph, account, moderator_test) for account in all_creators]
     edges = []
     for post in posts:
         for replying in reply_of[post]:
