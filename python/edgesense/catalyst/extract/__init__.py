@@ -4,6 +4,7 @@ import time
 from dateutil import parser as dtparse
 
 from ..namespaces import *
+import edgesense.utils as eu
 
 def stringify(val):
     if val is not None:
@@ -112,7 +113,7 @@ def post_as_link(
     info['team'] = moderator_test(post_author) or moderator_test(reply_to_post_author)
     return info
 
-def convert_to_network(graph, posts, creator_of_post, reply_of, moderator_test=None):
+def convert_to_network(generated, graph, posts, creator_of_post, reply_of, moderator_test=None):
     all_creators = {creator_of_post.get(n, None) for n in posts}
     all_creators.discard(None)
     nodes = [account_as_node(graph, account, moderator_test) for account in all_creators]
@@ -120,8 +121,19 @@ def convert_to_network(graph, posts, creator_of_post, reply_of, moderator_test=N
     for post in posts:
         for replying in reply_of[post]:
             edges.append(post_as_link(graph, post, replying, creator_of_post[post], creator_of_post[replying], moderator_test))
-    return nodes, edges
 
+    nodes.sort(key=eu.sort_by('created_ts'))
+    edges.sort(key=eu.sort_by('ts'))
+
+    # this is the network object
+    # going forward it should be read from a serialized format to handle caching
+    return {
+        'meta': {
+            'generated': int(generated.strftime("%s"))
+        },
+        'edges': edges,
+        'nodes': nodes
+    }
 
 import simple
 import excerpts

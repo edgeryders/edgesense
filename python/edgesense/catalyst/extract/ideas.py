@@ -73,7 +73,7 @@ def extract_ideas_and_posts(graph, creator_of_post):
     return post_ids, post_reply
 
 
-def graph_to_network(graph, use_ideas=True, use_posts=True, moderator_test=None):
+def graph_to_network(generated, graph, use_ideas=True, use_posts=True, moderator_test=None):
     creator_of_post = {
         obj: creator for (obj, p, creator) in graph.triples((None, SIOC.has_creator, None))
     }
@@ -85,4 +85,4 @@ def graph_to_network(graph, use_ideas=True, use_posts=True, moderator_test=None)
             posts, reply_of = extract_ideas(graph, creator_of_post)
     else:
         posts, reply_of = extract_posts(graph, creator_of_post)
-    return convert_to_network(graph, posts, creator_of_post, reply_of, moderator_test)
+    return convert_to_network(generated, graph, posts, creator_of_post, reply_of, moderator_test)

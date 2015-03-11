@@ -231,16 +231,7 @@ def main():
     logging.info("inactive nodes: %(n)i" % {'n':len(inactive_nodes)})
     network['nodes'] = [ v for v in nodes_map.values() if v['active'] ]
     
-    # Parameters    
-    timestep, timesteps_range = calculate_timestamp_range(network, timestep_size, timestep_window, timestep_count)
-    
-    # build the whole network to use for metrics
-    directed_multiedge_network=build_network(network)    
-    logging.info("network built")  
-
-    # calculate the metrics
-    network['metrics'] = compute_all_metrics(nodes_map, posts_map, comments_map, directed_multiedge_network, timesteps_range, timestep, timestep_window)
-    logging.info("network metrics done")  
+    directed_multiedge_network = calculate_network_metrics(nodes_map, posts_map, comments_map, network, timestep_size, timestep_window, timestep_count)
     
     write_network(network, \
                   directed_multiedge_network, \

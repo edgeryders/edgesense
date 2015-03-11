@@ -17,7 +17,8 @@ def extract_dpsg(mdg, ts, team=True):
     dg=nx.DiGraph()
     # add all the nodes present at the time ts
     for node in mdg.nodes_iter():
-        if mdg.node[node]['created_ts'] <= ts and (team or not mdg.node[node]['team']):
+        nts = mdg.node[node].get('created_ts', None)
+        if nts and nts <= ts and (team or not mdg.node[node]['team']):
             dg.add_node(node, mdg.node[node])
     
     for node in dg.nodes_iter():
