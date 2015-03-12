@@ -96,7 +96,7 @@ post_template = {
 }
 
 def post_as_link(
-        graph, post, reply_to_post, post_author=None, reply_to_post_author=None, moderator_test=None):
+        graph, post, post_id, reply_to_post, post_author=None, reply_to_post_author=None, moderator_test=None):
     info = dict(post_template)
     moderator_test = moderator_test or (lambda account: False)
     if not post_author:
@@ -108,7 +108,7 @@ def post_as_link(
     info["source"] = stringify(post_author)
     info['target'] = stringify(reply_to_post_author)
     info["reply_of"] = stringify(reply_to_post)
-    info["id"] = stringify(post)
+    info["id"] = post_id
     info['ts'] = as_timestamp(graph.value(post, DCTERMS.created))
     info['team'] = moderator_test(post_author) or moderator_test(reply_to_post_author)
     return info
@@ -119,8 +119,13 @@ def convert_to_network(generated, graph, posts, creator_of_post, reply_of, moder
     nodes = [account_as_node(graph, account, moderator_test) for account in all_creators]
     edges = []
     for post in posts:
-        for replying in reply_of.get(post, ()):
-            edges.append(post_as_link(graph, post, replying, creator_of_post[post], creator_of_post[replying], moderator_test))
+        for i, replying in enumerate(reply_of.get(post, ())):
+            post_id = stringify(post)
+            if i:
+                 post_id += '__'+ i
+            edges.append(post_as_link(
+                graph, post, post_id, replying, creator_of_post[post],
+                creator_of_post[replying], moderator_test))
 
     nodes.sort(key=eu.sort_by('created_ts'))
     edges.sort(key=eu.sort_by('ts'))
