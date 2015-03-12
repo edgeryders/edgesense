@@ -122,7 +122,7 @@ def convert_to_network(generated, graph, posts, creator_of_post, reply_of, moder
         for i, replying in enumerate(reply_of.get(post, ())):
             post_id = stringify(post)
             if i:
-                 post_id += '__'+ i
+                 post_id = '%s__%d' % (post_id, i)
             edges.append(post_as_link(
                 graph, post, post_id, replying, creator_of_post[post],
                 creator_of_post[replying], moderator_test))
