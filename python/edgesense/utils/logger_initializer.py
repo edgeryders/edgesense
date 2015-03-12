@@ -12,7 +12,7 @@ def initialize_logger(output_dir, file_level=logging.DEBUG, console_level=loggin
                         datefmt='%Y-%m-%d %H:%M:%S',
                         filename=file_name,
                         filemode=file_mode)
-     
+    logging.getLogger('rdflib').setLevel(logging.ERROR)
     # create console handler and set level to info
     handler = logging.StreamHandler()
     handler.setLevel(console_level)
