@@ -4,6 +4,7 @@ import csv
 import urllib2
 import base64
 import logging
+from . import gexf
 
 def mkdir(newdir):
     if os.path.isdir(newdir):
@@ -58,3 +59,38 @@ def load_csv(thing, username=None, password=None, dump_to=None):
     data = dump_to_file(data, dump_to)
     parsed = [row for row in csv.DictReader(data)]
     return parsed
+
+def write_network(network, multi_network, timestamp, create_datapackage, datapackage_title, license_type, license_url, destination_path):
+    tag = timestamp.strftime('%Y-%m-%d-%H-%M-%S')
+    tagged_dir = os.path.join(destination_path, "data", tag)
+
+    # dump the network to a json file, minified
+    save(network, 'network.min.json', tagged_dir)
+    logging.info("network dumped")  
+    
+    # create the datapackage
+    if create_datapackage:
+        try:
+            # load the datapackage template
+            basepath = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+            with open(os.path.join(basepath, "datapackage_template.json"), 'r') as datafile:
+                datapackage = json.load(datafile)
+                datapackage['license'] = {'type': license_type, 'url': license_url}
+                if datapackage_title:
+                    datapackage['title'] = datapackage_title
+                datapackage['last_updated'] = timestamp.strftime('%Y-%m-%dT%H:%M:%S')
+                datapackage['resources'][0].pop('url', None)
+                datapackage['resources'][0]['path'] = os.path.join('data', tag, 'network.gexf')
+
+                # dump the gexf file
+                gexf_file = os.path.join(tagged_dir, 'network.gexf')
+                gexf.save_gexf(multi_network, gexf_file)
+                # dump the datapackage
+                save(datapackage, 'datapackage.json', destination_path, True)
+                logging.info("datapackage saved")
+        except:
+            logging.error("Error reading the datapackage template")
+            create_datapackage = False
+    
+    save({'last': tag, 'datapackage': create_datapackage}, 'last.json', destination_path)
+

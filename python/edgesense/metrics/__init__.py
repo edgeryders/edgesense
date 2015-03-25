@@ -1,6 +1,8 @@
 from edgesense.utils import sort_by
 from edgesense.content.metrics import extract_content_metrics
 from edgesense.network.metrics import extract_network_metrics
+from edgesense.utils.extract import calculate_timestamp_range
+from edgesense.network.utils import build_network
 import logging
 
 def compute_all_metrics(nodes_map, posts_map, comments_map, network, timesteps_range, timestep, timestep_window):
@@ -25,4 +27,18 @@ def metrics_for_ts(nodes_map, posts_map, comments_map, network, ts, timestep, ti
     ts_metrics.update(extract_network_metrics(network, ts, team=False))
     
     return ts_metrics
+
+def calculate_network_metrics(nodes_map, posts_map, comments_map, network, timestep_size, timestep_window, timestep_count):
+    # Parameters    
+    timestep, timesteps_range = calculate_timestamp_range(network, timestep_size, timestep_window, timestep_count)
     
+    # build the whole network to use for metrics
+    directed_multiedge_network = build_network(network)    
+    logging.info("network built")  
+
+    # calculate the metrics
+    network['metrics'] = compute_all_metrics(nodes_map, posts_map, comments_map, directed_multiedge_network, timesteps_range, timestep, timestep_window)
+
+    logging.info("network metrics done")
+    return directed_multiedge_network
+

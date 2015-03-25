@@ -1,8 +1,7 @@
 from rdflib import Graph as _Graph
 from rdflib.namespace import (
     Namespace, NamespaceManager as _NamespaceManager,
-    RDF, RDFS, OWL, XSD, DC, DCTERMS, FOAF, SKOS)  # VOID
-from virtuoso.vmapping import VirtRDF
+    RDF, RDFS, OWL, XSD, FOAF, SKOS)  # VOID
 
 SIOC = Namespace('http://rdfs.org/sioc/ns#')
 OA = Namespace('http://www.openannotation.org/ns/')
@@ -14,6 +13,7 @@ VERSION = Namespace('http://purl.org/catalyst/version#')
 ASSEMBL = Namespace('http://purl.org/assembl/core#')
 TIME = Namespace('http://www.w3.org/2006/time#')
 QUADNAMES = Namespace('http://purl.org/assembl/quadnames/')
+DCTERMS = Namespace('http://purl.org/dc/terms/')
 
 namespace_manager = _NamespaceManager(_Graph())
 _name, _var = None, None

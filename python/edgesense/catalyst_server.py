@@ -9,42 +9,13 @@ import networkx as nx
 from edgesense.utils.logger_initializer import initialize_logger
 import edgesense.utils as eu
 import edgesense.catalyst as ec
-from edgesense.network.utils import extract_edges, build_network
-from edgesense.metrics import compute_all_metrics
-from edgesense.utils.extract import calculate_timestamp_range
+from edgesense.metrics import calculate_network_metrics
 
 from flask import Flask
 from flask import request
 from flask import jsonify
 from flask.ext.cors import CORS, cross_origin
 
-
-def parse_cif(source, kind):
-    logging.info("parse_source - Started")
-    logging.info("parse_source - Source: %(s)s" % {'s':source})
-    logging.info("parse_source - Extraction Kind: %(s)s" % {'s':kind})
-    
-    # 1. load and parse the JSON file into a RDF Graph    
-    graph = ec.inference.catalyst_graph_for(source)
-    
-    # 2. extract the usersnodes,comments from the graph
-    if kind == 'simple':
-        users,nodes,comments = ec.extract.simple.users_nodes_comments_from(graph)
-    elif kind == 'excerpts':
-        users,nodes,comments = ec.extract.excerpts.users_nodes_comments_from(graph)
-    else:
-        logging.info("Parsing catalyst - Extraction kind not supported")
-        return
-        
-    # 3. sort the lists
-    sorted_users = sorted(users, key=eu.sort_by('created'))
-    sorted_nodes = sorted(nodes, key=eu.sort_by('created'))
-    sorted_comments = sorted(comments, key=eu.sort_by('created'))
-    
-    # 4. return the data
-    logging.info("Parsing catalyst - Completed")
-    return (sorted_users, sorted_nodes, sorted_comments)
-   
 class InvalidUsage(Exception):
     status_code = 400
 
@@ -62,6 +33,7 @@ class InvalidUsage(Exception):
 
 basepath = os.path.dirname(__file__)
 static_path = os.path.abspath(os.path.join(basepath, "..", "..", "static"))
+destination_path = os.path.abspath(os.path.join(static_path, "json"))
 app = Flask(__name__, static_folder=static_path, static_url_path='')
 cors = CORS(app)
 app.config['CORS_HEADERS'] = 'Content-Type'
@@ -87,64 +59,54 @@ def parse():
     extraction_method = 'nested'
     admin_roles = set()
     exclude_isolated = False
+    create_datapackage = False 
+    license_type = None
+    license_url = None
+    datapackage_title = None
+    kind = 'both'
+    moderator = None
     generated = datetime.now()
     
     source_json = request.form['source'] if request.form.has_key('source') else None
     if not source_json:
         raise InvalidUsage('Missing parameters', status_code=400)
     
-    # Download the remote URL
-    users, nodes, comments = parse_cif(source_json, 'simple')
-
-    # extract a normalized set of data
-    nodes_map, posts_map, comments_map = eu.extract.normalized_data(users, nodes, comments, node_title_field, admin_roles, exclude_isolated)
-
-    # this is the network object
-    # going forward it should be read from a serialized format to handle caching
-    network = {}
-
-    # Add some file metadata
-    network['meta'] = {}
-    # Timestamp of the file generation (to show in the dashboard)
-    network['meta']['generated'] = int(generated.strftime("%s"))
-        
-    network['edges'] = extract_edges(nodes_map, comments_map)
-
-    # filter out nodes that have not participated to the full:conversations
-    inactive_nodes = [ v for v in nodes_map.values() if not v['active'] ]
-    logging.info("inactive nodes: %(n)i" % {'n':len(inactive_nodes)})
-    network['nodes'] = [ v for v in nodes_map.values() if v['active'] ]
+    initialize_logger('./log')
     
-    # Parameters    
-    timestep, timesteps_range = calculate_timestamp_range(network, timestep_size, timestep_window, timestep_count)
+    logging.info("parse_source - Started")
+    logging.info("parse_source - Source: %(s)s" % {'s':source_json})
+    logging.info("parse_source - Extraction Kind: %(s)s" % {'s':kind})
     
-    # build the whole network to use for metrics
-    directed_multiedge_network=build_network(network)    
-    logging.info("network built")  
+    # 1. load and parse the JSON file into a RDF Graph    
+    graph = ec.inference.catalyst_graph_for(source_json)
+    
+    # 2. extract the usersnodes,comments from the graph
+    use_posts = (kind == 'posts') or (kind == 'both')
+    use_ideas = (kind == 'ideas') or (kind == 'both')
+    assert use_ideas or use_posts, "kind must be ideas, posts or both"
+    moderator_test = None
+    if moderator:
+        moderator_test = partial(ec.extract.is_moderator, graph, moderator_roles=(moderator,))
+    network = ec.extract.ideas.graph_to_network(generated, graph, use_ideas, use_posts, moderator_test)
+    
+    directed_multiedge_network = calculate_network_metrics({}, {}, {}, network, timestep_size, timestep_window, timestep_count)
+    
+    eu.resource.write_network(network, \
+                     directed_multiedge_network, \
+                     generated, \
+                     create_datapackage, \
+                     datapackage_title, \
+                     license_type, \
+                     license_url, \
+                     destination_path)
 
-    # calculate the metrics
-    network['metrics'] = compute_all_metrics(nodes_map, posts_map, comments_map, directed_multiedge_network, timesteps_range, timestep, timestep_window)
-    logging.info("network metrics done")  
-    
-    # save the results
-    tag = generated.strftime('%Y-%m-%d-%H-%M-%S')
-    destination_path = os.path.abspath(os.path.join(static_path, "json"))
-    tagged_dir = os.path.join(destination_path, "data", tag)
-
-    # dump the network to a json file, minified
-    eu.resource.save(network, 'network.min.json', tagged_dir)
-    logging.info("network dumped")  
-    
-    # dump the gexf file
-    gexf_file = os.path.join(tagged_dir, 'network.gexf')
-    eu.gexf.save_gexf(directed_multiedge_network, gexf_file)
-    
     # return the result URL
+    tag = generated.strftime('%Y-%m-%d-%H-%M-%S')
     base_path = os.path.join("/json/data", tag)
     result_path = os.path.join(base_path, "network.min.json")
     
-    logging.info("Completed: %(s)s" % {'s':result_path})  
-    return jsonify({'last': tag, 'base_path': base_path, 'metrics': 'network.min.json', 'gexf': 'network.gexf' })
+    logging.info("Completed: %(s)s" % {'s':result_path})
+    return jsonify({'last': tag, 'base_path': base_path, 'metrics': 'network.min.json', 'gexf': 'network.gexf', 'datapackage': 'datapackage.json' })
 
 
 
