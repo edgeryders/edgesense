@@ -1,5 +1,6 @@
 import datetime
 import time
+from itertools import chain
 
 from dateutil import parser as dtparse
 

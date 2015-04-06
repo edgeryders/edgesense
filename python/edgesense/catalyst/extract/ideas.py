@@ -1,6 +1,5 @@
-from itertools import chain
 from collections import defaultdict
-from edgesense.catalyst.namespaces import SIOC, CATALYST, DCTERMS, RDF, IDEA, FOAF, ASSEMBL
+from edgesense.catalyst.namespaces import SIOC, DCTERMS, RDF, IDEA, ASSEMBL
 from . import convert_to_network
 
 

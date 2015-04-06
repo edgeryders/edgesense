@@ -109,12 +109,13 @@ class FuXiInferenceStore(InferenceStore):
             # minimum ruleset: only subclassing.
             prefix = "@prefix rdfs: <%s>.\n@prefix owl: <%s>.\n" % (RDFS, OWL)
             rules = [
-                "{?A rdfs:subClassOf ?B. ?S a ?A} => {?S a ?B}.",
-                "{?P @has rdfs:subPropertyOf ?R. ?S ?P ?O} => {?S ?R ?O}.",
-                "{?A owl:subClassOf ?B. ?S a ?A} => {?S a ?B}.",
-                "{?P @has owl:subPropertyOf ?R. ?S ?P ?O} => {?S ?R ?O}.",
+                "{?P @has owl:inverseOf ?I. ?S ?P ?O} => {?O ?I ?S}.",
                 "{?P @has rdfs:domain ?C. ?S ?P ?O} => {?S a ?C}.",
                 "{?P @has rdfs:range ?C. ?S ?P ?O} => {?O a ?C}.",
+                "{?A rdfs:subClassOf ?B. ?S a ?A} => {?S a ?B}.",
+                "{?A owl:subClassOf ?B. ?S a ?A} => {?S a ?B}.",
+                "{?P @has rdfs:subPropertyOf ?R. ?S ?P ?O} => {?S ?R ?O}.",
+                "{?P @has owl:subPropertyOf ?R. ?S ?P ?O} => {?S ?R ?O}.",
             ]
             for rule in HornFromN3(StringIO.StringIO(prefix+"\n".join(rules))):
                 self.network.buildNetworkFromClause(rule)
