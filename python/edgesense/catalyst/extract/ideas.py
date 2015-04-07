@@ -33,11 +33,11 @@ def extract_ideas(graph, creator_of_post=None):
             reply_of[edge].append(sources[edge])
         else:
             reply_of[sources[edge]].append(targets[edge])
-    source_posts = set(reply_of.keys())
+    # source_posts = set(reply_of.keys())
     all_posts = node_ids[:]
     all_posts.extend(pseudo_nodes)
-    top_posts = set(all_posts) - source_posts
-    comments = set(all_posts) - top_posts
+    # top_posts = set(all_posts) - source_posts
+    # comments = set(all_posts) - top_posts
     return (all_posts, reply_of)
 
 
@@ -63,13 +63,14 @@ def extract_posts(graph, creator_of_post=None):
 def extract_ideas_and_posts(graph, creator_of_post):
     idea_ids, idea_reply = extract_ideas(graph, creator_of_post)
     post_ids, post_reply = extract_posts(graph, creator_of_post)
-    post_reply.update(idea_reply)
+    idea_reply.update(post_reply)
     if len(idea_ids) and len(post_ids):
-        post_reply.update({
-            post: idea for (post, p, idea)
-            in graph.triples((None, ASSEMBL.postLinkedToIdea, None))})
-    post_ids.extend(idea_ids)
-    return post_ids, post_reply
+        # Note that idea_reply is already a defaultdict(list)
+        for (post, p, idea) in graph.triples(
+                (None, ASSEMBL.postLinkedToIdea, None)):
+            idea_reply[post].append(idea)
+    idea_ids.extend(post_ids)
+    return idea_ids, idea_reply
 
 
 def graph_to_network(generated, graph, use_ideas=True, use_posts=True, moderator_test=None):
