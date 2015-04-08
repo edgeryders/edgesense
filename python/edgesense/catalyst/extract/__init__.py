@@ -61,9 +61,10 @@ def is_moderator(graph, account, moderator_roles=None):
     return False
 
 
-def account_as_node(graph, account, moderator_test=None):
+def account_as_node(graph, account, profile_of_account, moderator_test=None):
     # We have a bug in early CIF files where posts are linked directly to users
     user = graph.value(account, SIOC.account_of) or account
+    profile_of_account[account] = user
     moderator_test = moderator_test or (lambda user: False)
     info = dict(user_template)
     info['id'] = str(user)
@@ -84,6 +85,7 @@ def account_as_node(graph, account, moderator_test=None):
     info['created_on'] = str(created)
     info['created_ts'] = as_timestamp(created)
     info['link'] = stringify(graph.value(user, FOAF.homepage))
+    print info
     return info
 
 
@@ -117,7 +119,8 @@ def post_as_link(
 def convert_to_network(generated, graph, posts, creator_of_post, reply_of, moderator_test=None):
     all_creators = {creator_of_post.get(n, None) for n in posts}
     all_creators.discard(None)
-    nodes = [account_as_node(graph, account, moderator_test) for account in all_creators]
+    profile_of_account = {}
+    nodes = [account_as_node(graph, account, profile_of_account, moderator_test) for account in all_creators]
     edges = []
     for post in posts:
         for i, replying in enumerate(reply_of.get(post, ())):
@@ -125,8 +128,8 @@ def convert_to_network(generated, graph, posts, creator_of_post, reply_of, moder
             if i:
                  post_id = '%s__%d' % (post_id, i)
             edges.append(post_as_link(
-                graph, post, post_id, replying, creator_of_post[post],
-                creator_of_post[replying], moderator_test))
+                graph, post, post_id, replying, profile_of_account[creator_of_post[post]],
+                profile_of_account[creator_of_post[replying]], moderator_test))
 
     nodes.sort(key=eu.sort_by('created_ts'))
     edges.sort(key=eu.sort_by('ts'))
