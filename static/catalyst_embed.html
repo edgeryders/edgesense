@@ -530,9 +530,9 @@
                         start();
                         dashboard.analytics(analytics);
                     }
-
                     dashboard
                         .base("." + data["base_path"])
+                        .names_map(data["user_names_map"])
                         .load(data["metrics"])
                         .run();
 
@@ -547,7 +547,37 @@
                 }
 
                 var source_url = get_url_parameter('url');
-
+                
+                // if the userdata is present, then prepare the user mapping
+                var userdata_url = get_url_parameter('userurl');
+                var user_names_map = {};
+                var process_user_data = function(data){
+                    var local_prefix = data['@context'][1]['local'];
+                    _.each(data['@graph'], function(el){
+                        if (el['fname']){
+                            var local_id = el['@id'];
+                            var global_id = local_id.replace('local:', local_prefix);
+                            user_names_map[global_id] = el['fname'];
+                        }
+                    });
+                    console.log(">>>>>> process_user_data");
+                    console.log(user_names_map);
+                }
+                if (userdata_url) {
+                    console.log('>>>>>> loading userurl');
+                    $.ajax({
+                        url: userdata_url,
+                        jsonp: "callback",
+                        jsonpCallback: "process_user_data",
+                        dataType: "jsonp",
+                        success: function( response ) {
+                            process_user_data(response);
+                            console.log('>>>>>> userurl loaded'); // server response
+                        }
+                    });                    
+                }
+ 
+                
                 if (source_url) {
                     
                     $('.edgesense').hide();
@@ -570,7 +600,8 @@
                             //   "gexf": "network.gexf",
                             //   "last": "2014-12-12-11-19-24",
                             //   "metrics": "network.min.json"
-                            // }
+                            // }                            
+                            responseData['user_names_map'] = user_names_map;
                             Edgesense.cleanup();
                             Edgesense.run(responseData);
                         },
