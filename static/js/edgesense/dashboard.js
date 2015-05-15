@@ -96,6 +96,14 @@ jQuery(function($) {
             current_user_filter = '',
             show_moderators = true,
             show_datapackage = false,
+            names_map = {},
+            mapped_name = function(name){
+                // map names if the names_map is defined
+                if (_.isObject(names_map) && _.has(names_map, name)){
+                    return names_map[name];
+                }
+                return name;
+            },
             preprocess_data = function(d){
                 data = d;
                 
@@ -108,7 +116,8 @@ jQuery(function($) {
                 });
 
                 _.each(data['nodes'], function(e){
-                    e['date'] = new Date(e['created_ts']*1000);           
+                    e['date'] = new Date(e['created_ts']*1000); 
+                    e['name'] = mapped_name(e['name']);
                 });
 
                 _.each(data['edges'], function(e){
@@ -520,6 +529,13 @@ jQuery(function($) {
 
             base_url = url;
 
+            return db;
+        };
+        db.names_map = function(map) {
+            if (!arguments.length) return names_map;
+
+            names_map = map;
+            
             return db;
         };
         db.load = function(filename){
