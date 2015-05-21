@@ -581,7 +581,7 @@
                 if (source_url) {
                     
                     $('.edgesense').hide();
-                    $('#messages').html('<div class="wait">Processing file<br><img src="img/ajax-loader.gif"/></div>').show();
+                    $('#messages').html('<div class="wait">Processing file<br/>This can take up to a minute<br /><img src="img/ajax-loader.gif"/></div>').show();
                     $.ajax({
                         type: 'POST',
                         url: 'parse',
