@@ -431,11 +431,8 @@
             </div>  -->
                                
             <!-- Network graph -->
-            <div id="network-container">
-                <div id="dashboard-controls" class="box-tools">
-                    <div>
-                        <input id="date_range" type="text" name="date_range" value="" />
-                    </div>
+            <div id="network-container" style="margin-top:0;">
+                <div id="dashboard-controls" class="box-tools" style="top:0 !important;">
                     <div class="pull-right">
                     <button class="edgesense-btn btn-danger" id="network-lock"><i class="fa fa-lock"></i></button>
                     <button class="edgesense-btn btn-primary popover-toggle" data-toggle="popover" id="search-button"><i class="fa fa-search"></i></button>
@@ -455,34 +452,6 @@
             </div><!-- /#network -->
             <!-- /Network graph -->
         
-            <div class="row">
-                <div class="big-metric metric bg-navy" data-metric-name="nodes_count" data-metric-round="3">
-                    <div class="inner">
-                        <h3 class="value">
-            
-                        </h3>
-                        <p>
-                            N° of nodes
-                        </p>
-                    </div>
-                    <div class="minichart">
-                    </div>
-                </div>
-                <div class="big-metric metric bg-green" data-metric-name="edges_count" data-metric-round="2">
-                    <div class="inner">
-                        <h3 class="value">
-            
-                        </h3>
-                        <p>
-                            N° of edges
-                        </p>
-                    </div>
-                    <div class="minichart">
-                    </div>
-                </div>
-            
-            </div>
-            
         </div>
         
         <script src="js/script.min.js"></script>
