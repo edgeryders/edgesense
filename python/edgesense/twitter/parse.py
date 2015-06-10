@@ -5,6 +5,7 @@ import json
 import edgesense.utils as eu
 from dateutil import parser as dtparse
 import glob
+import os
 
 """ Maps the tweet data from CSV in a conventional format.
     If a tweets is invalid then it is mapped to None
@@ -60,7 +61,7 @@ def map_json_data(tweet):
     The empty tweets are rejected.
 """
 def load_and_parse_from_dir(source, sort_key=None, dump_to=None):
-    raw_tweets = [json.load(open(f, 'r')) for f in glob.glob(os.path.join(source, "*.json")]
+    raw_tweets = [json.load(open(f, 'r')) for f in glob.glob(os.path.join(source, "*.json"))]
     tweets = [map_json_data(t) for t in raw_tweets]
     tweets = [t for t in tweets if t]
     logging.info("Parsing tweets - read %(t)i tweets from JSON, using %(v)i valid tweets" % {'t': len(raw_tweets), 'v': len(tweets)})
