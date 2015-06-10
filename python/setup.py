@@ -16,7 +16,7 @@ See https://github.com/Wikitalia/edgesense/python/README.md for more information
 
 setup(
     name='edgesense',
-    version='0.18.0',
+    version='0.19.0',
     description='Edgesense Social Network Analysis and Visualization',
     long_description=long_description,
 
@@ -65,7 +65,7 @@ setup(
     },
 
     package_data={
-        'edgesense': ['datapackage_template.json']
+        'edgesense': ['utils/datapackage_template.json', 'catalyst/ontology/*.ttl']
     },
     data_files=[],
 
