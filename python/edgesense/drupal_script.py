@@ -117,7 +117,7 @@ def parse_options(argv):
      extraction_method = data['extraction_method']
     
     if data.has_key('moderator_roles') and data['moderator_roles']:
-     admin_roles = set([e.strip() for e in arg.split(",") if e.strip()])
+     admin_roles = set([e.strip() for e in data['moderator_roles'].split(",") if e.strip()])
     
     if data.has_key('exclude_isolated') and data['exclude_isolated']:
      exclude_isolated = True
