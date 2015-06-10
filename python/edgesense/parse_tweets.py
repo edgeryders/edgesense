@@ -41,7 +41,7 @@ def parse_options(argv):
         elif opt in ("--dumpto"):
            dumpto = arg
            
-    logging.info("parsing url %(s)s" % {'s': source})
+    logging.info("parsing url %(s)s" % {'s': source_csv})
     return (source_csv,source_dir,outdir,dumpto)
 
 def main():

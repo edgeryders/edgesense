@@ -16,7 +16,7 @@ See https://github.com/Wikitalia/edgesense/python/README.md for more information
 
 setup(
     name='edgesense',
-    version='0.19.0',
+    version='0.20.0',
     description='Edgesense Social Network Analysis and Visualization',
     long_description=long_description,
 
