@@ -20,16 +20,6 @@ jQuery(function($) {
         radioClass: 'iradio_minimal'
     });
 
-    Edgesense.FullUrl = (function() {
-        var base = window.location.protocol + '//' + window.location.hostname;
-        base += window.location.port ? (':' + window.location.port) : '';
-        
-        var full = function(path){
-            return base+path;
-        }
-        return full;
-    })();
-
     // Load the main configuration
     var configuration = Edgesense.Configuration().load();
     
