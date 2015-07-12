@@ -1,13 +1,18 @@
 ## Edgesense
 
-The current incarnation of the edgesense SNA tool is made up of two components:
+The current incarnation of the edgesense SNA tool is made up of:
 
 - a python script used to build the network from the source json files and to compute all the metrics. This script is contained in the python directory (it is build_network.py) 
 - a single-page HTML5/javascript application that reads the json produced by the python script and builds a dashboard with the visualization of the network and the metrics
+- a drupal module for easy installation of the dashboard
 
 ### Data processing
 
 See the python library [README](python/README.md)
+
+### Drupal module
+
+See the python library [README](php/drupal/README.md)
 
 ### Configuring the dashboard
 
