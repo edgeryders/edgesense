@@ -1,6 +1,5 @@
 name = Edgesense
 description = Social network analytics for Drupal communities.
-version = 0.1
 core = 7.x
-package = custom
 configure = admin/edgesense
+dependencies[] = views_json
