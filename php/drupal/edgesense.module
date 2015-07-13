@@ -128,3 +128,10 @@ function edgesense_help($path, $arg) {
   }
   return $output;
 }
+
+/**
+ * Implements hook_views_api().
+ */
+function edgesense_views_api() {
+  return array("api" => 3);
+}
