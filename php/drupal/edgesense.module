@@ -71,7 +71,7 @@ function edgesense_menu() {
   $items['admin/edgesense/dashboard'] = array(
     'title' => 'Open Dashboard',
     'type' => MENU_LOCAL_TASK,
-    'page callback' => 'drupal_open_dashboard',
+    'page callback' => 'edgesense_open_dashboard',
     'access arguments' => array('administer edgesense'),
     'file' => 'edgesense.admin.inc',
     'weight' => 35,
