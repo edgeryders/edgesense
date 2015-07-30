@@ -1,4 +1,4 @@
-VERSION=0.2
+VERSION=0.3
 SRCDIR = drupal
 BUILDDIR = build
 OUTDIR = dist
@@ -25,6 +25,6 @@ phpfiles: makedir
 
 dist: makedir
 	cd $(BUILDDIR) && tar -cvzf ../$(OUTDIR)/edgesense_$(VERSION).tgz edgesense 
-
+	cd $(BUILDDIR) && cp ../$(OUTDIR)/edgesense_$(VERSION).tgz ../$(OUTDIR)/edgesense_latest.tgz
 clean:
 	rm -rf $(BUILDDIR)

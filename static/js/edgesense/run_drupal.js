@@ -23,6 +23,7 @@ jQuery(function($) {
     Edgesense.FullUrl = (function() {
         var base = window.location.protocol + '//' + window.location.hostname;
         base += window.location.port ? (':' + window.location.port) : '';
+        base += window.location.pathname.replace("/modules/edgesense/static/dashboard.html", "")
         base += "/sites/default/files/edgesense";
         
         var full = function(path){
