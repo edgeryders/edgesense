@@ -143,7 +143,6 @@ function edgesense_save_view_data() {
   $views = array('edgesense_users', 'edgesense_nodes', 'edgesense_comments');
   $display_id = 'default';
   foreach ($views as $view_name) {
-    //$data = views_embed_view($view_name);
     $view = views_get_view($view_name, TRUE);
     if (empty($view)) {
       watchdog('edgesense', 'Could not load view @view_name', array('@view_name' => $view_name), WATCHDOG_ERROR);
