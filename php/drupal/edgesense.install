@@ -43,6 +43,11 @@ function edgesense_install() {
     drupal_mkdir('private://edgesense/script');
     drupal_mkdir('private://edgesense/tutorial_uploads');
 
+    if (!`which edgesense_drupal`) {
+      drupal_set_message(t('The Edgsense Python script has not been installed. Please follow '.
+      '<a href="https://github.com/Wikitalia/edgesense/tree/master/python" target="_blank">the instructions</a> for installing it.'),
+      'warning');
+    }
 }
 
 /**
@@ -67,7 +72,7 @@ function edgesense_requirements($phase) {
         'title' => $t('Edgesense Python script'),
         'value' => $t('Not installed'),
         'description' => $t('The Edgsense Python script has not been installed. Please follow '.
-        '<a href="https://github.com/Wikitalia/edgesense/tree/master/python">the instructions</a> for installing it.'),
+        '<a href="https://github.com/Wikitalia/edgesense/tree/master/python" target="_blank">the instructions</a> for installing it.'),
         'severity' => REQUIREMENT_ERROR,
       );
     }
