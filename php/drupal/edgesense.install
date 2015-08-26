@@ -42,6 +42,7 @@ function edgesense_install() {
     drupal_mkdir('private://edgesense');
     drupal_mkdir('private://edgesense/script');
     drupal_mkdir('private://edgesense/tutorial_uploads');
+    drupal_mkdir('private://edgesense/site_data');
 
     if (!`which edgesense_drupal`) {
       drupal_set_message(t('The Edgsense Python script has not been installed. Please follow '.

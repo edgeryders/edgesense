@@ -135,3 +135,40 @@ function edgesense_help($path, $arg) {
 function edgesense_views_api() {
   return array("api" => 3);
 }
+
+/**
+ * Helper function saving the Edgesense Views results to disk.
+ */
+function edgesense_save_view_data() {
+  $views = array('edgesense_users', 'edgesense_nodes', 'edgesense_comments');
+  $display_id = 'default';
+  foreach ($views as $view_name) {
+    //$data = views_embed_view($view_name);
+    $view = views_get_view($view_name, TRUE);
+    if (empty($view)) {
+      watchdog('edgesense', 'Could not load view @view_name', array('@view_name' => $view_name), WATCHDOG_ERROR);
+    } else {
+      // views_datasource breaks the Drupal view rendering to return plain json
+      // so we have to render the view manually and remove the default HTML code
+      // TODO: Improve (override style template to make this cleaner)
+      $matches = array();
+      $view->execute();
+      $view->style_plugin->options['using_views_api_mode'] = TRUE;
+      // Remove any drupal generated markup
+      preg_match('/(\{.+\})/', $view->render($display_id), $matches);
+      file_unmanaged_save_data($matches[0], "private://edgesense/site_data/{$view_name}.json", FILE_EXISTS_REPLACE);
+    }
+  }
+}
+
+/**
+ * Implements hook_cron().
+ */
+function edgesense_cron() {
+  $interval = 60 * 60 * 24;
+  if (time() >= variable_get('edgesense_next_execution', 0)) {
+    // TODO: Use the Queue API instead of hook_cron() directly
+    edgesense_save_view_data();
+    variable_set('edgesense_next_execution', time() + $interval);
+  }
+}
