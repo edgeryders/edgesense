@@ -6,6 +6,7 @@ import csv
 from datetime import datetime
 import time
 import logging
+import re
 
 from edgesense.utils.logger_initializer import initialize_logger
 from edgesense.utils.resource import mkdir
@@ -73,6 +74,9 @@ def main(argv):
             run_obj['run_id'] = run_id
             if parsed.has_key('base'):
                 run_obj['base'] = parsed['base']
+                m = re.search('(\d\d\d\d)-(\d\d)-(\d\d)-\d\d-\d\d-\d\d$', parsed['base'])
+                if m:
+                    run_obj['date'] = m.group(1)+"-"+m.group(2)+"-"+m.group(3)
             if parsed.has_key('comments'):
                 run_obj['comments'] = parsed['comments'].encode('utf-8').strip()
             # collect the tutorial answer results
@@ -91,7 +95,7 @@ def main(argv):
     
     # save the runs to a CSV file
     logging.info("Tutorial result processing - Writing:"+outuput_filename) 
-    headers = [ 'run_id','base', \
+    headers = [ 'run_id','base', 'date', \
                 'betweenness_bin', 'relationship_percentage', \
                 'posts_percentage', 'comments_share', \
                 'modularity_increase', 'survey-1', \
