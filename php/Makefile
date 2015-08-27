@@ -23,6 +23,8 @@ phpfiles: makedir
 	cp -f -r $(SRCDIR)/edgesense.* $(BUILDDIR)/edgesense
 	cp -f -r $(SRCDIR)/views/edgesense.* $(BUILDDIR)/edgesense/views
 
+build: makedir staticfiles phpfiles
+	
 dist: makedir
 	cd $(BUILDDIR) && tar -cvzf ../$(OUTDIR)/edgesense_$(VERSION).tgz edgesense 
 	cd $(BUILDDIR) && cp ../$(OUTDIR)/edgesense_$(VERSION).tgz ../$(OUTDIR)/edgesense_latest.tgz
