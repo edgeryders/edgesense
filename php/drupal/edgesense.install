@@ -53,7 +53,7 @@ function edgesense_install() {
       'comments' => drupal_realpath('private://edgesense/site_data/edgesense_comments.json'),
       'moderator_roles' => '',
       'node_title' => '',
-      'timestep_count' => '',
+      'timestep_count' => '50',
       'timestep_size' => '604800',
       'count_window' => '1',
       'exclude_isolated' => 0,
