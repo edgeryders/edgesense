@@ -105,6 +105,14 @@ function edgesense_requirements($phase) {
         '<a href="https://github.com/Wikitalia/edgesense/tree/master/python" target="_blank">the instructions</a> for installing it.'),
         'severity' => REQUIREMENT_ERROR,
       );
+    } else if (!file_exists('public://edgesense/json/last.json')) {
+      $requirements['edgesense_drupal'] = array(
+        'title' => $t('Edgesense Python script'),
+        'value' => $t('Not run'),
+        'description' => $t('The Edgsense Python script has not run yet. Please follow '.
+        '<a href="@url">the instructions</a> for running it.', array('@url' => url('admin/edgesense/script-run'))),
+        'severity' => REQUIREMENT_WARNING,
+      );
     }
   }
   return $requirements;

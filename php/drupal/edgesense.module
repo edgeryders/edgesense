@@ -166,8 +166,19 @@ function edgesense_save_view_data() {
 function edgesense_cron() {
   $interval = 60 * 60 * 24;
   if (time() >= variable_get('edgesense_next_execution', 0)) {
+    edgesense_display_not_run_message();
     // TODO: Use the Queue API instead of hook_cron() directly
     edgesense_save_view_data();
     variable_set('edgesense_next_execution', time() + $interval);
+  }
+}
+
+/**
+ * Helper function to display a warning if the python script has not run yet.
+ */
+function edgesense_display_not_run_message() {
+  if (!file_exists('public://edgesense/json/last.json')) {
+    drupal_set_message(t('The Edgsense Python script has not run yet. Please follow ' .
+      '<a href="@url">the instructions</a> for running it.', array('@url' => url('admin/edgesense/script-run'))), 'warning');
   }
 }
