@@ -7,7 +7,7 @@ STATICDIR = ../static
 all: makedir staticfiles phpfiles dist
 
 makedir:
-	mkdir -p $(BUILDDIR)/edgesense
+	mkdir -p $(BUILDDIR)/edgesense/views
 	mkdir -p $(OUTDIR)
 
 staticfiles: makedir
@@ -21,6 +21,7 @@ staticfiles: makedir
 
 phpfiles: makedir
 	cp -f -r $(SRCDIR)/edgesense.* $(BUILDDIR)/edgesense
+	cp -f -r $(SRCDIR)/views/edgesense.* $(BUILDDIR)/edgesense/views
 
 dist: makedir
 	cd $(BUILDDIR) && tar -cvzf ../$(OUTDIR)/edgesense_$(VERSION).tgz edgesense 

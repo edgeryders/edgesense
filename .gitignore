@@ -10,3 +10,4 @@ python/dist
 php/drupal/*.json
 php/build
 php/out
+.idea

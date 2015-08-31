@@ -39,6 +39,7 @@ function edgesense_admin_config_form($form, &$form_state) {
  */
 function edgesense_admin_param_form($form, &$form_state) {
 
+  edgesense_display_not_run_message();
   $file = variable_get('edgesense_config_uri', 'public://edgesense/json/configuration.json');
   $config_file = file_exists($file) ? drupal_realpath($file) : NULL;
   $config_data = !empty($config_file) ? drupal_json_decode(file_get_contents($config_file, FALSE, NULL)) : NULL;
@@ -128,6 +129,7 @@ function edgesense_admin_param_form_submit($form, &$form_state) {
  */
 function edgesense_admin_help_form($form, &$form_state) {
 
+  edgesense_display_not_run_message();
   $file = variable_get('edgesense_help_uri', 'public://edgesense/json/help.json');
   $config_file = file_exists($file) ? drupal_realpath($file) : NULL;
   $file_data = !empty($config_file) ? drupal_json_decode(file_get_contents($config_file, FALSE, NULL)) : NULL;
@@ -248,6 +250,7 @@ function edgesense_admin_help_form_submit($form, &$form_state) {
  */
 function edgesense_admin_script_param_form($form, &$form_state) {
 
+  edgesense_display_not_run_message();
   $file = variable_get('edgesense_param_uri', 'private://edgesense/script/run.json');
   $config_file = file_exists($file) ? drupal_realpath($file) : NULL;
   $file_data = !empty($config_file) ? drupal_json_decode(file_get_contents($config_file, FALSE, NULL)) : NULL;
@@ -490,6 +493,7 @@ function edgesense_admin_script_param_form_submit($form, &$form_state) {
  */
 function edgesense_script_run_form($form, &$form_state) {
 
+  edgesense_display_not_run_message();
   $logfile = drupal_realpath('private://edgesense/script/edgesense.log');
   if (file_exists($logfile)) {
       $handle = fopen($logfile, "r");
@@ -534,8 +538,8 @@ function edgesense_script_run_form_submit($form, &$form_state) {
   drupal_set_message(t('Script was run.'), 'status');
 }
 
-function drupal_open_dashboard() {
-    drupal_goto('modules/edgesense/static/dashboard.html');
+function edgesense_open_dashboard() {
+    drupal_goto(drupal_get_path('module', 'edgesense').'/static/dashboard.html');
 }
 
 function edgesense_tutorial_upload_api(){

@@ -13,6 +13,7 @@ function edgesense_uninstall() {
   variable_del('edgesense_config_uri');
   variable_del('edgesense_help_uri');
   variable_del('edgesense_param_uri');
+  variable_del('edgesense_next_execution');
 }
 
 
@@ -35,6 +36,7 @@ function edgesense_install() {
         'base_data_url' => '',
         'tutorial_upload' => url('edgesense/tutorial_upload'),
     );
+
     $data = drupal_json_encode($configuration);
     $destination = variable_get('edgesense_config_uri', 'public://edgesense/json/configuration.json');
     $file = file_unmanaged_save_data($data, $destination, FILE_EXISTS_REPLACE);
@@ -42,5 +44,76 @@ function edgesense_install() {
     drupal_mkdir('private://edgesense');
     drupal_mkdir('private://edgesense/script');
     drupal_mkdir('private://edgesense/tutorial_uploads');
+    drupal_mkdir('private://edgesense/site_data');
 
+    // Set up sample configuration file
+    $configuration = array(
+      'users' => drupal_realpath('private://edgesense/site_data/edgesense_users.json'),
+      'nodes' => drupal_realpath('private://edgesense/site_data/edgesense_nodes.json'),
+      'comments' => drupal_realpath('private://edgesense/site_data/edgesense_comments.json'),
+      'moderator_roles' => '',
+      'node_title' => '',
+      'timestep_count' => '50',
+      'timestep_size' => '604800',
+      'count_window' => '1',
+      'exclude_isolated' => 0,
+      'destination_path' => drupal_realpath('public://edgesense/json'),
+      'log_path' => drupal_realpath('private://edgesense/script'),
+    );
+
+    $data = drupal_json_encode($configuration);
+    $file = file_unmanaged_save_data($data, 'private://edgesense/script/run.json', FILE_EXISTS_REPLACE);
+    if (!$file) {
+      watchdog('edgesense', 'Could not generate json configuration file', array(), WATCHDOG_ERROR);
+    }
+
+    // Save the initial data to disk
+    edgesense_save_view_data();
+
+    if (!`which edgesense_drupal`) {
+      drupal_set_message(t('The Edgsense Python script has not been installed. Please follow '.
+      '<a href="https://github.com/Wikitalia/edgesense/tree/master/python" target="_blank">the instructions</a> for installing it.'),
+      'warning');
+    } else {
+      // Run the script for the first time to populate the dashboard
+      exec('edgesense_drupal '.drupal_realpath('private://edgesense/script/run.json'));
+    }
+}
+
+/**
+ * Implements hook_requirements().
+ */
+function edgesense_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+  if ($phase == 'install') {
+    $private_files = 'private://';
+    if (!file_prepare_directory($private_files)) {
+      $requirements['private_files'] = array(
+        'title' => $t('Private Files'),
+        'value' => $t('Not configured'),
+        'description' => $t('Private files directory must be set up before installing Edgesense.'),
+        'severity' => REQUIREMENT_ERROR,
+      );
+    }
+  } else if ($phase == 'runtime') {
+    if (!`which edgesense_drupal`) {
+      $requirements['edgesense_drupal'] = array(
+        'title' => $t('Edgesense Python script'),
+        'value' => $t('Not installed'),
+        'description' => $t('The Edgsense Python script has not been installed. Please follow '.
+        '<a href="https://github.com/Wikitalia/edgesense/tree/master/python" target="_blank">the instructions</a> for installing it.'),
+        'severity' => REQUIREMENT_ERROR,
+      );
+    } else if (!file_exists('public://edgesense/json/last.json')) {
+      $requirements['edgesense_drupal'] = array(
+        'title' => $t('Edgesense Python script'),
+        'value' => $t('Not run'),
+        'description' => $t('The Edgsense Python script has not run yet. Please follow '.
+        '<a href="@url">the instructions</a> for running it.', array('@url' => url('admin/edgesense/script-run'))),
+        'severity' => REQUIREMENT_WARNING,
+      );
+    }
+  }
+  return $requirements;
 }
