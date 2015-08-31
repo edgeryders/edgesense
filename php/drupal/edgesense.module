@@ -161,6 +161,24 @@ function edgesense_save_view_data() {
 }
 
 /**
+ * Helper function running the Edgesense python script if present.
+ */
+function edgesense_run_script() {
+    if (!`which edgesense_drupal`) {
+        return "script_missing"; 
+    } else {
+        // Run the script for the first time to populate the dashboard
+        exec('edgesense_drupal '.drupal_realpath('private://edgesense/script/run.json'));
+        if (!file_exists('public://edgesense/json/last.json')) {
+            return "not_completed";
+        } else {
+            return "success";
+        }
+        
+    }
+}
+
+/**
  * Implements hook_cron().
  */
 function edgesense_cron() {
@@ -169,6 +187,7 @@ function edgesense_cron() {
     edgesense_display_not_run_message();
     // TODO: Use the Queue API instead of hook_cron() directly
     edgesense_save_view_data();
+    edgesense_run_script();
     variable_set('edgesense_next_execution', time() + $interval);
   }
 }

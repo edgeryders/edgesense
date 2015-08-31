@@ -69,15 +69,26 @@ function edgesense_install() {
 
     // Save the initial data to disk
     edgesense_save_view_data();
-
-    if (!`which edgesense_drupal`) {
-      drupal_set_message(t('The Edgsense Python script has not been installed. Please follow '.
-      '<a href="https://github.com/Wikitalia/edgesense/tree/master/python" target="_blank">the instructions</a> for installing it.'),
-      'warning');
-    } else {
-      // Run the script for the first time to populate the dashboard
-      exec('edgesense_drupal '.drupal_realpath('private://edgesense/script/run.json'));
-    }
+    
+    // Run the script for the first time to populate the dashboard
+    // checks also if the script is present and that it has actually run
+    switch (edgesense_run_script()) {
+        case "script_missing":
+            drupal_set_message(t('The Edgsense Python script has not been installed. Please follow '.
+                '<a href="https://github.com/Wikitalia/edgesense/tree/master/python" target="_blank">the instructions</a> for installing it.'),
+                'warning');
+            break;
+        case "not_completed":
+            drupal_set_message(t('The Edgsense Python script has not run yet. Please follow '.
+                '<a href="@url">the instructions</a> for running it.', array('@url' => url('admin/edgesense/script-run'))),
+                'warning');
+            break;
+        case "success":
+            drupal_set_message(t('The Edgsense Dashboard is ready! '.
+                '<a href="@url">Please click here to open it</a>.', array('@url' => url('admin/edgesense/dashboard'))),
+                'status');
+            break;
+    }    
 }
 
 /**

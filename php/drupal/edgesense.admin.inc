@@ -506,10 +506,10 @@ function edgesense_script_run_form($form, &$form_state) {
   $form['form_intro'] = array(
     '#markup' => '
         <h3>Generating the metrics</h3>
-        <p>To prepare the metrics and populate the dashboard you\'ll need to run the following command on the server:</p>
+        <p>To prepare the metrics and populate the dashboard the following command needs to run on the server periodically:</p>
         <p><pre>edgesense_drupal '.drupal_realpath('private://edgesense/script/run.json').'</pre></p>
-        <p>To have the data updated regularly you\'ll need to schedule the command above to be run (e.g. via cron).</p>
         <p>See <a href="https://github.com/Wikitalia/edgesense/blob/master/python/README.md" target="_blank">the python library github page</a> for details on how to install the <code>edgesense_drupal</code> command.</p>
+        <p>The command above is scheduled to run once a day via hook_cron (Drupal periodic actions.)</p>
         <hr>
         <h4>Last run log</h4>
         <p>This is the log from the last time the script has run:</p>
