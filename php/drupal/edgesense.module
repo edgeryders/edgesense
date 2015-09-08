@@ -201,3 +201,38 @@ function edgesense_display_not_run_message() {
       '<a href="@url">the instructions</a> for running it.', array('@url' => url('admin/edgesense/script-run'))), 'warning');
   }
 }
+
+/**
+ * Access callback for Edgesense Views
+ */
+function edgesense_views_access_callback($account = NULL) {
+  $params = drupal_get_query_parameters();
+  $edgesense_views_key = variable_get('edgesense_views_key', drupal_random_key());
+  if ((!empty($params['edgesense_views_key']) &&  $params['edgesense_views_key'] == $edgesense_views_key) || user_access('administer edgesense')) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Helper function to update Views configuration and paths for running script outside of Drupal cron.
+ */
+function edgesense_set_manual_run($set = TRUE) {
+  $views = array('edgesense_users', 'edgesense_nodes', 'edgesense_comments');
+  $display_id = 'default';
+  foreach ($views as $view_name) {
+    $view = views_get_view($view_name, TRUE);
+    if (empty($view)) {
+      watchdog('edgesense', 'Could not load view @view_name', array('@view_name' => $view_name), WATCHDOG_ERROR);
+    } else {
+      if ($set) {
+        $view->display[$display_id]->display_options['access']['type'] = 'edgesense_views_perm_or_token';
+        unset($view->display[$display_id]->display_options['access']['perm']);
+      } else {
+        $view->display[$display_id]->display_options['access']['type'] = 'perm';
+        $view->display[$display_id]->display_options['access']['perm'] = 'administer site configuration';
+      }
+      views_save_view($view);
+    }
+  }
+}
