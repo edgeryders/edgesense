@@ -15,7 +15,8 @@ function edgesense_views_plugins() {
         'title' => t('Administer Edgesense Permission or Token'),
         'help' => t('Access is allowed only for users with the "Administer Edgesense" permission or a valid token.'),
         'handler' => 'edgesense_views_access_plugin',
-      )
-    )
+      ),
+    ),
   );
 }
+
