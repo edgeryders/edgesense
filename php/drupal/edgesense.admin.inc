@@ -564,7 +564,8 @@ function edgesense_script_run_form_submit($form, &$form_state) {
 }
 
 function edgesense_open_dashboard() {
-  drupal_goto(drupal_get_path('module', 'edgesense') . '/static/dashboard.html');
+  global $base_url;
+  drupal_goto($base_url . '/' . drupal_get_path('module', 'edgesense') . '/static/dashboard.html');
 }
 
 function edgesense_tutorial_upload_api() {
