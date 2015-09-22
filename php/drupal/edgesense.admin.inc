@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * Admin settings and config pages for edgesense.
@@ -33,7 +34,6 @@ function edgesense_admin_config_form($form, &$form_state) {
   return $form;
 }
 
-
 /**
  * Page callback: settings form to export config vars json file.
  */
@@ -49,9 +49,9 @@ function edgesense_admin_param_form($form, &$form_state) {
         <p>There are a few parameters that permit the configuration of the dashboad page. One of the first things the page does on load is to read the parameters from a configuration.json file in the [drupal root]/sites/default/files/edgesense/json/ directory, so to customize them one just needs to create the file.</p>
         <p>Open the dashboard
         </p>
-    '
+    ',
   );
-  
+
   $form['dashboard_name'] = array(
     '#type' => 'textfield',
     '#title' => t('Dashboard Name'),
@@ -73,7 +73,7 @@ function edgesense_admin_param_form($form, &$form_state) {
     '#title' => t('Base Data Path'),
     '#required' => FALSE,
     '#default_value' => !empty($config_data['base_data_url']) ? $config_data['base_data_url'] : NULL,
-    '#description' => t('This optional parameter should be set to the absolute URL where the page can access the data saved by the python script. If it is empty it will be the '.file_create_url('public://edgesense/json/data').' URL. You can use this to separate the serving of the dashboard from the processing of the files (e.g. have the dashboard live at /edgesense and the data live at /data. N.B. it is possible to have the processed data needs to reside on a different server but you\'ll have to proxy the json files from the same server as the dashboard.'),
+    '#description' => t('This optional parameter should be set to the absolute URL where the page can access the data saved by the python script. If it is empty it will be the ' . file_create_url('public://edgesense/json/data') . ' URL. You can use this to separate the serving of the dashboard from the processing of the files (e.g. have the dashboard live at /edgesense and the data live at /data. N.B. it is possible to have the processed data needs to reside on a different server but you\'ll have to proxy the json files from the same server as the dashboard.'),
   );
 
   $form['tutorial_upload'] = array(
@@ -97,7 +97,8 @@ function edgesense_admin_param_form($form, &$form_state) {
  */
 function edgesense_admin_param_form_validate($form, &$form_state) {
   unset($form_state['values']['form_id'], $form_state['values']['form_token'],
-  $form_state['values']['form_build_id'], $form_state['values']['op'], $form_state['values']['submit']);
+    $form_state['values']['form_build_id'], $form_state['values']['op'], $form_state['values']['submit']
+  );
 
   if ($form_state['values']['tutorial_upload'] && valid_url($form_state['values']['tutorial_upload'], TRUE) == FALSE) {
     form_set_error('tutorial_upload', t('Please enter valid url'));
@@ -121,7 +122,6 @@ function edgesense_admin_param_form_submit($form, &$form_state) {
   else {
     drupal_set_message(t("Couldn't generate json file."), 'error');
   }
-
 }
 
 /**
@@ -150,7 +150,7 @@ function edgesense_admin_help_form($form, &$form_state) {
   }
 
   $form['form_intro'] = array(
-    '#markup' => '<p>These are the help texts used for the dashboard. You can tweak them if needed by your users.</p>'
+    '#markup' => '<p>These are the help texts used for the dashboard. You can tweak them if needed by your users.</p>',
   );
 
   $form['lang'] = array(
@@ -217,7 +217,8 @@ function edgesense_admin_help_form($form, &$form_state) {
 function edgesense_admin_help_form_submit($form, &$form_state) {
 
   unset($form_state['values']['form_id'], $form_state['values']['form_token'],
-  $form_state['values']['form_build_id'], $form_state['values']['op'], $form_state['values']['submit']);
+    $form_state['values']['form_build_id'], $form_state['values']['op'], $form_state['values']['submit']
+  );
 
   $new_arr = array();
   foreach ($form_state['values'] as $key => $value) {
@@ -275,8 +276,9 @@ function edgesense_admin_script_param_form($form, &$form_state) {
     '#title' => t('Users'),
     '#required' => TRUE,
     '#default_value' => !empty($config_data['users']) ? $config_data['users'] : NULL,
-    '#description' => t('<p>Url or path to users data json. The json must be in the <a href="https://github.com/Wikitalia/edgesense/blob/master/python/README.md#users-data" target="_blank">correct format</a>.</p>'.
-    '<p>If you choose to not run the script during cron then please append "?edgesense_views_key='.$views_key.'" to the end of your URL\'s.</p><p>For example: '.$base_url.'/edgesense_users.json?edgesense_views_key='.$views_key.'</p>'),
+    '#description' => t('<p>Url or path to users data json. The json must be in the <a href="https://github.com/Wikitalia/edgesense/blob/master/python/README.md#users-data" target="_blank">correct format</a>.</p>' .
+      '<p>If you choose to not run the script during cron then please append "?edgesense_views_key=' . $views_key . '" to the end of your URL\'s.</p><p>For example: ' . $base_url . '/edgesense_users.json?edgesense_views_key=' . $views_key . '</p>'
+    ),
   );
 
   $form['nodes'] = array(
@@ -284,8 +286,9 @@ function edgesense_admin_script_param_form($form, &$form_state) {
     '#title' => t('Nodes'),
     '#required' => TRUE,
     '#default_value' => !empty($config_data['nodes']) ? $config_data['nodes'] : NULL,
-    '#description' => t('<p>Url or path to nodes data json. The json must be in the <a href="https://github.com/Wikitalia/edgesense/blob/master/python/README.md#nodes-data" target="_blank">correct format</a>.</p>'.
-    '<p>If you choose to not run the script during cron then please append "?edgesense_views_key='.$views_key.'" to the end of your URL\'s.</p><p>For example: '.$base_url.'/edgesense_nodes.json?edgesense_views_key='.$views_key.'</p>'),
+    '#description' => t('<p>Url or path to nodes data json. The json must be in the <a href="https://github.com/Wikitalia/edgesense/blob/master/python/README.md#nodes-data" target="_blank">correct format</a>.</p>' .
+      '<p>If you choose to not run the script during cron then please append "?edgesense_views_key=' . $views_key . '" to the end of your URL\'s.</p><p>For example: ' . $base_url . '/edgesense_nodes.json?edgesense_views_key=' . $views_key . '</p>'
+    ),
   );
 
   $form['comments'] = array(
@@ -293,8 +296,9 @@ function edgesense_admin_script_param_form($form, &$form_state) {
     '#title' => t('Comments'),
     '#required' => TRUE,
     '#default_value' => !empty($config_data['comments']) ? $config_data['comments'] : NULL,
-    '#description' => t('<p>Url or path to comments data json. The json must be in the <a href="https://github.com/Wikitalia/edgesense/blob/master/python/README.md#comments-data" target="_blank">correct format</a>.</p>'.
-    '<p>If you choose to not run the script during cron then please append "?edgesense_views_key='.$views_key.'" to the end of your URL\'s.</p><p>For example: '.$base_url.'/edgesense_comments.json?edgesense_views_key='.$views_key.'</p>'),
+    '#description' => t('<p>Url or path to comments data json. The json must be in the <a href="https://github.com/Wikitalia/edgesense/blob/master/python/README.md#comments-data" target="_blank">correct format</a>.</p>' .
+      '<p>If you choose to not run the script during cron then please append "?edgesense_views_key=' . $views_key . '" to the end of your URL\'s.</p><p>For example: ' . $base_url . '/edgesense_comments.json?edgesense_views_key=' . $views_key . '</p>'
+    ),
   );
 
   $form['auth'] = array(
@@ -363,7 +367,7 @@ function edgesense_admin_script_param_form($form, &$form_state) {
   $form['timestep_size'] = array(
     '#type' => 'textfield',
     '#title' => t('Timestep size'),
-    '#default_value' => !empty($config_data['timestep_size']) ? $config_data['timestep_size'] : 60*60*24*7,
+    '#default_value' => !empty($config_data['timestep_size']) ? $config_data['timestep_size'] : 60 * 60 * 24 * 7,
     '#description' => t('<p>
         This parameter is used to specify the size of the timestep to use in seconds. The whole period over which we have data is divided into timesteps of with size to calculate the intermediate metrics. The default is one week.<br>
         This parameter is alternative to the \'Timestep count\' and if both are defined then the script will use the timestep count only.
@@ -442,7 +446,8 @@ function edgesense_admin_script_param_form($form, &$form_state) {
  */
 function edgesense_admin_script_param_form_validate($form, &$form_state) {
   unset($form_state['values']['form_id'], $form_state['values']['form_token'],
-  $form_state['values']['form_build_id'], $form_state['values']['op'], $form_state['values']['submit']);
+    $form_state['values']['form_build_id'], $form_state['values']['op'], $form_state['values']['submit']
+  );
 
   if (!empty($form_state['values']['timestep_count'])) {
     $value = (int) $form_state['values']['timestep_count'];
@@ -470,7 +475,7 @@ function edgesense_admin_script_param_form_validate($form, &$form_state) {
  * Validation for the variable settings form.
  */
 function edgesense_admin_script_param_form_submit($form, &$form_state) {
-  
+
   $values = $form_state['values'];
   $values['moderator_roles'] = implode(', ', array_filter($values['moderator_roles']));
 
@@ -482,7 +487,7 @@ function edgesense_admin_script_param_form_submit($form, &$form_state) {
   if (!$values['auth']['use_basic_auth']) {
     unset($values['auth']);
   }
-  
+
   $values['destination_path'] = drupal_realpath('public://edgesense/json');
   $values['log_path'] = drupal_realpath('private://edgesense/script');
 
@@ -490,7 +495,7 @@ function edgesense_admin_script_param_form_submit($form, &$form_state) {
     unset($values['datapackage']);
   }
   $values['datapackage']['site_url'] = file_create_url('public://edgesense/json');
-  
+
   $file = NULL;
   if (!empty($values)) {
     $data = drupal_json_encode($values);
@@ -514,26 +519,27 @@ function edgesense_script_run_form($form, &$form_state) {
   edgesense_display_not_run_message();
   $logfile = drupal_realpath('private://edgesense/script/edgesense.log');
   if (file_exists($logfile)) {
-      $handle = fopen($logfile, "r");
-      $contents = fread($handle, filesize($logfile));
-      fclose($handle);
-  } else {
-      $contents = 'The script has not run';
+    $handle = fopen($logfile, "r");
+    $contents = fread($handle, filesize($logfile));
+    fclose($handle);
   }
-  
+  else {
+    $contents = 'The script has not run';
+  }
+
   $form['form_intro'] = array(
     '#markup' => '
         <h3>Generating the metrics</h3>
         <p>To prepare the metrics and populate the dashboard the following command needs to run on the server periodically:</p>
-        <p><pre>edgesense_drupal '.drupal_realpath('private://edgesense/script/run.json').'</pre></p>
+        <p><pre>edgesense_drupal ' . drupal_realpath('private://edgesense/script/run.json') . '</pre></p>
         <p>See <a href="https://github.com/Wikitalia/edgesense/blob/master/python/README.md" target="_blank">the python library github page</a> for details on how to install the <code>edgesense_drupal</code> command.</p>
         <p>The command above is scheduled to run once a day via hook_cron (Drupal periodic actions.)</p>
         <hr>
         <h4>Last run log</h4>
         <p>This is the log from the last time the script has run:</p>
-        <p><pre>'.$contents.'</pre></p>
+        <p><pre>' . $contents . '</pre></p>
         <hr>
-    '
+    ',
   );
 
   // $form['submit'] = array(
@@ -550,24 +556,26 @@ function edgesense_script_run_form($form, &$form_state) {
 function edgesense_script_run_form_submit($form, &$form_state) {
 
   unset($form_state['values']['form_id'], $form_state['values']['form_token'],
-  $form_state['values']['form_build_id'], $form_state['values']['op'], $form_state['values']['submit']);
+    $form_state['values']['form_build_id'], $form_state['values']['op'], $form_state['values']['submit']
+  );
 
-  
+
   drupal_set_message(t('Script was run.'), 'status');
 }
 
 function edgesense_open_dashboard() {
-    drupal_goto(drupal_get_path('module', 'edgesense').'/static/dashboard.html');
+  drupal_goto(drupal_get_path('module', 'edgesense') . '/static/dashboard.html');
 }
 
-function edgesense_tutorial_upload_api(){
-    $towrite = $_POST["result"];
-    if ($towrite) {
-        $filename = "result"."-".rand()."_".time().".json";
-        $destination = "private://edgesense/tutorial_uploads/".$filename;
-        $file = file_unmanaged_save_data($towrite, $destination, FILE_EXISTS_REPLACE);
-        header("X-Edgesense-Saved: ".$filename);
-    }
-    print t('{result: \'ok\'}');
-    exit(); 
+function edgesense_tutorial_upload_api() {
+  $towrite = $_POST["result"];
+  if ($towrite) {
+    $filename = "result" . "-" . rand() . "_" . time() . ".json";
+    $destination = "private://edgesense/tutorial_uploads/" . $filename;
+    $file = file_unmanaged_save_data($towrite, $destination, FILE_EXISTS_REPLACE);
+    header("X-Edgesense-Saved: " . $filename);
+  }
+  print t('{result: \'ok\'}');
+  exit();
 }
+

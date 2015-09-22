@@ -21,3 +21,4 @@ class edgesense_views_access_plugin extends views_plugin_access {
     return array('edgesense_views_access_callback', array());
   }
 }
+

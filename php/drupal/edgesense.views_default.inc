@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * include edgesense default views
@@ -19,3 +20,4 @@ function edgesense_views_default_views() {
   }
   return $views;
 }
+
