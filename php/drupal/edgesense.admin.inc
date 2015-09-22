@@ -252,6 +252,9 @@ function edgesense_admin_help_form_submit($form, &$form_state) {
 function edgesense_admin_script_param_form($form, &$form_state) {
 
   edgesense_display_not_run_message();
+  global $base_url;
+  $views_key = variable_get('edgesense_views_key', NULL);
+
   $file = variable_get('edgesense_param_uri', 'private://edgesense/script/run.json');
   $config_file = file_exists($file) ? drupal_realpath($file) : NULL;
   $file_data = !empty($config_file) ? drupal_json_decode(file_get_contents($config_file, FALSE, NULL)) : NULL;
@@ -261,15 +264,63 @@ function edgesense_admin_script_param_form($form, &$form_state) {
     $config_data['moderator_roles'] = explode(', ', $file_data['moderator_roles']);
   }
 
+  // Restore the default values of the users, nodes & comments fields if the user hasn't updated them
+  $run_cron_js = <<<EOF
+(function ($) {
+  Drupal.behaviors.edgesense = {
+    attach: function (context, settings) {
+      $('#edit-run-during-cron').bind('change', function() {
+        var default_value = this.checked ? 1 : 0;
+        var updated_value = this.checked ? 0 : 1;
+        if ($('#edit-users').val() == Drupal.settings.edgesense[updated_value].users) {
+          $('#edit-users').val(Drupal.settings.edgesense[default_value].users);
+        }
+        if ($('#edit-nodes').val() == Drupal.settings.edgesense[updated_value].nodes) {
+          $('#edit-nodes').val(Drupal.settings.edgesense[default_value].nodes);
+        }
+        if ($('#edit-comments').val() == Drupal.settings.edgesense[updated_value].comments) {
+          $('#edit-comments').val(Drupal.settings.edgesense[default_value].comments);
+        }
+      });
+    }
+  }
+})(jQuery);
+EOF;
+
+  drupal_add_js($run_cron_js, 'inline');
+
+  // JS settings array for the run_during_cron checkbox
+  // Used for checking default values when the user checks/unchecks run_during_cron
+  // and also for updating the values to point to the correct (default) locations
+  $js_settings = array(
+    array(
+      'users' => $base_url . '/edgesense_users.json?edgesense_views_key=' . $views_key,
+      'nodes' => $base_url . '/edgesense_nodes.json?edgesense_views_key=' . $views_key,
+      'comments' => $base_url . '/edgesense_comments.json?edgesense_views_key=' . $views_key,
+    ),
+    array(
+      'users' => drupal_realpath('private://edgesense/site_data/edgesense_users.json'),
+      'nodes' => drupal_realpath('private://edgesense/site_data/edgesense_nodes.json'),
+      'comments' => drupal_realpath('private://edgesense/site_data/edgesense_comments.json'),
+    ),
+  );
+
   $form['run_during_cron'] = array(
     '#type' => 'checkbox',
     '#title' => t('Run During Cron'),
     '#default_value' => variable_get('edgesense_run_during_cron', TRUE),
     '#description' => t('Controls whether the edgesense Views will be saved to disk and the python will run during Drupal\'s cron.'),
+    '#attached' => array(
+      'js' => array(
+        array(
+          'data' => array(
+            'edgesense' => $js_settings,
+          ),
+          'type' => 'setting',
+        ),
+      ),
+    ),
   );
-
-  $views_key = variable_get('edgesense_views_key', NULL);
-  global $base_url;
 
   $form['users'] = array(
     '#type' => 'textfield',
