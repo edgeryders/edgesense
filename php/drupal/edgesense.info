@@ -4,3 +4,5 @@ version = 0.3
 core = 7.x
 configure = admin/edgesense
 dependencies[] = views_json
+files[] = edgesense.views.inc
+files[] = edgesense_views_access_plugin.inc

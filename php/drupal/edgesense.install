@@ -14,6 +14,8 @@ function edgesense_uninstall() {
   variable_del('edgesense_help_uri');
   variable_del('edgesense_param_uri');
   variable_del('edgesense_next_execution');
+  variable_del('edgesense_run_during_cron');
+  variable_del('edgesense_views_key');
 }
 
 
@@ -21,6 +23,10 @@ function edgesense_uninstall() {
  * Implements hook_install().
  */
 function edgesense_install() {
+    variable_set('edgesense_run_during_cron', TRUE);
+    // Populate the Edgesense Views key variable.
+    $edgesense_views_key = drupal_random_key();
+    variable_set('edgesense_views_key', $edgesense_views_key);
     drupal_mkdir('public://edgesense');
     drupal_mkdir('public://edgesense/json');
     drupal_mkdir('public://edgesense/json/data');
@@ -68,8 +74,10 @@ function edgesense_install() {
     }
 
     // Save the initial data to disk
+    // Need to invalidate the cache otherwise the views are not loading correctly
+    views_invalidate_cache();
     edgesense_save_view_data();
-    
+
     // Run the script for the first time to populate the dashboard
     // checks also if the script is present and that it has actually run
     switch (edgesense_run_script()) {
@@ -88,7 +96,7 @@ function edgesense_install() {
                 '<a href="@url">Please click here to open it</a>.', array('@url' => url('admin/edgesense/dashboard'))),
                 'status');
             break;
-    }    
+    }
 }
 
 /**

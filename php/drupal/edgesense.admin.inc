@@ -259,13 +259,24 @@ function edgesense_admin_script_param_form($form, &$form_state) {
   if (!empty($file_data['moderator_roles'])) {
     $config_data['moderator_roles'] = explode(', ', $file_data['moderator_roles']);
   }
-  
+
+  $form['run_during_cron'] = array(
+    '#type' => 'checkbox',
+    '#title' => t('Run During Cron'),
+    '#default_value' => variable_get('edgesense_run_during_cron', TRUE),
+    '#description' => t('Controls whether the edgesense Views will be saved to disk and the python will run during Drupal\'s cron.'),
+  );
+
+  $views_key = variable_get('edgesense_views_key', NULL);
+  global $base_url;
+
   $form['users'] = array(
     '#type' => 'textfield',
     '#title' => t('Users'),
     '#required' => TRUE,
     '#default_value' => !empty($config_data['users']) ? $config_data['users'] : NULL,
-    '#description' => t('Url or path to users data json. The json must be in the <a href="https://github.com/Wikitalia/edgesense/blob/master/python/README.md#users-data" target="_blank">correct format</a>.'),
+    '#description' => t('<p>Url or path to users data json. The json must be in the <a href="https://github.com/Wikitalia/edgesense/blob/master/python/README.md#users-data" target="_blank">correct format</a>.</p>'.
+    '<p>If you choose to not run the script during cron then please append "?edgesense_views_key='.$views_key.'" to the end of your URL\'s.</p><p>For example: '.$base_url.'/edgesense_users.json?edgesense_views_key='.$views_key.'</p>'),
   );
 
   $form['nodes'] = array(
@@ -273,7 +284,8 @@ function edgesense_admin_script_param_form($form, &$form_state) {
     '#title' => t('Nodes'),
     '#required' => TRUE,
     '#default_value' => !empty($config_data['nodes']) ? $config_data['nodes'] : NULL,
-    '#description' => t('Url or path to nodes data json. The json must be in the <a href="https://github.com/Wikitalia/edgesense/blob/master/python/README.md#nodes-data" target="_blank">correct format</a>.'),
+    '#description' => t('<p>Url or path to nodes data json. The json must be in the <a href="https://github.com/Wikitalia/edgesense/blob/master/python/README.md#nodes-data" target="_blank">correct format</a>.</p>'.
+    '<p>If you choose to not run the script during cron then please append "?edgesense_views_key='.$views_key.'" to the end of your URL\'s.</p><p>For example: '.$base_url.'/edgesense_nodes.json?edgesense_views_key='.$views_key.'</p>'),
   );
 
   $form['comments'] = array(
@@ -281,7 +293,8 @@ function edgesense_admin_script_param_form($form, &$form_state) {
     '#title' => t('Comments'),
     '#required' => TRUE,
     '#default_value' => !empty($config_data['comments']) ? $config_data['comments'] : NULL,
-    '#description' => t('Url or path to comments data json. The json must be in the <a href="https://github.com/Wikitalia/edgesense/blob/master/python/README.md#comments-data" target="_blank">correct format</a>.'),
+    '#description' => t('<p>Url or path to comments data json. The json must be in the <a href="https://github.com/Wikitalia/edgesense/blob/master/python/README.md#comments-data" target="_blank">correct format</a>.</p>'.
+    '<p>If you choose to not run the script during cron then please append "?edgesense_views_key='.$views_key.'" to the end of your URL\'s.</p><p>For example: '.$base_url.'/edgesense_comments.json?edgesense_views_key='.$views_key.'</p>'),
   );
 
   $form['auth'] = array(
@@ -460,6 +473,11 @@ function edgesense_admin_script_param_form_submit($form, &$form_state) {
   
   $values = $form_state['values'];
   $values['moderator_roles'] = implode(', ', array_filter($values['moderator_roles']));
+
+  // Update Views and URL's to use key or not
+  variable_set('edgesense_run_during_cron', $values['run_during_cron']);
+  edgesense_set_manual_run(empty($values['run_during_cron']));
+  unset($values['run_during_cron']);
 
   if (!$values['auth']['use_basic_auth']) {
     unset($values['auth']);

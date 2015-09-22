@@ -20,7 +20,7 @@ staticfiles: makedir
 	cp -f -r $(STATICDIR)/json/help.json $(BUILDDIR)/edgesense
 
 phpfiles: makedir
-	cp -f -r $(SRCDIR)/edgesense.* $(BUILDDIR)/edgesense
+	cp -f -r $(SRCDIR)/edgesense* $(BUILDDIR)/edgesense
 	cp -f -r $(SRCDIR)/views/edgesense.* $(BUILDDIR)/edgesense/views
 
 build: makedir staticfiles phpfiles
