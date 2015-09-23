@@ -520,7 +520,7 @@ EOF;
 
   $form['datapackage']['license_url'] = array(
     '#type' => 'textfield',
-    '#title' => t('Basic Auth Password'),
+    '#title' => t('Data License URL'),
     '#default_value' => !empty($config_data['datapackage']['license_url']) ? $config_data['datapackage']['license_url'] : NULL,
     '#description' => t('It should be the URL to the license text.'),
   );
