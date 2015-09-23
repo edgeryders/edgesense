@@ -26,21 +26,21 @@ function edgesense_menu() {
     'title' => 'Edgesense',
     'description' => 'Configuration for the Edgesense module',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('edgesense_admin_param_form'),
+    'page arguments' => array('edgesense_admin_home_form'),
     'access arguments' => array('administer edgesense'),
     'file' => 'edgesense.admin.inc',
     'weight' => 10,
   );
 
-  $items['admin/edgesense/config'] = array(
-    'title' => 'Dashboard Configuration',
+  $items['admin/edgesense/home'] = array(
+    'title' => 'Edgesense',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'file' => 'edgesense.admin.inc',
     'weight' => 10,
   );
 
   $items['admin/edgesense/script-param'] = array(
-    'title' => 'Script Parameters',
+    'title' => 'Script Configuration',
     'type' => MENU_LOCAL_TASK,
     'page callback' => 'drupal_get_form',
     'page arguments' => array('edgesense_admin_script_param_form'),
@@ -50,13 +50,23 @@ function edgesense_menu() {
   );
 
   $items['admin/edgesense/script-run'] = array(
-    'title' => 'Script Run',
+    'title' => 'Script Execution',
     'type' => MENU_LOCAL_TASK,
     'page callback' => 'drupal_get_form',
     'page arguments' => array('edgesense_script_run_form'),
     'access arguments' => array('administer edgesense'),
     'file' => 'edgesense.admin.inc',
-    'weight' => 25,
+    'weight' => 30,
+  );
+
+  $items['admin/edgesense/config'] = array(
+    'title' => 'Dashboard Configuration',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('edgesense_admin_param_form'),
+    'access arguments' => array('administer edgesense'),
+    'file' => 'edgesense.admin.inc',
+    'weight' => 40,
   );
 
   $items['admin/edgesense/help'] = array(
@@ -66,7 +76,7 @@ function edgesense_menu() {
     'page arguments' => array('edgesense_admin_help_form'),
     'access arguments' => array('administer edgesense'),
     'file' => 'edgesense.admin.inc',
-    'weight' => 30,
+    'weight' => 50,
   );
 
   $items['admin/edgesense/dashboard'] = array(
@@ -75,7 +85,7 @@ function edgesense_menu() {
     'page callback' => 'edgesense_open_dashboard',
     'access arguments' => array('administer edgesense'),
     'file' => 'edgesense.admin.inc',
-    'weight' => 35,
+    'weight' => 60,
   );
 
   $items['edgesense/tutorial_upload'] = array(
@@ -115,17 +125,19 @@ function edgesense_help($path, $arg) {
       $output = '';
       $output .= '<h3>Edgesense Social Network Analysis</h3>';
       $output .= '<p>The current Edgesense SNA tool is made up of two components:</p>';
-      $output .= '<h5>A python library</h5>';
-      $output .= '<p>This is used to build the network from the source json files and to compute all the metrics. See: <a href="https://github.com/Wikitalia/edgesense/blob/master/python/README.md" target="_blank">https://github.com/Wikitalia/edgesense/blob/master/python/README.md</a>.</p>';
-      $output .= '<h5>A dashboard</h5>';
-      $output .= '<p>This is a single-page HTML5/javascript application that reads the json produced by the python library and builds a dashboard with the visualization of the network and the metrics. For more informations see the <a href="https://github.com/Wikitalia/edgesense" target="_blank">projects github page</a></p>';
-
+      $output .= '<h5>A data processing script</h5>';
+      $output .= '<p>This is used to build the network from the source json files and to compute all the metrics. See: <a href="https://github.com/Wikitalia/edgesense/blob/master/python/README.md" target="_blank">https://github.com/Wikitalia/edgesense/blob/master/python/README.md</a> for informations on how to install it.</p>';
+      $output .= '<h5>This drupal module</h5>';
+      $output .= '<p>It includes a dashboard that reads the output produced by the processing scripte and builds the visualization of the network and the metrics.</p>';
+      $output .= '<h3>Configuring the script and dashboard</h3>';
+      $output .= '<p>From these pages you can configure the Edgesense social network analytics dashboard for your Drupal community.</p>';
+      $output .= '<p>The different pages allow you to setup different aspects of the module:</p>';
       $output .= '<h3>The steps to use this module</h3>';
       $output .= '<ol>';
       $output .= '<li>Install the python library.</li>';
-      $output .= '<li>Configure the JSON views to extract the data.</li>';
-      $output .= '<li>Configure the dashboard.</li>';
-      $output .= '<li>Schedule the script to produce the outputs.</li>';
+      $output .= '<li>Enable the private files for drupal (these are required to store the configuration for the script that runs and don\'t have it accessible from a browser).</li>';
+      $output .= '<li>Install the required drupal modules: Chaos Tool Suite (CTools), Views, Views JSON (Views Datasource).</li>';
+      $output .= '<li>Download and install this module.</li>';
       $output .= '</ol>';
       break;
   }
