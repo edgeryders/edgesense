@@ -1,4 +1,4 @@
-VERSION=0.3
+VERSION=0.99.0
 SRCDIR = drupal
 BUILDDIR = build
 OUTDIR = dist

@@ -6,7 +6,50 @@
  */
 
 /**
- * Page callback: direcotry settings form to export json file.
+ * Page callback: home of the admin
+ */
+function edgesense_admin_home_form($form, &$form_state) {
+
+  $text = '';
+  $text .= '<h3>Configuration for the Edgesense Social Network Analysis dashboard</h3>';
+  $text .= '<p>The current Edgesense SNA tool is made up of two components:</p>';
+  $text .= '<h5>A data processing script</h5>';
+  $text .= '<p>This is used to build the network from the source json files and to compute all the metrics. See: <a href="https://github.com/Wikitalia/edgesense/blob/master/python/README.md" target="_blank">https://github.com/Wikitalia/edgesense/blob/master/python/README.md</a> for informations on how to install it.</p>';
+  $text .= '<h5>This drupal module</h5>';
+  $text .= '<p>It includes a dashboard that reads the output produced by the processing scripte and builds the visualization of the network and the metrics.</p>';
+  $text .= '<h3>Configuring the script and dashboard</h3>';
+  $text .= '<p>From these pages you can configure the Edgesense social network analytics dashboard for your Drupal community.</p>';
+  $text .= '<p>The different pages allow you to setup different aspects of the module:</p>';
+  $text .= '<p>';
+  $text .= '<ol>';
+  $text .= '<li>'.t('<a href="@url"><b>Script Configuration</b></a>', array('@url' => url('admin/edgesense/script-param'))).': this page allows you to change the parameters used by the processing script to extract data (you can even set the script to automatically run once a day.)</li>';
+  $text .= '<li>'.t('<a href="@url"><b>Script Execution</b></a>', array('@url' => url('admin/edgesense/script-run'))).': from this page you can see when the script was last executed, how to run it manually and see the log from the last run.</li>';
+  $text .= '<li>'.t('<a href="@url"><b>Dashboard configuration</b></a>', array('@url' => url('admin/edgesense/config'))).': here you can change the title of the dashboard, configure a Google anaytics ID and more.</li>';
+  $text .= '<li>'.t('<a href="@url"><b>Inline Help Configuration</b></a>', array('@url' => url('admin/edgesense/help'))).': this page lets you update the dashboard inline help.</li>';
+  $text .= '<li>'.t('<a href="@url"><b>Open Dashboard</b></a>', array('@url' => url('admin/edgesense/dashboard'))).': this is a link to the live dashboard.</li>';
+  $text .= '</ol>';
+  $text .= '</p>';
+  $text .= '<hr>';
+  
+  if (!file_exists('public://edgesense/json/last.json')) {
+    $text .= '<p>The Edgsense Python script has not run yet. Please follow </p> ';
+    $text .= t('<a href="@url">the instructions</a> for running it.', array('@url' => url('admin/edgesense/script-run')));
+    $text .= '<hr>';
+  }
+  else {
+      $text .= '<br><p>' . t('<a class="button" href="@url">Click here to open the dashboard</a>', array('@url' => url('admin/edgesense/dashboard'))) . '</p>';      
+  }
+
+  
+  $form['form_intro'] = array(
+    '#markup' => $text,
+  );
+
+  return $form;
+}
+
+/**
+ * Page callback: directory settings form to export json file.
  */
 function edgesense_admin_config_form($form, &$form_state) {
 
@@ -47,8 +90,6 @@ function edgesense_admin_param_form($form, &$form_state) {
   $form['form_intro'] = array(
     '#markup' => '
         <p>There are a few parameters that permit the configuration of the dashboad page. One of the first things the page does on load is to read the parameters from a configuration.json file in the [drupal root]/sites/default/files/edgesense/json/ directory, so to customize them one just needs to create the file.</p>
-        <p>Open the dashboard
-        </p>
     ',
   );
 
@@ -577,20 +618,39 @@ function edgesense_script_run_form($form, &$form_state) {
   else {
     $contents = 'The script has not run';
   }
-
-  $form['form_intro'] = array(
-    '#markup' => '
-        <h3>Generating the metrics</h3>
-        <p>To prepare the metrics and populate the dashboard the following command needs to run on the server periodically:</p>
-        <p><pre>edgesense_drupal ' . drupal_realpath('private://edgesense/script/run.json') . '</pre></p>
+  $run_during_cron = variable_get('edgesense_run_during_cron', NULL);
+  
+  $text = '<h3>Generating the metrics</h3><br>';
+  if (!`which edgesense_drupal`) {
+    $text .= '
+        <h4>Installing the edgesense_drupal command</h4>
+        <p>To prepare the metrics and populate the dashboard the <code>edgesense_drupal</code> command needs to run periodically, but it seems that it is <b>not installed</b> on the server.</p>
         <p>See <a href="https://github.com/Wikitalia/edgesense/blob/master/python/README.md" target="_blank">the python library github page</a> for details on how to install the <code>edgesense_drupal</code> command.</p>
-        <p>The command above is scheduled to run once a day via hook_cron (Drupal periodic actions.)</p>
+        <hr>
+        ';
+  }
+  else {
+      $text .= '
+            <p>To prepare the metrics and populate the dashboard the following command needs to run on the server periodically:</p>
+            <p><pre>edgesense_drupal ' . drupal_realpath('private://edgesense/script/run.json') . '</pre></p>
+            ';
+      if (!empty($run_during_cron)) {
+        $text .= '<p>The command above is <b>scheduled to run once a day via hook_cron</b> (Drupal periodic actions.)</p>';
+      }
+      else {
+        $text .= '<p>You need to <b>run the above command on the server manually or schedule it</b> (e.g. via cron.)</p>';    
+      }      
+  }
+  $text .= '
         <hr>
         <h4>Last run log</h4>
         <p>This is the log from the last time the script has run:</p>
         <p><pre>' . $contents . '</pre></p>
         <hr>
-    ',
+        ';
+        
+  $form['form_intro'] = array(
+    '#markup' => $text,
   );
 
   // $form['submit'] = array(
