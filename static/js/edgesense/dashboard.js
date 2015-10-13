@@ -123,6 +123,16 @@ jQuery(function($) {
                 _.each(data['edges'], function(e){
                     e['date'] = new Date(e['ts']*1000);           
                 });
+
+                /* Issue #44, no loops */
+                _.each(data['edges'], function(e) {
+                  if (e.target === e.source) {
+                    e.loop = true;
+                  }
+                });
+
+                data['edges'] = _.filter(data['edges'], function(e) { return !e.loop; });
+                /* End issue #44 */
                 
             },
             update_filter = function(i){
