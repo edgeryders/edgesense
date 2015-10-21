@@ -87,7 +87,9 @@ jQuery(function($) {
             network_lock = undefined,
             node_fill_transparent = 'rgba(204,204,204,0.1)',
             edge_transparent = 'rgba(204,204,204,0.1)',
-            node_border_default = 'rgba(240, 240, 240, 1)', 
+            edge_min_opacity = 0.15,
+            edge_max_opacity = 1,
+            node_border_default = 'rgba(15, 15, 15, 1)', // Similar to the background color
             node_border_transparent = 'rgba(240, 240, 240, 0.1)',
             node_fill_isolated = 'rgba(160,160,160,0.2)',
             node_border_isolated = 'rgba(250,250,250,1)',
@@ -257,8 +259,8 @@ jQuery(function($) {
                                 source: edge.source,
                                 target: edge.target,
                                 weight: 1,
-                                type: 'curve',
-                                color: edge_color(edge)
+                                type: 'curve'
+                                // No color, it depends to weight
                             }
                             edges_map[edge_id] = merged_edge;
                         } else {
@@ -266,7 +268,16 @@ jQuery(function($) {
                         }
                     }
                 });
-                G['edges'] = _.values(edges_map);
+
+                var edges_values = _.values(edges_map), // Array of edges objects
+                    edges_weights = _.map(edges_values, function(e) { return e.weight; }), // Array of edges weights
+                    edges_opacity_scale = d3.scale.log().range([edge_min_opacity,edge_max_opacity]).domain(d3.extent(edges_weights)); // Log scale for opacity
+
+                _.each(edges_values, function(e) { // Setting edges color
+                    e.color = edge_color(e,edges_opacity_scale(e.weight));
+                });
+
+                G['edges'] = edges_values;
                 return G
             },
             metric_name_prefixed = function(metric_name){
@@ -480,9 +491,12 @@ jQuery(function($) {
             node_border_color = function(node){
               return node.isolated ? node_border_isolated : node_border_default;
             },
-            edge_color = function(edge){
-                var com = last_metrics.partitions[edge.source];
-                return color_scale(com);
+            edge_color = function(edge,opacity){
+                var com = last_metrics.partitions[edge.source], // Category by partition
+                    exa = color_scale(com), // Category color in ex format (string, eg. #ffffff)
+                    rgb = d3.rgb(exa); // Category color in rgb format (object)
+                // If opacity, color is a string in rgba format, alse it's in ex format
+                return opacity ? 'rgba('+rgb.r+','+rgb.g+','+rgb.b+','+opacity+')' : exa;
             },
             search_node = function(node_id_or_name){
                 var re = RegExp("^"+node_id_or_name+"$", 'i');
