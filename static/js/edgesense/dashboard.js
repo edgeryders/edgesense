@@ -124,45 +124,6 @@ jQuery(function($) {
                     e['date'] = new Date(e['ts']*1000);           
                 });
 
-                /* Issue #44, no loops */
-                _.each(data['edges'], function(e) {
-                  if (e.target === e.source) {
-                    e.isLoop = true;
-                  }
-                });
-                /* End issue #44 */
-
-                /* Issue #34, sub issue #issuecomment-134211214 */
-                _.each(data['edges'], function(ce,i) { // ce = current edge
-                  var t = ce.target,
-                      s = ce.source;
-
-                  // de = duplicated edge
-                  var de = _.find(data['edges'].slice(i+1), function(ne) { // ne = next edge
-                    return !ne.isDuplicated && ((ne.target === s && ne.source === t) || (ne.target === t && ne.source === s));
-                  });
-  
-                  if (de) { de.isDuplicated = true; }
-                });
-                /* End sub issue 34#issuecomment-134211214 */
-
-                /* Log for debug */
-                var edgesNum = data['edges'].length,
-                    loopEdgesNum = _.filter(data['edges'], function(e) { return !e.isLoop; }).length,
-                    duplicatedEdgesNum = _.filter(data['edges'], function(e) { return !e.isDuplicated; }).length;
-
-                console.log(
-                    "Numero di archi: "+edgesNum, 
-                    "Numero di loop: "+loopEdgesNum, 
-                    "Numero di archi duplicati: "+duplicatedEdgesNum
-                );
-                /* End log for debug */
-                
-                data['edges'] = _.filter(data['edges'], function(e) { return !e.isLoop && !e.isDuplicated; });
-
-                /* Log for debug */
-                console.log("Numero di archi finali: "+data['edges'].length+" (-"+(1-data['edges'].length/edgesNum)*100+"%)");
-                /* End log for debug */
             },
             update_filter = function(i){
                 current_metrics = data['metrics'][i];
@@ -286,20 +247,23 @@ jQuery(function($) {
                 // merge multiedges
                 var edges_map = {}
                 _.each(edges_bydate.top(Infinity), function(edge){
-                    var edge_id = edge.source+"_"+edge.target;
-                    var merged_edge = edges_map[edge_id];
-                    if(!merged_edge) {
-                        merged_edge = {
-                            id: edge_id,
-                            source: edge.source,
-                            target: edge.target,
-                            weight: 1,
-                            type: 'curve',
-                            color: edge_color(edge)
+                    var edge_id = edge.source+"_"+edge.target, // Direct edge id
+                        rev_edge_id = edge.target+"_"+edge.source; // Reverse edge id
+                    var merged_edge = edges_map[edge_id] || edges_map[rev_edge_id]; // Reverse and direct edges are equal
+                    if (edge.source != edge.target) { // Remove self edge
+                        if(!merged_edge) {
+                            merged_edge = {
+                                id: edge_id,
+                                source: edge.source,
+                                target: edge.target,
+                                weight: 1,
+                                type: 'curve',
+                                color: edge_color(edge)
+                            }
+                            edges_map[edge_id] = merged_edge;
+                        } else {
+                            merged_edge['weight'] = merged_edge['weight']+1;
                         }
-                        edges_map[edge_id] = merged_edge;
-                    } else {
-                        merged_edge['weight'] = merged_edge['weight']+1;
                     }
                 });
                 G['edges'] = _.values(edges_map);
