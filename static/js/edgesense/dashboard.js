@@ -127,13 +127,42 @@ jQuery(function($) {
                 /* Issue #44, no loops */
                 _.each(data['edges'], function(e) {
                   if (e.target === e.source) {
-                    e.loop = true;
+                    e.isLoop = true;
                   }
                 });
-
-                data['edges'] = _.filter(data['edges'], function(e) { return !e.loop; });
                 /* End issue #44 */
+
+                /* Issue #34, sub issue #issuecomment-134211214 */
+                _.each(data['edges'], function(ce,i) { // ce = current edge
+                  var t = ce.target,
+                      s = ce.source;
+
+                  // de = duplicated edge
+                  var de = _.find(data['edges'].slice(i+1), function(ne) { // ne = next edge
+                    return !ne.isDuplicated && ((ne.target === s && ne.source === t) || (ne.target === t && ne.source === s));
+                  });
+  
+                  if (de) { de.isDuplicated = true; }
+                });
+                /* End sub issue 34#issuecomment-134211214 */
+
+                /* Log for debug */
+                var edgesNum = data['edges'].length,
+                    loopEdgesNum = _.filter(data['edges'], function(e) { return !e.isLoop; }).length,
+                    duplicatedEdgesNum = _.filter(data['edges'], function(e) { return !e.isDuplicated; }).length;
+
+                console.log(
+                    "Numero di archi: "+edgesNum, 
+                    "Numero di loop: "+loopEdgesNum, 
+                    "Numero di archi duplicati: "+duplicatedEdgesNum
+                );
+                /* End log for debug */
                 
+                data['edges'] = _.filter(data['edges'], function(e) { return !e.isLoop && !e.isDuplicated; });
+
+                /* Log for debug */
+                console.log("Numero di archi finali: "+data['edges'].length+" (-"+(1-data['edges'].length/edgesNum)*100+"%)");
+                /* End log for debug */
             },
             update_filter = function(i){
                 current_metrics = data['metrics'][i];
