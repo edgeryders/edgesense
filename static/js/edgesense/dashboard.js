@@ -277,7 +277,7 @@ jQuery(function($) {
                     e.color = edge_color(e,edges_opacity_scale(e.weight));
                 });
 
-                G['edges'] = edges_values;
+                G['edges'] = _.sortBy(edges_values,'weight'); // From lighter to heavier edge (maybe useful for z-index)
                 return G
             },
             metric_name_prefixed = function(metric_name){
