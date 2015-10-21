@@ -1,4 +1,5 @@
 <?php
+
 /**
  * @file
  * edgesense module file
@@ -25,21 +26,21 @@ function edgesense_menu() {
     'title' => 'Edgesense',
     'description' => 'Configuration for the Edgesense module',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('edgesense_admin_param_form'),
+    'page arguments' => array('edgesense_admin_home_form'),
     'access arguments' => array('administer edgesense'),
     'file' => 'edgesense.admin.inc',
     'weight' => 10,
   );
 
-  $items['admin/edgesense/config'] = array(
-    'title' => 'Dashboard Configuration',
+  $items['admin/edgesense/home'] = array(
+    'title' => 'Edgesense',
     'type' => MENU_DEFAULT_LOCAL_TASK,
     'file' => 'edgesense.admin.inc',
     'weight' => 10,
   );
 
   $items['admin/edgesense/script-param'] = array(
-    'title' => 'Script Parameters',
+    'title' => 'Script Configuration',
     'type' => MENU_LOCAL_TASK,
     'page callback' => 'drupal_get_form',
     'page arguments' => array('edgesense_admin_script_param_form'),
@@ -49,13 +50,23 @@ function edgesense_menu() {
   );
 
   $items['admin/edgesense/script-run'] = array(
-    'title' => 'Script Run',
+    'title' => 'Script Execution',
     'type' => MENU_LOCAL_TASK,
     'page callback' => 'drupal_get_form',
     'page arguments' => array('edgesense_script_run_form'),
     'access arguments' => array('administer edgesense'),
     'file' => 'edgesense.admin.inc',
-    'weight' => 25,
+    'weight' => 30,
+  );
+
+  $items['admin/edgesense/config'] = array(
+    'title' => 'Dashboard Configuration',
+    'type' => MENU_LOCAL_TASK,
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('edgesense_admin_param_form'),
+    'access arguments' => array('administer edgesense'),
+    'file' => 'edgesense.admin.inc',
+    'weight' => 40,
   );
 
   $items['admin/edgesense/help'] = array(
@@ -65,22 +76,22 @@ function edgesense_menu() {
     'page arguments' => array('edgesense_admin_help_form'),
     'access arguments' => array('administer edgesense'),
     'file' => 'edgesense.admin.inc',
-    'weight' => 30,
+    'weight' => 50,
   );
 
   $items['admin/edgesense/dashboard'] = array(
     'title' => 'Open Dashboard',
     'type' => MENU_LOCAL_TASK,
-    'page callback' => 'drupal_open_dashboard',
+    'page callback' => 'edgesense_open_dashboard',
     'access arguments' => array('administer edgesense'),
     'file' => 'edgesense.admin.inc',
-    'weight' => 35,
+    'weight' => 60,
   );
 
   $items['edgesense/tutorial_upload'] = array(
-     'page callback' => 'edgesense_tutorial_upload_api',
-     'access arguments' => array('access content'),
-     'file' => 'edgesense.admin.inc',
+    'page callback' => 'edgesense_tutorial_upload_api',
+    'access arguments' => array('access content'),
+    'file' => 'edgesense.admin.inc',
   );
 
   // $items['admin/edgesense/module-config'] = array(
@@ -97,14 +108,16 @@ function edgesense_menu() {
 }
 
 /**
-* Display help and module information.
-* @param path
-*   Which path of the site we're displaying help.
-* @param arg
-*   Array that holds the current path as would be returned from arg() function.
-* @return
-*   help text for the path.
-*/
+ * Display help and module information.
+ *
+ * @param path
+ *   Which path of the site we're displaying help.
+ * @param arg
+ *   Array that holds the current path as would be returned from arg() function.
+ *
+ * @return
+ *   help text for the path.
+ */
 function edgesense_help($path, $arg) {
   $output = '';
   switch ($path) {
@@ -112,19 +125,138 @@ function edgesense_help($path, $arg) {
       $output = '';
       $output .= '<h3>Edgesense Social Network Analysis</h3>';
       $output .= '<p>The current Edgesense SNA tool is made up of two components:</p>';
-      $output .= '<h5>A python library</h5>';
-      $output .= '<p>This is used to build the network from the source json files and to compute all the metrics. See: <a href="https://github.com/Wikitalia/edgesense/blob/master/python/README.md" target="_blank">https://github.com/Wikitalia/edgesense/blob/master/python/README.md</a>.</p>';
-      $output .= '<h5>A dashboard</h5>';
-      $output .= '<p>This is a single-page HTML5/javascript application that reads the json produced by the python library and builds a dashboard with the visualization of the network and the metrics. For more informations see the <a href="https://github.com/Wikitalia/edgesense" target="_blank">projects github page</a></p>';
-      
+      $output .= '<h5>A data processing script</h5>';
+      $output .= '<p>This is used to build the network from the source json files and to compute all the metrics. See: <a href="https://github.com/Wikitalia/edgesense/blob/master/python/README.md" target="_blank">https://github.com/Wikitalia/edgesense/blob/master/python/README.md</a> for informations on how to install it.</p>';
+      $output .= '<h5>This drupal module</h5>';
+      $output .= '<p>It includes a dashboard that reads the output produced by the processing scripte and builds the visualization of the network and the metrics.</p>';
+      $output .= '<h3>Configuring the script and dashboard</h3>';
+      $output .= '<p>From these pages you can configure the Edgesense social network analytics dashboard for your Drupal community.</p>';
+      $output .= '<p>The different pages allow you to setup different aspects of the module:</p>';
       $output .= '<h3>The steps to use this module</h3>';
       $output .= '<ol>';
       $output .= '<li>Install the python library.</li>';
-      $output .= '<li>Configure the JSON views to extract the data.</li>';
-      $output .= '<li>Configure the dashboard.</li>';
-      $output .= '<li>Schedule the script to produce the outputs.</li>';
+      $output .= '<li>Enable the private files for drupal (these are required to store the configuration for the script that runs and don\'t have it accessible from a browser).</li>';
+      $output .= '<li>Install the required drupal modules: Chaos Tool Suite (CTools), Views, Views JSON (Views Datasource).</li>';
+      $output .= '<li>Download and install this module.</li>';
       $output .= '</ol>';
       break;
   }
   return $output;
 }
+
+/**
+ * Implements hook_views_api().
+ */
+function edgesense_views_api() {
+  return array("api" => 3);
+}
+
+/**
+ * Helper function saving the Edgesense Views results to disk.
+ */
+function edgesense_save_view_data() {
+  $views = array('edgesense_users', 'edgesense_nodes', 'edgesense_comments');
+  $display_id = 'default';
+  foreach ($views as $view_name) {
+    $view = views_get_view($view_name, TRUE);
+    if (empty($view)) {
+      watchdog('edgesense', 'Could not load view @view_name', array('@view_name' => $view_name), WATCHDOG_ERROR);
+    }
+    else {
+      // views_datasource breaks the Drupal view rendering to return plain json
+      // so we have to render the view manually and remove the default HTML code
+      // TODO: Improve (override style template to make this cleaner)
+      $matches = array();
+      $view->execute();
+      $view->style_plugin->options['using_views_api_mode'] = TRUE;
+      // Remove any drupal generated markup
+      preg_match('/(\{.+\})/', $view->render($display_id), $matches);
+      file_unmanaged_save_data($matches[0], "private://edgesense/site_data/{$view_name}.json", FILE_EXISTS_REPLACE);
+    }
+  }
+}
+
+/**
+ * Helper function running the Edgesense python script if present.
+ */
+function edgesense_run_script() {
+  if (!`which edgesense_drupal`) {
+    return "script_missing";
+  }
+  else {
+    // Run the script for the first time to populate the dashboard
+    exec('edgesense_drupal ' . drupal_realpath('private://edgesense/script/run.json'));
+    if (!file_exists('public://edgesense/json/last.json')) {
+      return "not_completed";
+    }
+    else {
+      return "success";
+    }
+  }
+}
+
+/**
+ * Implements hook_cron().
+ */
+function edgesense_cron() {
+  $run_during_cron = variable_get('edgesense_run_during_cron', NULL);
+  if (!empty($run_during_cron)) {
+    $interval = 60 * 60 * 24;
+    if (time() >= variable_get('edgesense_next_execution', 0)) {
+      edgesense_display_not_run_message();
+      // TODO: Use the Queue API instead of hook_cron() directly
+      edgesense_save_view_data();
+      edgesense_run_script();
+      variable_set('edgesense_next_execution', time() + $interval);
+    }
+  }
+}
+
+/**
+ * Helper function to display a warning if the python script has not run yet.
+ */
+function edgesense_display_not_run_message() {
+  if (!file_exists('public://edgesense/json/last.json')) {
+    drupal_set_message(t('The Edgsense Python script has not run yet. Please follow ' .
+        '<a href="@url">the instructions</a> for running it.', array('@url' => url('admin/edgesense/script-run'))
+      ), 'warning');
+  }
+}
+
+/**
+ * Access callback for Edgesense Views
+ */
+function edgesense_views_access_callback($account = NULL) {
+  $params = drupal_get_query_parameters();
+  $edgesense_views_key = variable_get('edgesense_views_key', drupal_random_key());
+  if ((!empty($params['edgesense_views_key']) && $params['edgesense_views_key'] == $edgesense_views_key) || user_access('administer edgesense')) {
+    return TRUE;
+  }
+  return FALSE;
+}
+
+/**
+ * Helper function to update Views configuration and paths for running script outside of Drupal cron.
+ */
+function edgesense_set_manual_run($set = TRUE) {
+  $views = array('edgesense_users', 'edgesense_nodes', 'edgesense_comments');
+  $display_id = 'default';
+  foreach ($views as $view_name) {
+    $view = views_get_view($view_name, TRUE);
+    if (empty($view)) {
+      watchdog('edgesense', 'Could not load view @view_name', array('@view_name' => $view_name), WATCHDOG_ERROR);
+    }
+    else {
+      if ($set) {
+        $view->display[$display_id]->display_options['access']['type'] = 'edgesense_views_perm_or_token';
+        unset($view->display[$display_id]->display_options['access']['perm']);
+      }
+      else {
+        $view->display[$display_id]->display_options['access']['type'] = 'perm';
+        $view->display[$display_id]->display_options['access']['perm'] = 'administer site configuration';
+      }
+      views_save_view($view);
+    }
+  }
+}
+

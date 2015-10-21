@@ -12,3 +12,4 @@ php/drupal/*.json
 php/build
 php/out
 *.swp
+.idea
