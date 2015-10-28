@@ -247,7 +247,11 @@ jQuery(function($) {
                     };
                 });
                 // merge multiedges
-                var edges_map = {}
+                var edges_map = {},
+					edges_tss = _.map(edges_bydate.top(Infinity), function(e) { return e.ts; }),
+					first_edge_ts = d3.min(edges_tss),
+					last_edge_ts = d3.max(edges_tss),
+					range_edge_ts = last_edge_ts - first_edge_ts;
                 _.each(edges_bydate.top(Infinity), function(edge){
                     var edge_id = edge.source+"_"+edge.target, // Direct edge id
                         rev_edge_id = edge.target+"_"+edge.source; // Reverse edge id
@@ -258,13 +262,13 @@ jQuery(function($) {
                                 id: edge_id,
                                 source: edge.source,
                                 target: edge.target,
-                                weight: 1,
+                                weight: (edge.ts - first_edge_ts) / range_edge_ts,
                                 type: 'curve'
                                 // No color, it depends to weight
                             }
                             edges_map[edge_id] = merged_edge;
                         } else {
-                            merged_edge['weight'] = merged_edge['weight']+1;
+                            merged_edge['weight'] += (edge.ts - first_edge_ts) / range_edge_ts;
                         }
                     }
                 });
