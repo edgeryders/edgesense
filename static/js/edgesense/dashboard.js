@@ -87,7 +87,7 @@ jQuery(function($) {
             network_lock = undefined,
             node_fill_transparent = 'rgba(204,204,204,0.1)',
             edge_transparent = 'rgba(204,204,204,0.1)',
-            edge_min_opacity = 0.15,
+            edge_min_opacity = 0.1,
             edge_max_opacity = 1,
             node_border_default = 'rgba(15, 15, 15, 1)', // Similar to the background color
             node_border_transparent = 'rgba(240, 240, 240, 0.1)',
@@ -275,7 +275,7 @@ jQuery(function($) {
 
                 var edges_values = _.values(edges_map), // Array of edges objects
                     edges_weights = _.map(edges_values, function(e) { return e.weight; }), // Array of edges weights
-                    edges_opacity_scale = d3.scale.log().range([edge_min_opacity,edge_max_opacity]).domain(d3.extent(edges_weights)); // Log scale for opacity
+                    edges_opacity_scale = d3.scale.linear().range([edge_min_opacity,edge_max_opacity]).domain(d3.extent(edges_weights)); // Log scale for opacity
 
                 _.each(edges_values, function(e) { // Setting edges color
                     e.color = edge_color(e,edges_opacity_scale(e.weight));
@@ -737,7 +737,29 @@ jQuery(function($) {
                         e.preventDefault();
                     });
                 })
-            })
+            });
+            $('#search-button').on('shown.bs.popover', function() {
+                $("body > .popover .user-search input").autocomplete({
+                  source: _.map(data['nodes'], function(n) { return n['name']; }),
+                  minLength: 2,
+                  create: function(e,ui) {
+                    $('.ac-users .ac-content').html($('ul.ui-autocomplete').removeAttr('style')).show();
+                    $('.ac-users .ac-helper').html($('span.ui-helper-hidden-accessible').removeAttr('style')).show();
+                  },
+                  //search: function(e,ui) {
+                  //  $(".ac-users .ac-content ul").empty();
+                  //  $(".ac-users .ac-helper").empty();
+                  //},
+                  open: function(e,ui) {
+                    $(".ac-users .ac-content ul").removeAttr('style');
+                    $(".ac-users .ac-helper").removeAttr('style');
+                  },
+                  select: function(e,ui) {
+                    $(this).val(ui.label);
+                    //$(".user-search-btn").click();
+                  }
+                });
+            });
 
             nodes_map = {}
             _.each(data['nodes'], function(node){
