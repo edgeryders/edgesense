@@ -105,6 +105,7 @@
 .user-search .ac-content li.ui-menu-item {
     display: inline-block;
     margin-right: 0.75em;
+    cursor: pointer;
 }
 .moderators-check-cnt {
     line-height:52px;

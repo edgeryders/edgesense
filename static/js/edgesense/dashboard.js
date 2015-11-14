@@ -746,17 +746,12 @@ jQuery(function($) {
                     $('.ac-users .ac-content').html($('ul.ui-autocomplete').removeAttr('style')).show();
                     $('.ac-users .ac-helper').html($('span.ui-helper-hidden-accessible').removeAttr('style')).show();
                   },
-                  //search: function(e,ui) {
-                  //  $(".ac-users .ac-content ul").empty();
-                  //  $(".ac-users .ac-helper").empty();
-                  //},
                   open: function(e,ui) {
                     $(".ac-users .ac-content ul").removeAttr('style');
                     $(".ac-users .ac-helper").removeAttr('style');
                   },
                   select: function(e,ui) {
-                    $(this).val(ui.label);
-                    //$(".user-search-btn").click();
+                    search_and_expose(ui.item.label);
                   }
                 });
             });
