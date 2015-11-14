@@ -778,8 +778,11 @@ jQuery(function($) {
                 _.each($('.user-search-btn'), function(b){
                     $(b).on('click', function(e){
                         current_user_filter = $(this).closest('.user-search').find('input').val();
-                        search_and_expose(current_user_filter);
-                        $(".ac-users .ac-helper span").html('');
+                        if (search_and_expose(current_user_filter)) {
+                          $(".ac-users .ac-helper span").html('');
+                        } else {
+                          $(".ac-users .ac-helper span").html('No search results.');
+                        }
                         e.preventDefault();
                     });
                 })
