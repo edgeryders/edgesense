@@ -193,7 +193,7 @@ jQuery(function($) {
 
                 network_graph.graph.edges().forEach(function(e) {
                   if (!to_expose || (to_expose[e.source] && to_expose[e.target])) {
-                      e.color = edge_color(e);                      
+                      e.color = edge_color(e,edges_opacity_scale(e.weight));
                   } else {
                       e.color = edge_transparent;                      
                   }
@@ -571,6 +571,7 @@ jQuery(function($) {
               );
             },
             reset_zoom = function() {
+              close_node_popover();
               sigma.misc.animation.camera(
                 network_graph.camera, 
                 {
