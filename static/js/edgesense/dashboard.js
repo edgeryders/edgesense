@@ -536,8 +536,8 @@ jQuery(function($) {
                 if (node_id_or_name!='') {
                     var node = search_node(node_id_or_name);
                     if (node) {
+                        zoom_to_node(node);
                         expose_node(node);
-                        open_node_popover(node);
                     }
                 } else {
                     close_node_popover();
@@ -549,8 +549,37 @@ jQuery(function($) {
                 to_expose = undefined;
                 $('#node-marker').hide();
                 $('#node-marker').popover('destroy');
+                reset_zoom();
                 update_exposed();
                 network_graph.refresh();
+            },
+            zoom_to_node = function(node) {
+              close_node_popover();
+              sigma.misc.animation.camera(
+                network_graph.camera, 
+                {
+                  x: node[network_graph.camera.readPrefix + 'x'], 
+                  y: node[network_graph.camera.readPrefix + 'y'],
+                  ratio: 0.33
+                }, 
+                { 
+                  duration: network_graph.settings('animationsTime') || 300,
+                  onComplete: function() {
+                    open_node_popover(node);
+                  }
+                }
+              );
+            },
+            reset_zoom = function() {
+              sigma.misc.animation.camera(
+                network_graph.camera, 
+                {
+                  x: 0, 
+                  y: 0,
+                  ratio: 1
+                }, 
+                { duration: network_graph.settings('animationsTime') || 300 }
+              );
             };
 
         function db(){
