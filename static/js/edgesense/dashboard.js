@@ -204,6 +204,22 @@ jQuery(function($) {
                 $('#node-marker').popover('destroy');
                 
             },
+            open_node_popover = function(node){
+                var left = node['renderer1:x'];
+                var top = node['renderer1:y'];
+                $('#node-marker').popover('destroy');
+                $('#node-marker').show();
+                $('#node-marker').css('left', (left) + 'px');
+                $('#node-marker').css('top', (top) + 'px');                
+
+                $('#node-marker').popover({
+                    container: 'body',
+                    html: true,
+                    placement: 'auto right',
+                    content: node_popover_content(node)
+                });
+                $('#node-marker').popover('show');
+            },
             node_popover_content = function(node){
                 var in_degree = current_metrics[metric_name_prefixed('in_degree')][node.id];
                 var out_degree = current_metrics[metric_name_prefixed('out_degree')][node.id];
@@ -521,8 +537,10 @@ jQuery(function($) {
                     var node = search_node(node_id_or_name);
                     if (node) {
                         expose_node(node);
-                    }                    
+                        open_node_popover(node);
+                    }
                 } else {
+                    close_node_popover();
                     unexpose_node();                    
                 }
                 
@@ -622,6 +640,9 @@ jQuery(function($) {
         };
         db.close_node_popover = function(){
             close_node_popover();
+        };
+        db.open_node_popover = function(){
+            open_node_popover();
         };
         db.search = function(node_id_or_name){
             return search_node(node_id_or_name);
@@ -728,12 +749,15 @@ jQuery(function($) {
                     $(b).on('click', function(e){
                         current_user_filter = $(this).closest('.user-search').find('input').val();
                         search_and_expose(current_user_filter);
+                        $(".ac-users .ac-helper span").html('');
                         e.preventDefault();
                     });
                 })
                 _.each($('.user-search-clear-btn'), function(b){
                     $(b).on('click', function(e){
+                        $(this).closest('.user-search').find('input').val('');
                         unexpose_node();
+                        $(".ac-users .ac-helper span").html('');
                         e.preventDefault();
                     });
                 })
@@ -752,6 +776,7 @@ jQuery(function($) {
                   },
                   select: function(e,ui) {
                     search_and_expose(ui.item.label);
+                    $(".ac-users .ac-helper span").html('');
                   }
                 });
             });
@@ -792,20 +817,7 @@ jQuery(function($) {
             });
             network_graph.bind('clickNode', function(e) {
                 var offset = $(this).offset();
-                var left = e.data.node['renderer1:x'];
-                var top = e.data.node['renderer1:y'];
-                $('#node-marker').popover('destroy');
-                $('#node-marker').show();
-                $('#node-marker').css('left', (left) + 'px');
-                $('#node-marker').css('top', (top) + 'px');                
-
-                $('#node-marker').popover({
-                    container: 'body',
-                    html: true,
-                    placement: 'auto right',
-                    content: node_popover_content(e.data.node)
-                });
-                $('#node-marker').popover('show');
+                open_node_popover(e.data.node);
             });
             network_graph.bind('clickStage', close_node_popover);
             
