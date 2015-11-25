@@ -122,7 +122,7 @@ function edgesense_admin_param_form($form, &$form_state) {
     '#title' => t('Tutorial Upload URL'),
     '#required' => FALSE,
     '#default_value' => !empty($config_data['tutorial_upload']) ? $config_data['tutorial_upload'] : url('edgesense/tutorial_upload'),
-    '#description' => t('This should be set to a URL which can receive the POSTs from the tutorial with the results to be saved. If left empty the edgesense module upload URL will be used and the files will be saved locally in the '),
+    '#description' => t('This should be set to a URL which can receive the POSTs from the tutorial with the results to be saved. If left empty the edgesense module upload URL will be used and the files will be saved locally. The default install value is the edgesense module upload URL: '.url('edgesense/tutorial_upload').' N.B. You usually don\'t need to chaneg this field.'),
   );
 
   $form['submit'] = array(
@@ -141,7 +141,7 @@ function edgesense_admin_param_form_validate($form, &$form_state) {
     $form_state['values']['form_build_id'], $form_state['values']['op'], $form_state['values']['submit']
   );
 
-  if ($form_state['values']['tutorial_upload'] && valid_url($form_state['values']['tutorial_upload'], TRUE) == FALSE) {
+  if ($form_state['values']['tutorial_upload'] && $form_state['values']['tutorial_upload']!=url('edgesense/tutorial_upload') && valid_url($form_state['values']['tutorial_upload'], TRUE) == FALSE ) {
     form_set_error('tutorial_upload', t('Please enter valid url'));
   }
 }
