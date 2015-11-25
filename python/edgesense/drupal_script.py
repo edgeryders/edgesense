@@ -237,8 +237,8 @@ def main():
     if create_datapackage:
         try:
             # load the datapackage template
-            basepath = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))        
-            with open(os.path.join(basepath, "datapackage_template.json"), 'r') as datafile:
+            basepath = os.path.realpath(os.path.join(os.getcwd(), os.path.dirname(__file__)))
+            with open(os.path.join(basepath, "utils/datapackage_template.json"), 'r') as datafile:
                 datapackage = json.load(datafile)
                 datapackage['license'] = {'type': license_type, 'url': license_url}
                 if datapackage_title:
@@ -253,7 +253,8 @@ def main():
                 # dump the datapackage
                 eu.resource.save(datapackage, 'datapackage.json', destination_path, True)
                 logging.info("datapackage saved")  
-        except:
+        except Exception, e:
+            logging.error(e)
             logging.error("Error reading the datapackage template")
             create_datapackage = False
     
