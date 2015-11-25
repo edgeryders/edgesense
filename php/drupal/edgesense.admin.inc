@@ -441,8 +441,9 @@ EOF;
     '#title' => t('Title field'),
     '#default_value' => !empty($config_data['node_title']) ? $config_data['node_title'] : NULL,
     '#description' => t('<p>
-        The value of this field will determine which field of the users JSON will be used to populate the title of the network graph nodes.
-        The default if this parameter is not specified is to use the uid of the user object.
+        The value of this field will determine which field of the users JSON will be used to populate the title of the network graph nodes, this will be used <u>both in the dashboard and in the GEXF file</u> (if exported).
+        The default if this parameter is not specified is to use the uid of the user object (i.e. ).<br> 
+        <b>Nota Bene:</b> if you are using the default views and want to expose also the user names then you should put \'<b>name</b>\' in this field.
         </p>'),
   );
 
