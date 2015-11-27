@@ -406,18 +406,61 @@
             color:#000;
         }
         body {
-            margin:0;
-            padding:0;
-            font-family: "Helvetica Neue",Helvetica,Arial,sans-serif;
+          color: rgb(240, 240, 240)  !important;
         }
-        #messages div {
-            width:200px;
-            margin:50px auto;
-            font-size:20px;
-            text-align:center;
+        .btn.btn-gray {
+          background-color: rgb(82, 82, 82);
+          border-color: rgb(115, 115, 115);
+          color: rgb(255, 255, 255);
         }
-        #messages div.alert {
-            color:#660000;
+        .btn.btn-gray:hover,
+        .btn.btn-gray:active,
+        .btn.btn-gray.hover {
+          background-color: rgb(115, 115, 115);
+        }
+        .bg-darkgray {
+          background-color: rgb(34, 34, 34) !important;
+          color: rgb(240, 240, 240)  !important;
+        }
+
+        .box {
+          background-color: rgb(34, 34, 34) !important;
+          border-top: 0px solid rgb(34, 34, 34);
+          color: rgb(240, 240, 240)  !important;
+        }
+        .box .box-header {
+            color: rgb(240, 240, 240)  !important;
+        }
+        .content-header {
+          background-color: rgb(68, 68, 68) !important;
+        }
+        #main-block {
+          background-color: rgb(51, 51, 51) !important;
+        }
+        .rickshaw_graph.y_axis {
+          color: rgb(240, 240, 240)  !important;
+          fill: rgb(240, 240, 240)  !important;
+          stroke:rgba(255,255,255,.16) !important;
+        }
+        .popover {
+          color: rgb(0,0,0) !important;
+        }
+
+        .rickshaw_graph .y_grid .tick,
+        .rickshaw_graph .x_grid_d3 .tick,
+        .rickshaw_graph.y_axis .tick line {
+          stroke:rgba(255,255,255,.16) !important;
+        }
+        #tutorial .box {
+          background-color: rgb(255, 255, 255) !important;
+          color: rgb(34, 34, 34)  !important;
+        }
+        #tutorial .box-header {
+          color: rgb(34, 34, 34)  !important;
+        }
+        #tutorial  .callout.callout-warning {
+          background-color: rgb(240, 240, 240) !important;
+          border-color: rgb(221, 221, 221);
         }
         </style>
     </head>
@@ -434,16 +477,16 @@
             <div id="network-container" style="margin-top:0;">
                 <div id="dashboard-controls" class="box-tools" style="top:0 !important;">
                     <div class="pull-right">
-                    <button class="edgesense-btn btn-danger" id="network-lock"><i class="fa fa-lock"></i></button>
-                    <button class="edgesense-btn btn-primary popover-toggle" data-toggle="popover" id="search-button"><i class="fa fa-search"></i></button>
+                    <button class="edgesense-btn btn-gray" id="network-lock"><i class="fa fa-lock"></i></button>
+                    <button class="edgesense-btn btn-gray popover-toggle" data-toggle="popover" id="search-button"><i class="fa fa-search"></i></button>
                     <div class="popover-content pull-right hide"><div class="user-search">Enter a username or id and press 'Show' to highlight it.<div class="input-group input-group-sm">
                         <input type="text" class="form-control user-search-field">
                         <span class="input-group-btn">
-                            <button class="btn btn-primary btn-flat user-search-btn" type="button">Show</button>
+                            <button class="btn btn-gray btn-flat user-search-btn" type="button">Show</button>
                         </span>
                         </div><a class="user-search-clear-btn" href="#">Show all</a></div>
                     </div>
-                    <button class="edgesense-btn btn-info popover-toggle" data-toggle="popover" id="filter-button"><i class="fa fa-filter"></i></button>
+                    <button class="edgesense-btn btn-gray popover-toggle" data-toggle="popover" id="filter-button"><i class="fa fa-filter"></i></button>
                     <div class="popover-content hide" id="network-filter"></div>                    
                     </div>
                 </div>

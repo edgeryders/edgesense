@@ -1,3 +1,5 @@
+!function(){function t(t){return function(e,i){e=d3.hsl(e),i=d3.hsl(i);var r=(e.h+120)*a,h=(i.h+120)*a-r,s=e.s,l=i.s-s,o=e.l,u=i.l-o;return isNaN(l)&&(l=0,s=isNaN(s)?i.s:s),isNaN(h)&&(h=0,r=isNaN(r)?i.h:r),function(a){var e=r+h*a,i=Math.pow(o+u*a,t),c=(s+l*a)*i*(1-i);return"#"+n(i+c*(-.14861*Math.cos(e)+1.78277*Math.sin(e)))+n(i+c*(-.29227*Math.cos(e)-.90649*Math.sin(e)))+n(i+c*1.97294*Math.cos(e))}}}function n(t){var n=(t=0>=t?0:t>=1?255:0|255*t).toString(16);return 16>t?"0"+n:n}var a=Math.PI/180;d3.scale.cubehelix=function(){return d3.scale.linear().range([d3.hsl(300,.5,0),d3.hsl(-240,.5,1)]).interpolate(d3.interpolateCubehelix)},d3.interpolateCubehelix=t(1),d3.interpolateCubehelix.gamma=t}();
+
 jQuery(function($) {
     "use strict";
     
@@ -67,7 +69,13 @@ jQuery(function($) {
                 // d3.time.format(' %e/%m');
             },
             track_date_format = d3.time.format('%Y/%m/%d %H:%M'),
-            color_scale = d3.scale.category20(),
+            color_scale = d3.scale.cubehelix()
+                            .domain([0, .5, 1])
+                            .range([
+                              d3.hsl(-100, 0.75, 0.35),
+                              d3.hsl(  80, 1.50, 0.80),
+                              d3.hsl( 260, 0.75, 0.35)
+                            ]), //d3.scale.category20(),
             generated = undefined,
             metrics_cf = undefined,
             metrics_bydate = undefined,
@@ -81,6 +89,7 @@ jQuery(function($) {
             current_metrics = undefined,
             first_metrics = undefined,
             last_metrics = undefined,
+            partitions_count = undefined,
             network_graph = undefined,
             nodes_map = {},
             to_expose = undefined,
@@ -94,7 +103,7 @@ jQuery(function($) {
             node_border_transparent = 'rgba(240, 240, 240, 0.1)',
             node_fill_isolated = 'rgba(160,160,160,0.2)',
             node_border_isolated = 'rgba(250,250,250,1)',
-            node_fill_team = 'rgba(32, 32, 32, 1)',
+            node_fill_team = 'rgba(255, 255, 255, 1)',
             selected_partitions = [],  
             current_user_filter = '',
             show_moderators = true,
@@ -366,11 +375,11 @@ jQuery(function($) {
                         left: 0.02
                     },
                     series: [{
-                        color: 'white',
+                        color: metric_color(metric_name),
                         data: global_metric_series(metric_name),
                         renderer: 'line'
                     },{
-                        color: 'white',
+                        color: metric_color(metric_name),
                         data: [{x:current_metrics['ts'],y:current_metrics[metric_name]}],
                         renderer: 'scatterplot'                        
                     }]
@@ -394,15 +403,25 @@ jQuery(function($) {
                 
             },
             metric_color = function(metric_name) {
-              var regex = /(.+):/i;
+              var regex = /(.+):(.+)/i;
               var match = regex.exec(metric_name);
               var color_map = {
-                  team:'rgb(255, 127, 0)',
-                  full:'rgb(51, 160, 44)',
-                  user:'rgb(31, 120, 180)',
+                  full:'rgb(255, 127, 0)',
+                  team:'rgb(30, 250, 255)',
+                  user:'rgb(255, 255, 51)',
+                  nodes_count: '#2ca02c',
+                  edges_count: '#d62728',
+                  avg_distance: '#aec7e8',
+                  louvain_modularity: '#e7ba52',
+                  ts_posts_share: '#ff7f00',
+                  ts_comments_share: '#377eb8',
               };
-              var color = color_map[match[1]];
-              if (!color){ color = 'rgb(190, 190, 190)'; }
+
+              var color = undefined;
+              if (!color){ color = color_map[match[2]]; }
+              if (!color){ color = color_map[match[1]]; }
+              if (!color){ color = color_map[metric_name]; }
+              if (!color){ color = 'rgb(250, 250, 250)'; }
               return color;
             },
             global_metric_series = function(metric_name){
@@ -507,7 +526,7 @@ jQuery(function($) {
                 
             },
             node_fill_color = function(node){
-                var com = last_metrics.partitions[node.id];
+                var com = last_metrics.partitions[node.id]/(partitions_count+1);
                 if (node.isolated) { return node_fill_isolated; }
                 return node.team ? node_fill_team : color_scale(com);
             },
@@ -515,7 +534,7 @@ jQuery(function($) {
               return node.isolated ? node_border_isolated : node_border_default;
             },
             edge_color = function(edge,opacity){
-                var com = last_metrics.partitions[edge.source], // Category by partition
+                var com = last_metrics.partitions[edge.source]/(partitions_count+1), // Category by partition
                     exa = color_scale(com), // Category color in ex format (string, eg. #ffffff)
                     rgb = d3.rgb(exa); // Category color in rgb format (object)
                 // If opacity, color is a string in rgba format, alse it's in ex format
@@ -734,11 +753,12 @@ jQuery(function($) {
             // build the network graph
             last_metrics = metrics_bydate.top(1)[0];
             selected_partitions = _.uniq(_.values(last_metrics.partitions)).sort();
+            partitions_count = _.max(_.values(last_metrics.partitions));
             var filter = $('#network-filter');
             
             _.each(selected_partitions, function(part){
                 filter
-                    .append('<button class="filter-btn btn btn-sm" style="background-color:'+color_scale(part)+'" data-partition="'+part+'"><i class="fa fa-check-square-o"></button>');
+                    .append('<button class="filter-btn btn btn-sm" style="background-color:'+color_scale(part/(partitions_count+1))+'" data-partition="'+part+'"><i class="fa fa-check-square-o"></button>');
             });
             
             $('#filter-button').on('click', function(){

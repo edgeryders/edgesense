@@ -175,7 +175,6 @@
 }
 #tutorial-close {
     font-size:10px;
-    color:#333;
 }
 #tutorial .box {
     margin-bottom:0px;
@@ -199,7 +198,7 @@
   display: inline-block;
 }
 .content-header .toprightmenu > li > a {
-  color: #444;
+  color: rgb(240, 240, 240);
   text-decoration: none;
 }
 .content-header .toprightmenu > li > a > .fa,
@@ -239,4 +238,62 @@
 }
 #datapackage {
     margin-bottom:20px;
+}
+body {
+  color: rgb(240, 240, 240)  !important;
+  background-color: rgb(51, 51, 51) !important;
+}
+.btn.btn-gray {
+  background-color: rgb(82, 82, 82);
+  border-color: rgb(115, 115, 115);
+  color: rgb(255, 255, 255);
+}
+.btn.btn-gray:hover,
+.btn.btn-gray:active,
+.btn.btn-gray.hover {
+  background-color: rgb(115, 115, 115);
+}
+.bg-darkgray {
+  background-color: rgb(34, 34, 34) !important;
+  color: rgb(240, 240, 240)  !important;
+}
+
+.box {
+  background-color: rgb(34, 34, 34) !important;
+  border-top: 0px solid rgb(34, 34, 34);
+  color: rgb(240, 240, 240)  !important;
+}
+.box .box-header {
+    color: rgb(240, 240, 240)  !important;
+}
+.content-header {
+  background-color: rgb(68, 68, 68) !important;
+}
+#main-block {
+  background-color: rgb(51, 51, 51) !important;
+}
+.rickshaw_graph.y_axis {
+  color: rgb(240, 240, 240)  !important;
+  fill: rgb(240, 240, 240)  !important;
+  stroke:rgba(255,255,255,.16) !important;
+}
+.popover {
+  color: rgb(0,0,0) !important;
+}
+
+.rickshaw_graph .y_grid .tick,
+.rickshaw_graph .x_grid_d3 .tick,
+.rickshaw_graph.y_axis .tick line {
+  stroke:rgba(255,255,255,.16) !important;
+}
+#tutorial .box {
+  background-color: rgb(255, 255, 255) !important;
+  color: rgb(34, 34, 34)  !important;
+}
+#tutorial .box-header {
+  color: rgb(34, 34, 34)  !important;
+}
+#tutorial  .callout.callout-warning {
+  background-color: rgb(240, 240, 240) !important;
+  border-color: rgb(221, 221, 221);
 }
