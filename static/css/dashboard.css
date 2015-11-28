@@ -297,3 +297,17 @@ body {
   background-color: rgb(240, 240, 240) !important;
   border-color: rgb(221, 221, 221);
 }
+#max-age-message {
+  background-color: rgb(255, 212, 212) !important;
+  color: rgb(243, 53, 18) !important;
+  text-align:center;
+  padding:4px 0;
+}
+
+#max-age-message a {
+  display:block;
+  float: right;
+  margin-right: 10px;
+  color: rgb(243, 53, 18) !important;
+  cursor:pointer;
+}

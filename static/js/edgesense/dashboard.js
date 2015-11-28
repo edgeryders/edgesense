@@ -723,6 +723,18 @@ jQuery(function($) {
             if ( data && data['meta'] && data['meta']['generated']) {
                 var format = d3.time.format('%B %d, %Y - %H:%M:%S');
                 $("#generated-ts").html(format(data['meta']['generated']));
+
+                // Check if the data is too old
+                var max_age = 24*60*60*1000; //at most it should be 1 day old
+                var now = new Date();
+                var diff = now.getTime() - data['meta']['generated'].getTime();
+                if (diff > max_age) {
+                    $("body").prepend("<div id=\"max-age-message\">Attention: the data presented is older than 24 hours.</div>");
+                    $("<a>").
+                        on('click', function(){$('#max-age-message').hide();}).
+                        html('<i class="glyphicon glyphicon-remove-circle"></i>').
+                        appendTo('#max-age-message');
+                }
             }
             // create the metrics crossfilter
             metrics_cf = crossfilter(data['metrics']);
