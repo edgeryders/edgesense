@@ -609,7 +609,22 @@ function edgesense_admin_script_param_form_submit($form, &$form_state) {
  */
 function edgesense_script_run_form($form, &$form_state) {
 
-  edgesense_display_not_run_message();
+  if (!file_exists('public://edgesense/json/last.json')) {
+    $form['first_run'] = array(
+      '#type' => 'fieldset',
+      '#title' => t('First Run'),
+    );
+    $form['first_run']['instructions'] = array(
+      '#markup' => t('The dashboard is almost ready, you will need to run the Edgesense Python script.<br/>
+       If your community is small enough then you can do it right now, by clicking the "Run Now" button below.<br/>
+       If it is big (e.g. more then 100 users, 300 nodes or 500 comments) you will need to run it using cron / drush
+       to avoid timeouts.<br/><br/>'),
+    );
+    $form['first_run']['run'] = array(
+      '#type' => 'submit',
+      '#value' => t('Run Now'),
+    );
+  }
   $logfile = drupal_realpath('private://edgesense/script/edgesense.log');
   if (file_exists($logfile)) {
     $handle = fopen($logfile, "r");
@@ -654,11 +669,6 @@ function edgesense_script_run_form($form, &$form_state) {
     '#markup' => $text,
   );
 
-  // $form['submit'] = array(
-  //   '#type' => 'submit',
-  //   '#value' => t('Run now'),
-  // );
-
   return $form;
 }
 
@@ -666,13 +676,8 @@ function edgesense_script_run_form($form, &$form_state) {
  * Form submit callback
  */
 function edgesense_script_run_form_submit($form, &$form_state) {
-
-  unset($form_state['values']['form_id'], $form_state['values']['form_token'],
-    $form_state['values']['form_build_id'], $form_state['values']['op'], $form_state['values']['submit']
-  );
-
-
-  drupal_set_message(t('Script was run.'), 'status');
+  edgesense_cron();
+  drupal_set_message(t('The Edgesense Python script has run successfully and your Dashboard is now ready.'));
 }
 
 function edgesense_open_dashboard() {
