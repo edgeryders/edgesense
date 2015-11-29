@@ -21,15 +21,15 @@ jQuery(function($) {
     });
 
     Edgesense.FullUrl = (function() {
-        var base = window.location.protocol + '//' + window.location.hostname;
-        base += window.location.port ? (':' + window.location.port) : '';
-        base += window.location.pathname.replace("/modules/edgesense/static/dashboard.html", "")
-        base += "/sites/default/files/edgesense";
-        
-        var full = function(path){
-            return base+path;
-        }
-        return full;
+      var regexp = /(.*)\/sites\/.*/g;
+      var match = regexp.exec(window.location.href);
+      var base = match[1];
+      base += "/sites/default/files/edgesense";
+
+      var full = function(path){
+        return base+path;
+      }
+      return full;
     })();
 
     var cur_date = new Date();

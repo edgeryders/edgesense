@@ -92,6 +92,21 @@
 .user-search .input-group {
     margin-top: 8px;
 }
+.user-search .ac-content li.ui-menu-item:last-child:after {
+    content: "";
+}
+.user-search .ac-content li.ui-menu-item:after {
+    content: ",";
+}
+.user-search .ac-content ul {
+    margin-left: 0;
+    padding-left: 0;
+}
+.user-search .ac-content li.ui-menu-item {
+    display: inline-block;
+    margin-right: 0.75em;
+    cursor: pointer;
+}
 .moderators-check-cnt {
     line-height:52px;
     font-size:12px;

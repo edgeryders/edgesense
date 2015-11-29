@@ -87,7 +87,10 @@ jQuery(function($) {
             network_lock = undefined,
             node_fill_transparent = 'rgba(204,204,204,0.1)',
             edge_transparent = 'rgba(204,204,204,0.1)',
-            node_border_default = 'rgba(240, 240, 240, 1)', 
+            edge_min_opacity = 0.1,
+            edge_max_opacity = 1,
+            edges_opacity_scale = d3.scale.linear(),
+            node_border_default = 'rgba(15, 15, 15, 1)', // Similar to the background color
             node_border_transparent = 'rgba(240, 240, 240, 0.1)',
             node_fill_isolated = 'rgba(160,160,160,0.2)',
             node_border_isolated = 'rgba(250,250,250,1)',
@@ -123,7 +126,7 @@ jQuery(function($) {
                 _.each(data['edges'], function(e){
                     e['date'] = new Date(e['ts']*1000);           
                 });
-                
+
             },
             update_filter = function(i){
                 current_metrics = data['metrics'][i];
@@ -190,8 +193,10 @@ jQuery(function($) {
                 });
 
                 network_graph.graph.edges().forEach(function(e) {
-                  if (!to_expose || (to_expose[e.source] && to_expose[e.target])) {
-                      e.color = edge_color(e);                      
+                  if (!to_expose) {
+                      e.color = edge_color(e,edges_opacity_scale(e.weight));
+                  } else if (to_expose[e.source] && to_expose[e.target]) {
+                      e.color = edge_color(e);
                   } else {
                       e.color = edge_transparent;                      
                   }
@@ -201,6 +206,22 @@ jQuery(function($) {
                 $('#node-marker').hide();
                 $('#node-marker').popover('destroy');
                 
+            },
+            open_node_popover = function(node){
+                var left = node['renderer1:x'];
+                var top = node['renderer1:y'];
+                $('#node-marker').popover('destroy');
+                $('#node-marker').show();
+                $('#node-marker').css('left', (left) + 'px');
+                $('#node-marker').css('top', (top) + 'px');                
+
+                $('#node-marker').popover({
+                    container: 'body',
+                    html: true,
+                    placement: 'auto right',
+                    content: node_popover_content(node)
+                });
+                $('#node-marker').popover('show');
             },
             node_popover_content = function(node){
                 var in_degree = current_metrics[metric_name_prefixed('in_degree')][node.id];
@@ -245,25 +266,41 @@ jQuery(function($) {
                     };
                 });
                 // merge multiedges
-                var edges_map = {}
+                var edges_map = {},
+					edges_tss = _.map(edges_bydate.top(Infinity), function(e) { return e.ts; }),
+					first_edge_ts = d3.min(edges_tss),
+					last_edge_ts = d3.max(edges_tss),
+					range_edge_ts = last_edge_ts - first_edge_ts;
                 _.each(edges_bydate.top(Infinity), function(edge){
-                    var edge_id = edge.source+"_"+edge.target;
-                    var merged_edge = edges_map[edge_id];
-                    if(!merged_edge) {
-                        merged_edge = {
-                            id: edge_id,
-                            source: edge.source,
-                            target: edge.target,
-                            weight: 1,
-                            type: 'curve',
-                            color: edge_color(edge)
+                    var edge_id = edge.source+"_"+edge.target, // Direct edge id
+                        rev_edge_id = edge.target+"_"+edge.source; // Reverse edge id
+                    var merged_edge = edges_map[edge_id] || edges_map[rev_edge_id]; // Reverse and direct edges are equal
+                    if (edge.source != edge.target) { // Remove self edge
+                        if(!merged_edge) {
+                            merged_edge = {
+                                id: edge_id,
+                                source: edge.source,
+                                target: edge.target,
+                                weight: (edge.ts - first_edge_ts) / range_edge_ts,
+                                type: 'curve'
+                                // No color, it depends to weight
+                            }
+                            edges_map[edge_id] = merged_edge;
+                        } else {
+                            merged_edge['weight'] += (edge.ts - first_edge_ts) / range_edge_ts;
                         }
-                        edges_map[edge_id] = merged_edge;
-                    } else {
-                        merged_edge['weight'] = merged_edge['weight']+1;
                     }
                 });
-                G['edges'] = _.values(edges_map);
+
+                var edges_values = _.values(edges_map), // Array of edges objects
+                    edges_weights = _.map(edges_values, function(e) { return e.weight; }); // Array of edges weights
+                edges_opacity_scale = d3.scale.linear().range([edge_min_opacity,edge_max_opacity]).domain(d3.extent(edges_weights)); // Log scale for opacity
+
+                _.each(edges_values, function(e) { // Setting edges color
+                    e.color = edge_color(e,edges_opacity_scale(e.weight));
+                });
+
+                G['edges'] = _.sortBy(edges_values,'weight'); // From lighter to heavier edge (maybe useful for z-index)
                 return G
             },
             metric_name_prefixed = function(metric_name){
@@ -477,9 +514,12 @@ jQuery(function($) {
             node_border_color = function(node){
               return node.isolated ? node_border_isolated : node_border_default;
             },
-            edge_color = function(edge){
-                var com = last_metrics.partitions[edge.source];
-                return color_scale(com);
+            edge_color = function(edge,opacity){
+                var com = last_metrics.partitions[edge.source], // Category by partition
+                    exa = color_scale(com), // Category color in ex format (string, eg. #ffffff)
+                    rgb = d3.rgb(exa); // Category color in rgb format (object)
+                // If opacity, color is a string in rgba format, alse it's in ex format
+                return opacity ? 'rgba('+rgb.r+','+rgb.g+','+rgb.b+','+opacity+')' : exa;
             },
             search_node = function(node_id_or_name){
                 var re = RegExp("^"+node_id_or_name+"$", 'i');
@@ -499,9 +539,11 @@ jQuery(function($) {
                 if (node_id_or_name!='') {
                     var node = search_node(node_id_or_name);
                     if (node) {
+                        zoom_to_node(node);
                         expose_node(node);
-                    }                    
+                    }
                 } else {
+                    close_node_popover();
                     unexpose_node();                    
                 }
                 
@@ -510,8 +552,38 @@ jQuery(function($) {
                 to_expose = undefined;
                 $('#node-marker').hide();
                 $('#node-marker').popover('destroy');
+                reset_zoom();
                 update_exposed();
                 network_graph.refresh();
+            },
+            zoom_to_node = function(node) {
+              close_node_popover();
+              sigma.misc.animation.camera(
+                network_graph.camera, 
+                {
+                  x: node[network_graph.camera.readPrefix + 'x'], 
+                  y: node[network_graph.camera.readPrefix + 'y'],
+                  ratio: 0.33
+                }, 
+                { 
+                  duration: network_graph.settings('animationsTime') || 300,
+                  onComplete: function() {
+                    open_node_popover(node);
+                  }
+                }
+              );
+            },
+            reset_zoom = function() {
+              close_node_popover();
+              sigma.misc.animation.camera(
+                network_graph.camera, 
+                {
+                  x: 0, 
+                  y: 0,
+                  ratio: 1
+                }, 
+                { duration: network_graph.settings('animationsTime') || 300 }
+              );
             };
 
         function db(){
@@ -601,6 +673,9 @@ jQuery(function($) {
         };
         db.close_node_popover = function(){
             close_node_popover();
+        };
+        db.open_node_popover = function(){
+            open_node_popover();
         };
         db.search = function(node_id_or_name){
             return search_node(node_id_or_name);
@@ -706,17 +781,41 @@ jQuery(function($) {
                 _.each($('.user-search-btn'), function(b){
                     $(b).on('click', function(e){
                         current_user_filter = $(this).closest('.user-search').find('input').val();
-                        search_and_expose(current_user_filter);
+                        if (search_and_expose(current_user_filter)) {
+                          $(".ac-users .ac-helper span").html('');
+                        } else {
+                          $(".ac-users .ac-helper span").html('No search results.');
+                        }
                         e.preventDefault();
                     });
                 })
                 _.each($('.user-search-clear-btn'), function(b){
                     $(b).on('click', function(e){
+                        $(this).closest('.user-search').find('input').val('');
                         unexpose_node();
+                        $(".ac-users .ac-helper span").html('');
                         e.preventDefault();
                     });
                 })
-            })
+            });
+            $('#search-button').on('shown.bs.popover', function() {
+                $("body > .popover .user-search input").autocomplete({
+                  source: _.map(data['nodes'], function(n) { return n['name']; }),
+                  minLength: 2,
+                  create: function(e,ui) {
+                    $('.ac-users .ac-content').html($('ul.ui-autocomplete').removeAttr('style')).show();
+                    $('.ac-users .ac-helper').html($('span.ui-helper-hidden-accessible').removeAttr('style')).show();
+                  },
+                  open: function(e,ui) {
+                    $(".ac-users .ac-content ul").removeAttr('style');
+                    $(".ac-users .ac-helper").removeAttr('style');
+                  },
+                  select: function(e,ui) {
+                    search_and_expose(ui.item.label);
+                    $(".ac-users .ac-helper span").html('');
+                  }
+                });
+            });
 
             nodes_map = {}
             _.each(data['nodes'], function(node){
@@ -754,20 +853,7 @@ jQuery(function($) {
             });
             network_graph.bind('clickNode', function(e) {
                 var offset = $(this).offset();
-                var left = e.data.node['renderer1:x'];
-                var top = e.data.node['renderer1:y'];
-                $('#node-marker').popover('destroy');
-                $('#node-marker').show();
-                $('#node-marker').css('left', (left) + 'px');
-                $('#node-marker').css('top', (top) + 'px');                
-
-                $('#node-marker').popover({
-                    container: 'body',
-                    html: true,
-                    placement: 'auto right',
-                    content: node_popover_content(e.data.node)
-                });
-                $('#node-marker').popover('show');
+                open_node_popover(e.data.node);
             });
             network_graph.bind('clickStage', close_node_popover);
             

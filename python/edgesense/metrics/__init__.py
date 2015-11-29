@@ -12,21 +12,24 @@ def compute_all_metrics(nodes_map, posts_map, comments_map, network, timesteps_r
     for ts in timesteps_range:
         metrics[ts] = metrics_for_ts(nodes_map, posts_map, comments_map, network, ts, timestep, timestep_window)
         
-    return sorted(metrics.values(), key=sort_by('ts'))
+    return sorted([m for m in metrics.values() if m is not None], key=sort_by('ts'))
 
 def metrics_for_ts(nodes_map, posts_map, comments_map, network, ts, timestep, timestep_window):
-    # calculate content metrics
-    ts_metrics = extract_content_metrics(nodes_map, posts_map, comments_map, ts, timestep, timestep_window)
-    
     # calculate network metrics
-    ts_metrics.update(extract_network_metrics(network, ts))
-    if ts_metrics.has_key('full:partitions'):
-        ts_metrics['partitions'] = ts_metrics['full:partitions']
-    else:
-        ts_metrics['partitions'] = None
-    ts_metrics.update(extract_network_metrics(network, ts, team=False))
+    net_metrics = extract_network_metrics(network, ts)
     
-    return ts_metrics
+    if len(net_metrics) > 0:
+        # calculate content metrics
+        ts_metrics = extract_content_metrics(nodes_map, posts_map, comments_map, ts, timestep, timestep_window)
+    
+        ts_metrics.update(net_metrics)
+        if ts_metrics.has_key('full:partitions'):
+            ts_metrics['partitions'] = ts_metrics['full:partitions']
+        else:
+            ts_metrics['partitions'] = None
+        ts_metrics.update(extract_network_metrics(network, ts, team=False))
+    
+        return ts_metrics
 
 def calculate_network_metrics(nodes_map, posts_map, comments_map, network, timestep_size, timestep_window, timestep_count):
     # Parameters    
