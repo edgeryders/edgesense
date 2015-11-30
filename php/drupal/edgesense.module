@@ -203,7 +203,6 @@ function edgesense_cron() {
   if (!empty($run_during_cron)) {
     $interval = 60 * 60 * 24;
     if (time() >= variable_get('edgesense_next_execution', 0)) {
-      edgesense_display_not_run_message();
       // TODO: Use the Queue API instead of hook_cron() directly
       edgesense_save_view_data();
       edgesense_run_script();
