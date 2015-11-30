@@ -74,11 +74,19 @@ And save the configuration.
 
 ![enable edgesense views module](../../documentation/images/drupal_modules_edgesense.png)
 
-During the install phase the module runs the script a first time, **this can take some time** but at the end of the install process you'll be greeted with a message that invites you to open the dashboard.
+If the module has been activated correctly you will be shown this message:
 
 ![edgesense installed](../../documentation/images/edgesense_installed.png)
 
-The default install uses the Drupal's cron to run the processing scripts once per day. If you have a big community and the Drupal's cron system times out while processing, you'll have to disable the automatic daily run from the Edgesense admin pages and you will have to schedule the runs with a different method (e.g. using the server system's cron scheduler)
+During the install phase the module will **not** run the data processing script because **this can take a long time** for large communities and this would cause a timeout error during the install process. At the end of the module activation you'll be able to open the module admin page which will have a button to immediately run the data processing script. If your community is small then you can do it by clicking the "Run Now" button on the page.
+
+![edgesense run the script](../../documentation/images/edgesense_run_the_script.png)
+
+If you click that button and the script has run you'll see this message:
+
+![edgesense dashboard ready](../../documentation/images/edgesense_dashboard_ready.png)
+
+If you community site is big (e.g. more then 100 users, 300 nodes or 500 comments) you will need to run it using cron / drush to avoid timeouts. [See below for more detailed instructions on how to do so](https://github.com/Wikitalia/edgesense/tree/master/php/drupal#b-avoiding-timeouts).
 
 ## Appendix
 

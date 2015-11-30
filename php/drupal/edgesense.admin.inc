@@ -32,7 +32,7 @@ function edgesense_admin_home_form($form, &$form_state) {
   $text .= '<hr>';
   
   if (!file_exists('public://edgesense/json/last.json')) {
-    $text .= '<p>The Edgsense Python script has not run yet. Please follow </p> ';
+    $text .= '<p>The Edgsense data processing script has not run yet. Please follow </p> ';
     $text .= t('<a href="@url">the instructions</a> for running it.', array('@url' => url('admin/edgesense/script-run')));
     $text .= '<hr>';
   }
@@ -612,14 +612,15 @@ function edgesense_script_run_form($form, &$form_state) {
   if (!file_exists('public://edgesense/json/last.json')) {
     $form['first_run'] = array(
       '#type' => 'fieldset',
-      '#title' => t('First Run'),
+      '#title' => t('Processing Script First Run'),
     );
     $form['first_run']['instructions'] = array(
-      '#markup' => t('The dashboard is almost ready, you will need to run the Edgesense Python script.<br/>
-       If your community is small enough then you can do it right now, by clicking the "Run Now" button below.<br/>
-       If it is big (e.g. more then 100 users, 300 nodes or 500 comments) you will need to run it using cron / drush
-       to avoid timeouts.<br/><br/>'),
+      '#markup' => t('The dashboard is almost ready, to analyse your community network, you will need to run the Edgesense data processing script.<br/>
+       If your community is small enough then you can do it right now, by clicking the "Run Now" button below.<br/><br/>
+       If it is <b>big</b> (e.g. more then 100 users, 300 nodes or 500 comments) to avoid timeout errors from Drupal you will need to 
+       <a href="https://github.com/Wikitalia/edgesense/tree/master/php/drupal#b-avoiding-timeouts" target="_blank">run it using cron / drush</a>.<br/><br/>'),
     );
+    
     $form['first_run']['run'] = array(
       '#type' => 'submit',
       '#value' => t('Run Now'),
@@ -677,7 +678,7 @@ function edgesense_script_run_form($form, &$form_state) {
  */
 function edgesense_script_run_form_submit($form, &$form_state) {
   edgesense_cron();
-  drupal_set_message(t('The Edgesense Python script has run successfully and your Dashboard is now ready.'));
+  drupal_set_message(t('The Edgesense data processing script has run successfully and your Dashboard is now ready.'));
 }
 
 function edgesense_open_dashboard() {

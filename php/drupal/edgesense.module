@@ -216,7 +216,7 @@ function edgesense_cron() {
  */
 function edgesense_display_not_run_message() {
   if (!file_exists('public://edgesense/json/last.json')) {
-    drupal_set_message(t('The Edgsense Python script has not run yet. Please follow ' .
+    drupal_set_message(t('The Edgsense data processing script has not run yet. Please follow ' .
         '<a href="@url">the instructions</a> for running it.', array('@url' => url('admin/edgesense/script-run'))
       ), 'warning');
   }
