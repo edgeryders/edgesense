@@ -81,9 +81,9 @@
 .filter-btn {
     width:19px;
     height:19px;
-    display:block;
+    display:inline-block;
     padding:0;
-    margin-bottom:5px;
+    margin:3px;
     color:#fefefe;
 }
 .user-search {
@@ -310,4 +310,13 @@ body {
   margin-right: 10px;
   color: rgb(243, 53, 18) !important;
   cursor:pointer;
+}
+
+.network-params .row {
+    margin-bottom:4px;
+}
+
+#network-filter {
+    width:108px !important;
+    margin:0 auto;
 }

@@ -305,6 +305,46 @@
                                             <button class="btn btn-gray btn-flat user-search-btn" type="button">Show</button>
                                         </span>
                                     </div><a class="user-search-clear-btn" href="#">Show all</a></div></div>
+
+                                   <button class="btn btn-gray btn-sm popover-toggle" data-toggle="popover" id="params-button"><i class="fa fa-cog"></i></button>
+                                   <div class="popover-content popover-params pull-right hide" id="network-params">
+                                     <div class="network-params">
+                                       <p>Change the visualization parameters and press 'Show' to update the network display.</p>
+                                       <div class="row">
+                                        <div class="col-sm-6">
+                                            <label class="control-label">Max age (days)</label>
+                                        </div>
+                                        <div class="col-sm-6"><input type="text" class="form-control max-age-field"></div>
+                                       </div>
+                                       <div class="row">
+                                        <div class="col-sm-6">
+                                            <label class="control-label">Un-directed</label>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <select class="form-control unidirected-field">
+                                                <option value="">no</option>
+                                                <option value="yes">yes</option>
+                                            </select>
+                                        </div>
+                                       </div>
+                                       <div class="row">
+                                        <div class="col-sm-6">
+                                            <label class="control-label">Color by</label>
+                                        </div>
+                                        <div class="col-sm-6">
+                                            <select class="form-control color-nodes-field">
+                                                <option value="">partition</option>
+                                                <option value="degree">degree</option>
+                                                <option value="betweenness">betweenness</option>
+                                            </select>
+                                        </div>
+                                       </div>
+                                       <p class="input-group input-group-sm">
+                                        <button class="btn btn-gray btn-flat apply-params-btn" type="button">Show</button> or <a class="apply-params-clear-btn" href="#">reset view</a>
+                                       </p>
+                                     </div>
+                                   </div>
+                                    
                                </div>
                                 <div id="network"></div>
                                 <div id="node-marker"></div>
