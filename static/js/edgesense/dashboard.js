@@ -28,6 +28,7 @@ jQuery(function($) {
 
     });
     
+    var Clrs = ["#fff7ec","#fc8d59","#ef6548","#d7301f","#b30000","#7f0000"];
     Edgesense.Dashboard = function(){
 
         var configuration = undefined,
@@ -96,14 +97,22 @@ jQuery(function($) {
             network_lock = undefined,
             node_fill_transparent = 'rgba(204,204,204,0.1)',
             edge_transparent = 'rgba(204,204,204,0.1)',
-            edge_min_opacity = 0.1,
+            edge_min_opacity = 0.05,
             edge_max_opacity = 1,
-            edges_opacity_scale = d3.scale.linear(),
-            node_border_default = 'rgba(15, 15, 15, 1)', // Similar to the background color
+            opacity_scale = d3.scale.linear(),
+            null_opacity_scale = function(e){ return 1; },
+            max_age = undefined,
+            show_undirected = false,
+            color_by = undefined,
+            node_border_default = 'rgb(15, 15, 15)', // Similar to the background color
             node_border_transparent = 'rgba(240, 240, 240, 0.1)',
             node_fill_isolated = 'rgba(160,160,160,0.2)',
-            node_border_isolated = 'rgba(250,250,250,1)',
-            node_fill_team = 'rgba(255, 255, 255, 1)',
+            node_border_isolated = 'rgb(250,250,250)',
+            node_fill_team = 'rgb(255, 255, 255)',
+            degree_extent = [],
+            degree_scale = d3.scale.linear().domain(d3.range(0, 1, 1.0 / (Clrs.length - 1))).range(Clrs),               
+            betweenness_extent = [],
+            betweenness_scale = d3.scale.linear().domain(d3.range(0, 1, 1.0 / (Clrs.length - 1))).range(Clrs),                
             selected_partitions = [],  
             current_user_filter = '',
             show_moderators = true,
@@ -157,8 +166,7 @@ jQuery(function($) {
                 update_network_graph();
                 
             },
-            toggle_partition = function(e){
-                var b = $(this);
+            toggle_partition = function(b){
                 var shown = 0;
                 if (_.indexOf(selected_partitions, b.data('partition'))>=0) {
                     selected_partitions = _.without(selected_partitions, b.data('partition')) 
@@ -193,8 +201,8 @@ jQuery(function($) {
             update_exposed = function(){
                 network_graph.graph.nodes().forEach(function(n) {
                   if (!to_expose || to_expose[n.id]) {
-                      n.color =  node_fill_color(n);
-                      n.border_color = node_border_default;                      
+                      n.color =  node_fill_color(n,opacity_scale(n.weight));
+                      n.border_color = node_border_color(n,opacity_scale(n.weight));                      
                   } else {
                       n.color = node_fill_transparent;                      
                       n.border_color = node_border_transparent;                      
@@ -203,7 +211,7 @@ jQuery(function($) {
 
                 network_graph.graph.edges().forEach(function(e) {
                   if (!to_expose) {
-                      e.color = edge_color(e,edges_opacity_scale(e.weight));
+                      e.color = edge_color(e,opacity_scale(e.weight));
                   } else if (to_expose[e.source] && to_expose[e.target]) {
                       e.color = edge_color(e);
                   } else {
@@ -253,6 +261,63 @@ jQuery(function($) {
                 return cont_div.html();
             },
             filtered_graph = function(){
+                // merge multiedges
+                var node_weights = {},
+                    edges_map = {},
+					edges_tss = _.map(edges_bydate.top(Infinity), function(e) { return e.ts; }),
+					first_edge_ts = d3.min(edges_tss),
+					last_edge_ts = d3.max(edges_tss),
+                    range_edge_ts = last_edge_ts - first_edge_ts;
+                    
+                degree_extent = d3.extent(_.values(current_metrics[metric_name_prefixed('degree')]));
+                degree_scale = d3.scale.linear().domain(d3.extent(degree_extent));
+                degree_scale.domain(d3.range(0, 1, 1.0 / (Clrs.length - 1)).map(degree_scale.invert));
+                degree_scale.range(Clrs);
+                
+                betweenness_extent = d3.extent(_.values(current_metrics[metric_name_prefixed('betweenness')]));
+                betweenness_scale = d3.scale.linear().domain(d3.extent(betweenness_extent));
+                betweenness_scale.domain(d3.range(0, 1, 1.0 / (Clrs.length - 1)).map(betweenness_scale.invert));
+                betweenness_scale.range(Clrs);
+                    
+                _.each(edges_bydate.top(Infinity), function(edge){
+                    var edge_id = edge.source+"_"+edge.target; // Reverse edge id
+                    var merged_edge = edges_map[edge_id];
+                    if (!merged_edge && show_undirected) {  // Reverse and direct edges are equal if unidirected
+                        var rev_edge_id = edge.target+"_"+edge.source; // Reverse edge id
+                        merged_edge = edges_map[rev_edge_id]; // Reverse and direct edges are equal 
+                    }
+                    if (edge.source != edge.target) { // Remove self edge
+                        if(!merged_edge) {
+                            merged_edge = {
+                                id: edge_id,
+                                source: edge.source,
+                                target: edge.target,
+                                weight: 0,
+                                type: 'curve'
+                                // No color, it depends to weight
+                            }
+                            edges_map[edge_id] = merged_edge;
+                        }
+                        
+                        if (max_age) {
+                            var age_edge = max_age+edge.ts-last_edge_ts;
+
+                            merged_edge['weight'] = d3.max([age_edge, merged_edge['weight']]);
+                            node_weights[edge.source] = d3.max([node_weights[edge.source]||0, merged_edge['weight']]);
+                            node_weights[edge.target] = d3.max([node_weights[edge.target]||0, merged_edge['weight']]);                            
+                        }
+                    }
+                });
+                
+                var edges_values = _.values(edges_map), // Array of edges objects
+                    edges_weights = _.map(edges_values, function(e) { return e.weight; }); // Array of edges weights
+                
+                opacity_scale = max_age ? d3.scale.linear().range([edge_min_opacity,edge_max_opacity]).domain(d3.extent(edges_weights)) : null_opacity_scale ;
+                
+                _.each(edges_values, function(e) { // Setting edges color
+                    e.color = edge_color(e,opacity_scale(e.weight));
+                });
+
                 var G = {};
                 G['nodes'] = _.map(nodes_bydate.top(Infinity), function(node){
                     var size = node.size ? node.size : 1;
@@ -264,51 +329,17 @@ jQuery(function($) {
                       x: node.x,
                       y: node.y,
                       size: size,
-                      color:  node_fill_color(node),
+                      color:  node_fill_color(node,opacity_scale(node_weights[node.id])),
                       type: 'border',
-                      border_color: node_border_color(node),
+                      border_color: node_border_color(node,opacity_scale(node_weights[node.id])),
                       team: node.team,
                       isolated: node.isolated,
+                      weight: node_weights[node.id],
                       ts: node.created_ts,
                       date: node.date,
                       link: node.link
                     };
                 });
-                // merge multiedges
-                var edges_map = {},
-					edges_tss = _.map(edges_bydate.top(Infinity), function(e) { return e.ts; }),
-					first_edge_ts = d3.min(edges_tss),
-					last_edge_ts = d3.max(edges_tss),
-					range_edge_ts = last_edge_ts - first_edge_ts;
-                _.each(edges_bydate.top(Infinity), function(edge){
-                    var edge_id = edge.source+"_"+edge.target, // Direct edge id
-                        rev_edge_id = edge.target+"_"+edge.source; // Reverse edge id
-                    var merged_edge = edges_map[edge_id] || edges_map[rev_edge_id]; // Reverse and direct edges are equal
-                    if (edge.source != edge.target) { // Remove self edge
-                        if(!merged_edge) {
-                            merged_edge = {
-                                id: edge_id,
-                                source: edge.source,
-                                target: edge.target,
-                                weight: (edge.ts - first_edge_ts) / range_edge_ts,
-                                type: 'curve'
-                                // No color, it depends to weight
-                            }
-                            edges_map[edge_id] = merged_edge;
-                        } else {
-                            merged_edge['weight'] += (edge.ts - first_edge_ts) / range_edge_ts;
-                        }
-                    }
-                });
-
-                var edges_values = _.values(edges_map), // Array of edges objects
-                    edges_weights = _.map(edges_values, function(e) { return e.weight; }); // Array of edges weights
-                edges_opacity_scale = d3.scale.linear().range([edge_min_opacity,edge_max_opacity]).domain(d3.extent(edges_weights)); // Log scale for opacity
-
-                _.each(edges_values, function(e) { // Setting edges color
-                    e.color = edge_color(e,edges_opacity_scale(e.weight));
-                });
-
                 G['edges'] = _.sortBy(edges_values,'weight'); // From lighter to heavier edge (maybe useful for z-index)
                 return G
             },
@@ -525,18 +556,38 @@ jQuery(function($) {
             is_isolated = function(node){
                 
             },
-            node_fill_color = function(node){
-                var com = last_metrics.partitions[node.id]/(partitions_count+1);
+            node_fill_color = function(node,opacity){
+                var com = last_metrics.partitions[node.id]/(partitions_count+1), // Category by partition
+                    exa = node.team ? node_fill_team : color_scale(com); // Category color in ex format (string, eg. #ffffff)
+
                 if (node.isolated) { return node_fill_isolated; }
-                return node.team ? node_fill_team : color_scale(com);
+                
+                if (color_by=='degree') {
+                    exa = degree_scale(current_metrics[metric_name_prefixed('degree')][node.id]); 
+                }
+
+                if (color_by=='betweenness') {
+                    exa = betweenness_scale(current_metrics[metric_name_prefixed('betweenness')][node.id]);
+                }
+                
+                var rgb = d3.rgb(exa); // Category color in rgb format (object)
+                // If opacity, color is a string in rgba format, alse it's in ex format
+                return opacity ? 'rgba('+rgb.r+','+rgb.g+','+rgb.b+','+opacity+')' : exa;
             },
-            node_border_color = function(node){
-              return node.isolated ? node_border_isolated : node_border_default;
+            node_border_color = function(node,opacity){
+                var rgb = d3.rgb(node_border_default); // color in rgb format (object)
+              if (node.isolated) { return node_fill_isolated; }
+              return opacity ? 'rgba('+rgb.r+','+rgb.g+','+rgb.b+','+opacity+')' : node_border_default;
             },
             edge_color = function(edge,opacity){
                 var com = last_metrics.partitions[edge.source]/(partitions_count+1), // Category by partition
                     exa = color_scale(com), // Category color in ex format (string, eg. #ffffff)
                     rgb = d3.rgb(exa); // Category color in rgb format (object)
+                    
+                if (color_by=='degree' || color_by=='betweenness') {
+                    return edge_transparent;
+                }
+
                 // If opacity, color is a string in rgba format, alse it's in ex format
                 return opacity ? 'rgba('+rgb.r+','+rgb.g+','+rgb.b+','+opacity+')' : exa;
             },
@@ -725,10 +776,9 @@ jQuery(function($) {
                 $("#generated-ts").html(format(data['meta']['generated']));
 
                 // Check if the data is too old
-                var max_age = 24*60*60*1000; //at most it should be 1 day old
                 var now = new Date();
                 var diff = now.getTime() - data['meta']['generated'].getTime();
-                if (diff > max_age) {
+                if (diff > 24*60*60*1000) {  //at most it should be 1 day old
                     $("body").prepend("<div id=\"max-age-message\">Attention: the data presented is older than 24 hours.</div>");
                     $("<a>").
                         on('click', function(){$('#max-age-message').hide();}).
@@ -781,7 +831,24 @@ jQuery(function($) {
                     } else {
                         b.find('.fa').removeClass('fa-check-square-o').addClass('fa-square-o');                        
                     }
-                    b.on('click', toggle_partition);
+                    b.on('click', function(e){
+                        var b = $(this);
+                        toggle_partition(b);
+                    });
+                })
+                _.each($('.filter-clear-btn'), function(b){
+                    $(b).on('click', function(e){
+                        _.each($(this).closest('.network-filter-cnt').find('.filter-btn'), function(b){
+                            b = $(b);
+                            if (!(_.indexOf(selected_partitions, b.data('partition'))>=0)) {
+                                selected_partitions.push(b.data('partition'));
+                                b.find('.fa').removeClass('fa-square-o').addClass('fa-check-square-o');
+                            }
+                        })
+                        update_network_graph();
+                        analytics.track('filter', 'toggle_partition', 'all part', 1);
+                        e.preventDefault();
+                    });
                 })
             })
             
@@ -808,6 +875,44 @@ jQuery(function($) {
                 $('#datapackage').html('');
             }
             
+            $('#params-button').on('click', function(e){
+                $(this).closest('.network-params').find('.unidirected-field').on('click', function(e){ $(this).iCheck('toggle'); })
+                _.each($('.apply-params-btn'), function(b){
+                    $(b).on('click', function(e){
+                        var max_age_filter = $(this).closest('.network-params').find('.max-age-field').val();
+                        max_age = /^\d+$/.test(max_age_filter) ? (+max_age_filter)*24*60*60 : undefined;
+
+                        var undirected_filter = $(this).closest('.network-params').find('.unidirected-field').val();
+                        show_undirected = undirected_filter=='yes';
+                        
+                        color_by = $(this).closest('.network-params').find('.color-nodes-field').val();
+                        
+                        // update network
+                        update_network_graph();
+                        network_graph.refresh();
+                        e.preventDefault();
+                    });
+                })
+                _.each($('.apply-params-clear-btn'), function(b){
+                    $(b).on('click', function(e){
+                        $(this).closest('.network-params').find('.max-age-field').val('');
+                        max_age = undefined;
+
+                        $(this).closest('.network-params').find('.unidirected-field').val('');
+                        show_undirected = false;
+                        
+                        $(this).closest('.network-params').find('.color-nodes-field').val('');
+                        color_by = undefined;
+                        
+                        // update network
+                        update_network_graph();
+                        network_graph.refresh();
+                        e.preventDefault();
+
+                    });
+                })
+            });
+
             $('#search-button').on('click', function(e){
                 $('.user-search').find('input').val(current_user_filter);
                 _.each($('.user-search-btn'), function(b){
