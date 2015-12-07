@@ -3,7 +3,7 @@
 $view = new view();
 $view->name = 'edgesense_nodes';
 $view->description = '';
-$view->tag = 'default';
+$view->tag = 'edgesense';
 $view->base_table = 'node';
 $view->human_name = 'Nodes (Edgesense)';
 $view->core = 7;

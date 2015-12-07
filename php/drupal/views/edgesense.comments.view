@@ -3,7 +3,7 @@
 $view = new view();
 $view->name = 'edgesense_comments';
 $view->description = '';
-$view->tag = 'default';
+$view->tag = 'edgesense';
 $view->base_table = 'comment';
 $view->human_name = 'Comments (Edgesense)';
 $view->core = 7;
