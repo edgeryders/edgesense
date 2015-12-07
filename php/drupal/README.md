@@ -99,7 +99,11 @@ You can customize your Edgesense install in various ways:
 
 ### B. Avoiding timeouts
 
-If you have a big community the default Drupal's cron system setup may time out. The easiest way to avoid timeouts is to make sure that Drupal's cron is running for your site via [drush](http://www.drush.org/). You can do so (after installing drush) by editing the system wide crontab (usually /etc/crontab) and setting it to run as the user your web server is running under.
+If you have a big community the default Drupal's cron system setup may time out. The easiest way to avoid timeouts is to make sure that Drupal's cron is running for your site via [drush](http://www.drush.org/). 
+
+If you go this route, the minimum requirement is **Drupal 7.40** due to the fix that came in for [drupal_set_time_limit()](https://api.drupal.org/api/drupal/includes%21common.inc/function/drupal_set_time_limit/7): Drupal prior to 7.40 was setting a hard timeout at 240 second timeouts in various locations internally, including for its Drupal cron job. So even though PHP run via cron with no timeout, Drupal was erroneously limiting itself to 240 second.
+
+To use use Drupal's cron directly you'll need first to install drush. Then you'll have to edit the system wide crontab (usually /etc/crontab) and set it to run drupal's cron as the user your web server is running under.
 
 For example:
 

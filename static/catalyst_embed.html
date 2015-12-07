@@ -505,12 +505,20 @@
                     <div class="pull-right">
                     <button class="edgesense-btn btn-gray" id="network-lock"><i class="fa fa-lock"></i></button>
                     <button class="edgesense-btn btn-gray popover-toggle" data-toggle="popover" id="search-button"><i class="fa fa-search"></i></button>
-                    <div class="popover-content pull-right hide"><div class="user-search">Enter a username or id and press 'Show' to highlight it.<div class="input-group input-group-sm">
+                    <div class="popover-content popover-search pull-right hide" id="network-search">
+                     <div class="user-search">
+                       <p>Enter a username or id and press 'Show' to highlight it or <a class="user-search-clear-btn" href="#">show all</a>.</p>
+                       <p class="input-group input-group-sm">
                         <input type="text" class="form-control user-search-field">
                         <span class="input-group-btn">
                             <button class="btn btn-gray btn-flat user-search-btn" type="button">Show</button>
                         </span>
-                        </div><a class="user-search-clear-btn" href="#">Show all</a></div>
+                       </p>
+                       <div class="ac-users">
+                         <p class="ac-helper"></p>
+                         <p class="ac-content"></p>
+                       </div>
+                     </div>
                     </div>
                     <button class="btn btn-gray btn-sm popover-toggle" data-toggle="popover" id="params-button"><i class="fa fa-cog"></i></button>
                     <div class="popover-content popover-params pull-right hide" id="network-params">
