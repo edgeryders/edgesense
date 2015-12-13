@@ -1,0 +1,142 @@
+{
+    "datapackage-version": "1.0-beta.10", 
+    "description": "The online community is represented as a social network. Nodes represent users; edges represent interactions across them, in the form of comments. Information on Edgesense: http://github.io/edgesense", 
+    "last_updated": "2015-12-12T21:10:24", 
+    "license": {
+        "type": "CC-BY", 
+        "url": "http://creativecommons.org/licenses/by/4.0/"
+    }, 
+    "name": "edgesense_exported_graph", 
+    "resources": [
+        {
+            "format": "gexf", 
+            "path": "data/2015-12-12-21-10-24/network.gexf", 
+            "schema": {
+                "attributes": [
+                    {
+                        "class": "edge", 
+                        "description": "Identifies the node that is the end point of the edge.", 
+                        "id": "9", 
+                        "mode": "static", 
+                        "title": "target", 
+                        "type": "string"
+                    }, 
+                    {
+                        "class": "edge", 
+                        "description": "An identifier used by the networkx library to compute graph metrics.", 
+                        "id": "10", 
+                        "mode": "static", 
+                        "title": "networkxkey", 
+                        "type": "integer"
+                    }, 
+                    {
+                        "class": "edge", 
+                        "description": "Identifies the node that the edge originates from.", 
+                        "id": "11", 
+                        "mode": "static", 
+                        "title": "source", 
+                        "type": "string"
+                    }, 
+                    {
+                        "class": "edge", 
+                        "description": "Takes value 1 if the source user has any role other than ordinary active user (for example has admin powers), as encoded in the users database table.", 
+                        "id": "12", 
+                        "mode": "static", 
+                        "title": "team", 
+                        "type": "boolean"
+                    }, 
+                    {
+                        "class": "edge", 
+                        "description": "The length in characters of the comment encoded in the edge.", 
+                        "id": "13", 
+                        "mode": "static", 
+                        "title": "effort", 
+                        "type": "integer"
+                    }, 
+                    {
+                        "class": "edge", 
+                        "description": "The date and time of creation of the edge, in UNIX time format.", 
+                        "id": "14", 
+                        "mode": "static", 
+                        "title": "ts", 
+                        "type": "integer"
+                    }, 
+                    {
+                        "class": "node", 
+                        "description": "The date and time of creation of the account for this user, in UNIX time format.", 
+                        "id": "0", 
+                        "mode": "static", 
+                        "title": "created_ts", 
+                        "type": "integer"
+                    }, 
+                    {
+                        "class": "node", 
+                        "description": "The user name or ID", 
+                        "id": "1", 
+                        "mode": "static", 
+                        "title": "name", 
+                        "type": "string"
+                    }, 
+                    {
+                        "class": "node", 
+                        "description": "Takes value 1 if the user has had no interactions with any other users, i.e. if she gives rise to a singleton node in the graph.", 
+                        "id": "2", 
+                        "mode": "static", 
+                        "title": "isolated", 
+                        "type": "boolean"
+                    }, 
+                    {
+                        "class": "node", 
+                        "description": "The date and time of creation of the account for this user, in human-readable format.", 
+                        "id": "3", 
+                        "mode": "static", 
+                        "title": "created_on", 
+                        "type": "string"
+                    }, 
+                    {
+                        "class": "node", 
+                        "description": "A link to the profile of this user.", 
+                        "id": "4", 
+                        "mode": "static", 
+                        "title": "link", 
+                        "type": "string"
+                    }, 
+                    {
+                        "class": "node", 
+                        "description": "Takes value 1 if the user has any role other than ordinary active user (for example has admin powers), as encoded in the users database table..", 
+                        "id": "5", 
+                        "mode": "static", 
+                        "title": "team", 
+                        "type": "boolean"
+                    }, 
+                    {
+                        "class": "node", 
+                        "description": "Takes value 1 if the node is active.", 
+                        "id": "6", 
+                        "mode": "static", 
+                        "title": "link", 
+                        "type": "boolean"
+                    }, 
+                    {
+                        "class": "node", 
+                        "description": "The date and time at which the user acquired admin role, or any role other than ordinary active user. Expressed in UNIX time.", 
+                        "id": "7", 
+                        "mode": "static", 
+                        "title": "team_ts", 
+                        "type": "integer"
+                    }, 
+                    {
+                        "class": "node", 
+                        "description": "The date and time at which the user acquired admin role, or any role other than ordinary active user. Expressed in human-readable format.", 
+                        "id": "8", 
+                        "mode": "static", 
+                        "title": "team_on", 
+                        "type": "string"
+                    }
+                ]
+            }, 
+            "url": "https://edgeryders.eu/sites/default/files/edgesense/json"
+        }
+    ], 
+    "title": "Edgesense interaction graph"
+}
