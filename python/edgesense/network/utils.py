@@ -1,11 +1,12 @@
 import networkx as nx
 import logging
 import edgesense.utils as eu
+import time
 from datetime import datetime
 import itertools 
 
 def set_isolated(nodes_list, mdg):
-    ts = int(datetime.now().strftime("%s"))
+    ts = int(time.mktime(datetime.now().timetuple()))   # Windows-compatible
     dsg = extract_dpsg(mdg, ts, True)
     usg = dsg.to_undirected()
     isolated_nodes = set(nx.isolates(usg))

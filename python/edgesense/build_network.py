@@ -176,7 +176,7 @@ def main():
     # Add some file metadata
     network['meta'] = {}
     # Timestamp of the file generation (to show in the dashboard)
-    network['meta']['generated'] = int(generated.strftime("%s"))
+    network['meta']['generated'] = int(time.mktime(generated.timetuple()))  # Windows-compatible
         
     network['edges'] = extract_edges(nodes_map, comments_map)
     network['edges'] += extract_multiauthor_post_edges(nodes_map, posts_map)
