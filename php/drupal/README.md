@@ -135,3 +135,11 @@ You may receive some error message when installing the module if some of the pre
 2. uninstall the Edgesense module (from the Drupal modules admin page)
 3. fix the error (e.g. install the missing library)
 4. enable again the Edgesense module 
+
+### E. User authorization errors
+
+With tight security setting on your server, Edgesense might lack the authorization to write its output into files. This will cause your dashboard to be empty, or to not update. To make sure this does not happen, check that the following is true:
+
+1. File [[sites/example.com/private/edgesense/script/edgesense.log]] must be writable by the user running the edgesense_drupal script (or the user running Drupal, if run as part of the Drupal cron tasks). Otherwise, the script will terminate immediately and print an error message on the terminal. 
+2. File [[sites/example.com/private/edgesense/script/run.json]] must be readable and writable by the user running Drupal. It will be written to when saving the Edgesense configuration screens inside Drupal. When that fails, a message "json file could not be created" will be printed inside Drupal.
+Files edgesense_comments.json, edgesense_nodes.json and edgesense_users.json in [[sites/example.com/private/edgesense/site_data]](or whatever was configured as target path in Edgesense) need to be writeable by the Drupal user. 
