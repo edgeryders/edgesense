@@ -13,7 +13,7 @@ from rdflib.namespace import NamespaceManager, Namespace
 from simplejson import load, dump
 from .namespaces import *
 
-ONTOLOGY_ROOT = path.abspath(path.join(path.dirname(__file__), 'ontology'))
+ONTOLOGY_ROOT = path.abspath(path.join(path.dirname(__file__), 'ontology')) + "/"
 
 # Ontology loading
 CATALYST_RULES = [
@@ -86,7 +86,7 @@ class InferenceStore(object):
 
     def as_file(self, uri):
         if uri[0] != '/' and ':' not in uri:
-            uri = self.ontology_root + "/" + uri
+            uri = self.ontology_root + uri
         if uri.startswith('http'):
             r = requests.get(uri)
             assert r.ok
@@ -194,6 +194,10 @@ class SimpleInferenceStore(InferenceStore):
         return changes
 
     def get_inference(self, graph):
+        if isinstance(graph, ConjunctiveGraph):
+            for g in graph.contexts():
+                self.get_inference(g)
+            return
         first = changes = True
         while first or changes:
             if first or changes:
