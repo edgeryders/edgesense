@@ -604,7 +604,7 @@
         
         <script src="js/script.min.js"></script>
         <script src="js/edgesense/catalyst_embed.js"></script>
-        <script>
+        <script type="application/javascript">
         ;(function(undefined) {
             'use strict';
 
@@ -626,6 +626,7 @@
                 }
                 
                 // The main configuration
+                var Edgesense = window.Edgesense;
                 var configuration = Edgesense
                                         .Configuration()
                                         .data({
