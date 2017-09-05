@@ -34,7 +34,7 @@ vote:voter a owl:ObjectProperty;
 
 vote:BinaryVote
     a owl:Class;
-    owl:subClassOf vote:Vote.
+    rdfs:subClassOf vote:Vote.
 
 vote:positive a owl:DataProperty;
     rdfs:domain vote:BinaryVote;
@@ -49,7 +49,7 @@ vote:max a owl:DataProperty;
     rdfs:range xsd:integer.
 
 vote:LickertVote a owl:Class;
-    owl:subClassOf vote:Vote.
+    rdfs:subClassOf vote:Vote.
 vote:lickert_in_range a owl:ObjectProperty;
     rdfs:domain vote:LickertVote;
     rdfs:range vote:LickertRange.
@@ -58,7 +58,7 @@ vote:lickert_value a owl:DataProperty;
     rdfs:range xsd:integer.
 
 vote:OrderingVote a owl:Class;
-    owl:subClassOf vote:Vote.
+    rdfs:subClassOf vote:Vote.
 
 vote:ordered_ideas a owl:ObjectProperty;
     rdfs:domain vote:OrderingVote;

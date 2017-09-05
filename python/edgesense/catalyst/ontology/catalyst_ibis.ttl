@@ -14,34 +14,36 @@
 
 ibis:Issue
     a owl:Class;
-    owl:subClassOf idea:Question.
+    rdfs:subClassOf idea:GenericIdeaNode.
 
 ibis:Position
     a owl:Class;
-    owl:subClassOf idea:GenericIdeaNode.
+    rdfs:subClassOf idea:GenericIdeaNode.
     # Should we still call it Option?
 
 ibis:Argument
     a owl:Class;
-    owl:subClassOf idea:GenericIdeaNode.
+    rdfs:subClassOf idea:GenericIdeaNode.
 
 ibis:Reference
     a owl:Class;
-    owl:subClassOf idea:GenericIdeaNode.
+    rdfs:subClassOf idea:GenericIdeaNode.
 
 ibis:Decision
     a owl:Class;
-    owl:subClassOf idea:GenericIdeaNode.
+    rdfs:subClassOf ibis:Position.
 
 ibis:PositionRespondsToIssue
     a owl:Class;
-    owl:subClassOf idea:DirectedIdeaRelation, idea:MutualRelevanceStatement.
+    rdfs:subClassOf idea:DirectedIdeaRelation, idea:MutualRelevanceStatement.
 
 ibis:response_position
     a owl:ObjectProperty;
     rdfs:subPropertyOf idea:source_idea;
     rdfs:domain ibis:PositionRespondsToIssue;
     rdfs:range ibis:Position.
+
+# Better idea: use propertychains to deduce a direct link from source to dest, setting range and domain.
 
 ibis:response_issue
     a owl:ObjectProperty;
@@ -51,7 +53,7 @@ ibis:response_issue
 
 ibis:ArgumentApplication
     a owl:Class;
-    owl:subClassOf idea:DirectedIdeaRelation, idea:MutualRelevanceStatement.
+    rdfs:subClassOf idea:DirectedIdeaRelation, idea:MutualRelevanceStatement.
 
 ibis:argument_arguing
     a owl:ObjectProperty;
@@ -61,17 +63,18 @@ ibis:argument_arguing
 
 ibis:ArgumentSupportsIdea
     a owl:Class;
-    owl:subClassOf ibis:ArgumentApplication.
+    rdfs:subClassOf ibis:ArgumentApplication.
 
 ibis:ArgumentOpposesIdea
     a owl:Class;
-    owl:subClassOf ibis:ArgumentApplication.
+    rdfs:subClassOf ibis:ArgumentApplication.
+    # TODO: ensure that the target is an idea
 
 #suggests
 
 ibis:IssueAppliesTo
     a owl:Class;
-    owl:subClassOf idea:DirectedIdeaRelation, idea:MutualRelevanceStatement.
+    rdfs:subClassOf idea:DirectedIdeaRelation, idea:MutualRelevanceStatement.
 
 ibis:applicable_issue
     a owl:ObjectProperty;
@@ -83,4 +86,4 @@ ibis:applicable_issue
 
 ibis:IssueQuestions
     a owl:Class;
-    owl:subClassOf ibis:IssueAppliesTo.
+    rdfs:subClassOf ibis:IssueAppliesTo.

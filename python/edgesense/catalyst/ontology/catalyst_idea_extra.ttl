@@ -66,12 +66,6 @@ idea:CausalInference
     a owl:Class;
     rdfs:subClassOf idea:DirectedIdeaRelation.
 
-# Questions.
-
-idea:Question
-    a owl:Class;
-    rdfs:subClassOf idea:DirectedIdeaRelation.
-
 # Context.
 
 idea:ContextOfExpression

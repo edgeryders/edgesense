@@ -27,18 +27,21 @@
 
 assembl:db_id a owl:LiteralProperty.
 
+assembl:in_conversation a owl:ObjectProperty;
+    rdfs:range catalyst:Conversation.
+
 assembl:link_order a owl:LiteralProperty;
     rdfs:domain idea:IdeaRelation;
     rdfs:range xsd:number.
 
 assembl:PostSource a owl:Class;
-    owl:subClassOf sioc:Space.
+    rdfs:subClassOf sioc:Space.
 
 assembl:MailingList a owl:Class;
-    owl:subClassOf assembl:PostSource.
+    rdfs:subClassOf assembl:PostSource.
 
 assembl:has_origin a owl:ObjectProperty;
-    owl:subPropertyOf sioc:has_container;
+    rdfs:subPropertyOf sioc:has_container;
     rdfs:domain catalyst:Post;
     rdfs:range assembl:PostSource.
 
@@ -46,21 +49,28 @@ assembl:relatedToIdea a owl:ObjectProperty;
     rdfs:range idea:GenericIdea.
 
 assembl:postLinkedToIdea a owl:ObjectProperty;
-    owl:subPropertyOf assembl:relatedToIdea;
+    rdfs:subPropertyOf assembl:relatedToIdea;
     rdfs:domain catalyst:Post.
 
 assembl:postHiddenLinkedToIdea
-    owl:subPropertyOf assembl:relatedToIdea;
+    rdfs:subPropertyOf assembl:relatedToIdea;
     rdfs:domain catalyst:Post.
 
 assembl:postDelinkedToIdea a owl:ObjectProperty;
-    owl:subPropertyOf assembl:relatedToIdea;
+    rdfs:subPropertyOf assembl:relatedToIdea;
     rdfs:domain catalyst:Post.
 
 assembl:postRelatedToIdea a owl:ObjectProperty;
-    owl:subPropertyOf assembl:postLinkedToIdea.
+    rdfs:subPropertyOf assembl:postLinkedToIdea.
 
 assembl:postExtractRelatedToIdea a owl:ObjectProperty;
-    owl:subPropertyOf assembl:postRelatedToIdea;
+    rdfs:subPropertyOf assembl:postRelatedToIdea;
     owl:propertyChainAxiom (
         [owl:inverseOf catalyst:ExcerptTarget] catalyst:extractRelevantToIdea).
+
+# This is an shortcut that repeats the catalyst:expressesIdea in the main graph.
+assembl:resourceExpressesIdea a owl:ObjectProperty;
+    rdfs:subPropertyOf catalyst:expressesIdea.
+
+assembl:RootIdea a owl:Class;
+    rdfs:subClassOf idea:GenericIdeaNode.

@@ -8,7 +8,7 @@
 
 ibis:Criterion
     a owl:Class;
-    owl:subClassOf aif:PreferenceScheme, [
+    rdfs:subClassOf aif:PreferenceScheme, [
         a owl:Restriction ;
         owl:onProperty aif:relevantTo ;
         owl:someValuesFrom ibis:Issue
@@ -16,7 +16,7 @@ ibis:Criterion
 
 ibis:CriterionApplication
     a owl:Class;
-    owl:subClassOf aif:Preference, [
+    rdfs:subClassOf aif:Preference, [
         a owl:Restriction ;
         owl:onProperty aif:fulfils ;
         owl:someValuesFrom aif:Criterion

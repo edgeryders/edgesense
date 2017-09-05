@@ -26,14 +26,14 @@
     owl:versionInfo "Revision: 0.1" .
 
 catalyst:Item a owl:Class;
-    owl:subClassOf sioc:Item, oa:Target, foaf:Document.
+    rdfs:subClassOf sioc:Item, oa:Target, foaf:Document.
 
 catalyst:Service a owl:Class;
-    owl:subClassOf sarest:Service.
+    rdfs:subClassOf sarest:Service.
 
 catalyst:Site
     a owl:Class;
-    owl:subClassOf sioc:Site.
+    rdfs:subClassOf sioc:Site.
 
 catalyst:service_maps_container
     a owl:ObjectProperty;
@@ -47,11 +47,11 @@ catalyst:service_maps_graph
 
 catalyst:Map
     a owl:Class;
-    owl:subClassOf idea:Map, sioc:Container.
+    rdfs:subClassOf idea:Map, sioc:Container.
 
 catalyst:inMap
     a owl:Property;
-    owl:subPropertyOf idea:inMap, sioc:has_container;
+    rdfs:subPropertyOf idea:inMap, sioc:has_container;
     rdfs:range catalyst:Map.
 
 catalyst:Conversation 
@@ -59,7 +59,7 @@ catalyst:Conversation
     rdfs:comment "A conversation."@en ;
     rdfs:isDefinedBy <http://purl.org/catalyst/core#> ;
     rdfs:label "conversation"@en ;
-    owl:subClassOf sioc:Container, sioc:Space, catalyst:Map, [
+    rdfs:subClassOf sioc:Container, sioc:Space, catalyst:Map, [
         a owl:Restriction ;
         owl:onProperty catalyst:participants ;
         owl:minQualifiedCardinality "1"^^xsd:nonNegativeInteger
@@ -73,7 +73,7 @@ catalyst:primaryMap
 
 catalyst:Ideas
     a owl:Class;
-    owl:subClassOf sioc:Container, sioct:ArgumentativeDiscussion,
+    rdfs:subClassOf sioc:Container, sioct:ArgumentativeDiscussion,
     [
         a owl:Restriction;
         owl:onProperty sioc:container_of ;
@@ -83,7 +83,7 @@ catalyst:Ideas
 
 catalyst:Messages
     a owl:Class;
-    owl:subClassOf sioc:Forum,
+    rdfs:subClassOf sioc:Forum,
     [
         a owl:Restriction;
         owl:onProperty sioc:container_of ;
@@ -93,11 +93,11 @@ catalyst:Messages
 
 catalyst:ParticipantGroup
     a owl:Class;
-    owl:subClassOf sioc:Usergroup.
+    rdfs:subClassOf sioc:Usergroup.
 
 catalyst:participants
     a owl:ObjectProperty;
-    owl:subPropertyOf sioc:has_usergroup;
+    rdfs:subPropertyOf sioc:has_usergroup;
     rdfs:domain catalyst:Conversation;
     rdfs:range catalyst:ParticipantGroup.
 
@@ -111,20 +111,20 @@ catalyst:Post
     rdfs:comment "A post"@en ;
     rdfs:isDefinedBy <http://purl.org/catalyst/core#> ;
     rdfs:label "Post"@en ;
-    owl:subClassOf sioc:Post, catalyst:Item .
+    rdfs:subClassOf sioc:Post, catalyst:Item .
 
 catalyst:Idea
     a owl:Class ;
     rdfs:comment "An idea"@en ;
     rdfs:isDefinedBy <http://purl.org/catalyst/core#> ;
     rdfs:label "Idea"@en ;
-    owl:subClassOf catalyst:Item, idea:GenericIdea. 
+    rdfs:subClassOf catalyst:Item, idea:GenericIdeaNode.
     # To be considered: owl:Thing , dul:Entity, cohere:abstract_object,
     # aif:Node, cohere:abstract_idea?, aif:I-node? skos:Concept??
 
 catalyst:Excerpt a owl:Class;
     rdfs:comment "A reference to a fragment of an item or document."@en;
-    owl:subClassOf oa:Annotation.
+    rdfs:subClassOf oa:Annotation.
 
 catalyst:relevantToConversation a owl:ObjectProperty ;
     # Domain: Web page or oa:SpecificResource
@@ -180,7 +180,7 @@ catalyst:ideas_service
     a owl:ObjectProperty;
     rdfs:domain catalyst:Conversation;
     rdfs:range [ 
-        owl:subClassOf catalyst:Service, [
+        rdfs:subClassOf catalyst:Service, [
             a owl:Restriction;
             owl:onProperty catalyst:service_maps_container ;
             owl:allValuesFrom catalyst:Ideas
@@ -200,7 +200,7 @@ catalyst:messages_service
     a owl:ObjectProperty;
     rdfs:domain catalyst:Site;
     rdfs:range [
-        owl:subClassOf catalyst:Service, [
+        rdfs:subClassOf catalyst:Service, [
             a owl:Restriction;
             owl:onProperty catalyst:service_maps_container ;
             owl:allValuesFrom catalyst:user_graph

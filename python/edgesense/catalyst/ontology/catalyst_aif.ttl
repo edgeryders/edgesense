@@ -8,9 +8,9 @@
 
 idea:GenericIdea owl:equivalentClass aif:Node .
 
-idea:IdeaRelation owl:equivalentClass [owl:subClassOf aif:Statement].
+idea:IdeaRelation owl:equivalentClass [rdfs:subClassOf aif:Statement].
 
-idea:MutualRelevanceStatement owl:subClassOf aif:Statement.
+idea:MutualRelevanceStatement rdfs:subClassOf aif:Statement.
 
 # Those specialized statements would have more complex Statement_Descriptions, akin to schemes. (TBD)
 # But they cannot be S-Nodes, because they lack premise and conclusion; 
@@ -19,34 +19,34 @@ idea:MutualRelevanceStatement owl:subClassOf aif:Statement.
 
 # Comparison
 
-idea:ComparisonStatement owl:subClassOf aif:Statement.
+idea:ComparisonStatement rdfs:subClassOf aif:Statement.
 
 # Causality: Using AIF.
 
-idea:CausalStatement owl:subClassOf aif:CauseToEffect_Scheme.
+idea:CausalStatement rdfs:subClassOf aif:CauseToEffect_Scheme.
 
-idea:CausalInference owl:subClassOf aif:CauseToEffect_Inference.
+idea:CausalInference rdfs:subClassOf aif:CauseToEffect_Inference.
 
 # Questions.
 
-idea:Question owl:subClassOf aif:DialogueScheme_Application.
+idea:Question rdfs:subClassOf aif:DialogueScheme_Application.
 
-ibis:Position owl:subClassOf aif:Statement.
+ibis:Position rdfs:subClassOf aif:Statement.
 
-ibis:Argument owl:subClassOf aif:Statement.
+ibis:Argument rdfs:subClassOf aif:Statement.
 # it is part of Preference scheme, but a statement on its own.
 
-ibis:Reference owl:subClassOf aif:Statement.
+ibis:Reference rdfs:subClassOf aif:Statement.
 
-ibis:Decision owl:subClassOf aif:DialogueScheme_Application. # and Preference?
+ibis:Decision rdfs:subClassOf aif:DialogueScheme_Application. # and Preference?
 # Decision --relevant to-->Issue, Decision--hasConclusion-->Position
 
-ibis:Position owl:subClassOf aif:Statement.
+ibis:Position rdfs:subClassOf aif:Statement.
 
-ibis:Argument owl:subClassOf aif:Statement.
+ibis:Argument rdfs:subClassOf aif:Statement.
 # it is part of Preference scheme, but a statement on its own.
 
-ibis:Reference owl:subClassOf aif:Statement.
+ibis:Reference rdfs:subClassOf aif:Statement.
 
-ibis:Decision owl:subClassOf aif:DialogueScheme_Application. # and Preference?
+ibis:Decision rdfs:subClassOf aif:DialogueScheme_Application. # and Preference?
     # Decision --relevant to-->Issue, Decision--hasConclusion-->Position
