@@ -1,5 +1,5 @@
 rdflib==4.2.0
-Flask==0.10.1
+Flask==1.0
 Flask-Cors==1.10.0
 requests==2.2.1
 networkx==1.8.1
